@@ -10,7 +10,7 @@ Library to query multiple files against many databases
 - change script.rb to call the necessary methods
 - run `ruby script.rb`
 
-# Methods available
+## Methods available
 
 - blastn(qfile, db, out_file, query_parent=nil, db_parent=nil)
   - *qfile*: query file path - string
