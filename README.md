@@ -1,4 +1,4 @@
-Mass Blast
+MassBLAST
 ==========
 
 Library to query multiple files against many databases
