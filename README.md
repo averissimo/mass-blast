@@ -28,6 +28,10 @@ Library to query multiple files against many databases
 
 *notes:* '*folder*' argument can be relative to '*query_parent*'.
 
+## Relation with other tools
+
+- [Gene Extractor](https://github.com/averissimo/gene-extractor/): can be used to extract genes from Kegg2 and GenBank using keyword search.
+
 ## Ackowledgements
 
 This tool was created as a part of [FCT](www.fct.p) grant SFRH/BD/97415/2013 and European Commission research project [BacHBerry](www.bachberry.eu) (FP7- 613793)
