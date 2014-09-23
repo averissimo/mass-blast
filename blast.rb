@@ -20,7 +20,7 @@ class Blast
   def initialize(dbs, db_parent=nil, query_parent=nil, task=nil, opts=nil, outfmt=nil, out_dir=nil)
     # create logger object
     @logger = Logger.new(STDOUT)
-    @logger.level = Logger::INFO
+    @logger.level = Logger::DEBUG
 
     # load config file
     @config = YAML.load_file('config.yml')
@@ -31,9 +31,12 @@ class Blast
     @query_parent = get_config( query_parent, @config["query_parent"], Dir.pwd )
     @db_parent    = get_config( db_parent,    @config["db_parent"],    Dir.pwd )
 
+    log.debug("query_parent: " + @query_parent)
+    log.debug("db_parent: " + @db_parent)
+
     # set existing dbs
     @dbs = dbs
-    log.info("loads databases (from directory '#{query_parent}'): " + @dbs.join(", "))
+    log.info("loads databases (from directory '#{@query_parent}'): " + @dbs.join(", "))
 
     # optional arguments
     @opts    = get_config( opts,    @config["opts"],             DEFAULT_OPTIONS )
@@ -84,9 +87,10 @@ class Blast
     folders.each do |query|
       # go through all queries in each directory
       list << Dir[ File.join(query_parent, query, "*.query") ].each do |query_file|
-
+        log.debug "going to blast with query: '#{query_file}'"
         # run query against all databases
         @dbs.each do |db|
+          log.debug "using db: #{db}"
           new_item = {}
           new_item[:qfile]    = query_file
           new_item[:db]       = db
@@ -110,19 +114,6 @@ class Blast
 
     log.info "Success!!"
 
-  end
-
-  #
-  #
-  # Generate filenames for each of the query's output
-  def gen_filename(prefix, query, db)
-    name = query.gsub(/[\S]+\//, "").gsub(/[\.]query/,"").gsub( /[ ]/, "_" )
-    list = []
-    list << @task
-    list << prefix unless prefix.nil?
-    list << name
-    list << db
-    File.join( @out_dir, list.join("-") + @out_ext )
   end
 
   #
@@ -163,16 +154,29 @@ class Blast
   end
 
 
- #             _            _
- #            (_)          | |
- #  _ __  _ __ ___   ____ _| |_ ___
- # | '_ \| '__| \ \ / / _` | __/ _ \
- # | |_) | |  | |\ V / (_| | ||  __/
- # | .__/|_|  |_| \_/ \__,_|\__\___|
- # | |
- # |_|
+   #             _            _
+   #            (_)          | |
+   #  _ __  _ __ ___   ____ _| |_ ___
+   # | '_ \| '__| \ \ / / _` | __/ _ \
+   # | |_) | |  | |\ V / (_| | ||  __/
+   # | .__/|_|  |_| \_/ \__,_|\__\___|
+   # | |
+   # |_|
 
-  private
+    private
+
+  #
+  #
+  # Generate filenames for each of the query's output
+  def gen_filename(prefix, query, db)
+    name = query.gsub(/[\S]+\//, "").gsub(/[\.]query/,"").gsub( /[ ]/, "_" )
+    list = []
+    list << @task
+    list << prefix unless prefix.nil?
+    list << name
+    list << db
+    File.join( @out_dir, list.join("-") + @out_ext )
+  end
 
   #
   #

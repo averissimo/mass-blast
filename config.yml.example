@@ -5,7 +5,7 @@ output:
   ext: .out
 
 db_parent: "~/work/blast_db"
-query_parent: "~/work/blast_db"
+query_parent: "~/work/blast_queries"
 
 format:
   outfmt: 6

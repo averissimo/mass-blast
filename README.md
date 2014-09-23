@@ -27,3 +27,9 @@ Library to query multiple files against many databases
   - *db_parent*: parent directory of database (optional) - string
 
 *notes:* '*folder*' argument can be relative to '*query_parent*'.
+
+## Ackowledgements
+
+This tool was created as a part of [FCT](www.fct.p) grant SFRH/BD/97415/2013 and European Commission research project [BacHBerry](www.bachberry.eu) (FP7- 613793)
+
+[Developer](http://web.tecnico.ulisboa.pt/andre.verissimo/)
