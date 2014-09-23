@@ -28,8 +28,8 @@ class Blast
     log.debug( @config.inspect )
 
     # parent directories for query and blast db
-    @query_parent = get_config( query_parent, @config["query_parent"], Dir.pwd )
-    @db_parent    = get_config( db_parent,    @config["db_parent"],    Dir.pwd )
+    @query_parent = File.expand_path( get_config( query_parent, @config["query_parent"], Dir.pwd ) )
+    @db_parent    = File.expand_path( get_config( db_parent,    @config["db_parent"],    Dir.pwd ) )
 
     log.debug("query_parent: " + @query_parent)
     log.debug("db_parent: " + @db_parent)
