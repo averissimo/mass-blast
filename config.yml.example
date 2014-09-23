@@ -4,8 +4,8 @@ output:
   dir: out
   ext: .out
 
-db_parent: "/home/averissimo/work/research/bachberry/Loch Ness/db"
-query_parent: "/home/averissimo/work/research/bachberry/Loch Ness/db"
+db_parent: "~/work/blast_db"
+query_parent: "~/work/blast_db"
 
 format:
   outfmt: 6
