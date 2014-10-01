@@ -6,8 +6,8 @@ Library to query multiple files against many databases
 # How to use
 
 - Options are configurable via `config.yml` file
-  - Should change 'db_parent' and 'query_parent' to specify the parent directories for blast databases and queries
-- change script.rb to call the necessary methods
+  - Change 'db_parent' and 'query_parent' to specify the parent directories for blast databases and queries
+  - Change 'dbs' and 'folder_queries' to specify the databases that should be used and which query folders should be crawled
 - run `ruby script.rb`
 
 ## Methods available
@@ -21,12 +21,14 @@ Library to query multiple files against many databases
 
 *notes:* '*qfile*' and '*db*' arguments can be relative to '*query_parent*' and '*db_parent*' (respectively).
 
-- blastn_folders( folders, query_parent=nil, db_parent=nil )
-  - *folders*: list of folders - array of strings
+- blastn_folders( folders=nil, query_parent=nil, db_parent=nil )
+  - *folders*: list of folders (optional) - array of strings
   - *query_parent*: parent directory of folders (optional) - string
   - *db_parent*: parent directory of database (optional) - string
 
 *notes:* '*folder*' argument can be relative to '*query_parent*'.
+
+all optional parameters must be set in the config.yml file
 
 ## Relation with other tools
 
