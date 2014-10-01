@@ -26,9 +26,7 @@ Library to query multiple files against many databases
   - *query_parent*: parent directory of folders (optional) - string
   - *db_parent*: parent directory of database (optional) - string
 
-*notes:* '*folder*' argument can be relative to '*query_parent*'.
-
-all optional parameters must be set in the config.yml file
+*notes:* '*folder*' argument can be relative to '*query_parent*'. All optional parameters must be set in the config.yml file
 
 ## Relation with other tools
 
