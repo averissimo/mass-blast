@@ -1,17 +1,30 @@
 opts: "-dust no -max_target_seqs 500 -evalue 1E-100"
-task: blastn
+task: megablast
 output:
   dir: out
   ext: .out
 
-db_parent: "~/work/blast_db"
-query_parent: "~/work/blast_queries"
+dbs:
+  - c1
+  - c2
+  - strawberry
+  - cforsckohlii
+
+query_folders:
+  - kegg_queries
+  - ncbi_queries
+
+db_parent: "~/work/blast_db" #replace here with your directory
+query_parent: "~/work/blast_queries" #replace here with your query parent directory (ex. gene-extractor)
 
 format:
   outfmt: 6
 
   specifiers:
     qseqid: "means Query Seq-id"
+    evalue: "means Expect value"
+    pident: "means Percentage of identical matches"
+    qcovs: "means Query Coverage Per Subject"
     qgi: "means Query GI"
     qacc: "means Query accesion"
     sseqid: "means Subject Seq-id"
@@ -24,13 +37,9 @@ format:
     qend: "means End of alignment in query"
     sstart: "means Start of alignment in subject"
     send: "means End of alignment in subject"
-    qseq: "means Aligned part of query sequence"
-    sseq: "means Aligned part of subject sequence"
-    evalue: "means Expect value"
     bitscore: "means Bit score"
     score: "means Raw score"
     length: "means Alignment length"
-    pident: "means Percentage of identical matches"
     nident: "means Number of identical matches"
     mismatch: "means Number of mismatches"
     positive: "means Number of positive-scoring matches"
@@ -49,5 +58,6 @@ format:
     stitle: "means Subject Title"
     salltitles: "means All Subject Title(s), separated by a '<>'"
     sstrand: "means Subject Strand"
-    qcovs: "means Query Coverage Per Subject"
     qcovhsp: "means Query Coverage Per HSP"
+    qseq: "means Aligned part of query sequence"
+    sseq: "means Aligned part of subject sequence"

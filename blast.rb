@@ -17,10 +17,10 @@ class Blast
   #
   #
   # initialize class with all necessary data
-  def initialize(dbs, db_parent=nil, query_parent=nil, task=nil, opts=nil, outfmt=nil, out_dir=nil)
+  def initialize(dbs=nil, db_parent=nil, query_parent=nil, task=nil, opts=nil, outfmt=nil, out_dir=nil)
     # create logger object
     @logger = Logger.new(STDOUT)
-    @logger.level = Logger::DEBUG
+    @logger.level = Logger::INFO
 
     # load config file
     @config = YAML.load_file('config.yml')
@@ -34,16 +34,19 @@ class Blast
     log.debug("query_parent: " + @query_parent)
     log.debug("db_parent: " + @db_parent)
 
-    # set existing dbs
-    @dbs = dbs
-    log.info("loads databases (from directory '#{@query_parent}'): " + @dbs.join(", "))
 
     # optional arguments
+    @dbs     = get_config( dbs,     @config["dbs"],              nil )
+    @folders = get_config( nil,     @config["query_folders"],    nil )
     @opts    = get_config( opts,    @config["opts"],             DEFAULT_OPTIONS )
     @task    = get_config( task,    @config["task"],             DEFAULT_TASK )
     @outfmt  = get_config( outfmt,  @config["format"]["outfmt"], DEFAULT_FORMAT )
     @out_dir = get_config( out_dir, @config["output"]["dir"],    DEFAULT_OUTPUT_DIR )
     @out_ext = get_config( out_dir, @config["output"]["ext"],    DEFAULT_OUTPUT_EXT )
+
+    raise "Databases must be defined in config.yml or when creating object." if @dbs.nil?
+    # set existing dbs
+    log.info("loads databases (from directory '#{@query_parent}'): " + @dbs.join(", "))
 
     # create output dir if does not exist
     begin
@@ -77,8 +80,9 @@ class Blast
 
   #
   #
-  def blastn_folders( folders, query_parent=nil, db_parent=nil )
+  def blastn_folders( folders=nil, query_parent=nil, db_parent=nil )
     query_parent = @query_parent if query_parent.nil?
+    folders      = @folders if folders.nil?
     # create new queue to add all operations
     call_queue = Queue.new
     list = []
