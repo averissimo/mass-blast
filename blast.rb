@@ -69,7 +69,6 @@ class Blast
   def blastn(qfile, db, out_file, query_parent=nil, db_parent=nil)
     query_parent = @query_parent if query_parent.nil?
     db_parent    = @db_parent if db_parent.nil?
-
     # create command for this call
     cmd = "blastn -query \"#{File.join(query_parent,qfile)}\" -db \"#{db}\" #{@opts} -out #{out_file} -outfmt \"#{@outfmt} #{@outfmt_spec.join(" ")}\""
     log.info "running '#{qfile}' with database '#{db}' that will store in '#{out_file}'"
@@ -179,7 +178,7 @@ class Blast
     list << prefix unless prefix.nil?
     list << name
     list << db
-    File.join( @out_dir, list.join("-") + @out_ext )
+    File.join( @out_dir, list.join("#") + @out_ext )
   end
 
   #
