@@ -1,9 +1,9 @@
 #!/bin/bash
 
-OUT=translate.txt
+OUT=out/translate.txt
 IN=out/report.csv
 
-echo "" >> translate.txt
+echo "" >> $OUT
 awk -F "\t" '{
 if ($2 ~ /^[0-9]+$/)
   print "ncbi " $2
