@@ -15,6 +15,7 @@ class Blast
   #
   # logger getter
   def log() @logger end
+
   #
   #
   # initialize class with all necessary data
@@ -28,12 +29,10 @@ class Blast
     # create logger object
     @logger = Logger.new(STDOUT)
     @logger.level = Logger::INFO
-
     # load config file
     @config = YAML.load_file('config.yml')
     log.debug('loaded config.yml file')
     log.debug(@config.inspect)
-
     # parent directories for query and blast db
     @query_parent = File.expand_path(get_config(query_parent,
                                                 @config['query_parent'],
