@@ -1,61 +1,57 @@
 require 'logger'
 require 'yaml'
+require './blast_interface'
 
 #
 #
 #
 class Blast
   #
-  DEF_OPTIONS = '-dust no -max_target_seqs 500 -evalue 1E-100'
-  DEF_FORMAT  = '6'
-  DEF_TASK    = 'blastn'
-  DEF_OUTPUT_DIR = 'out'
-  DEF_OUTPUT_EXT   = '.out'
+  include BlastInterface
+  #
+  needs_implementation :blast_me
+  #
+  DEF_OUTPUT_DIR = 'output'
+  DEF_OUTPUT_EXT = '.out'
   #
   #
   # logger getter
-  def log() @logger end
+  def log
+    @logger
+  end
 
   #
   #
   # initialize class with all necessary data
-  def initialize(dbs = nil,
-                 db_parent = nil,
-                 query_parent = nil,
-                 task = nil,
-                 opts = nil,
-                 outfmt = nil,
-                 out_dir = nil)
+  def initialize
     # create logger object
-    @logger = Logger.new(STDOUT)
+    @logger       = Logger.new(STDOUT)
     @logger.level = Logger::INFO
     # load config file
     @config = YAML.load_file('config.yml')
-    log.debug('loaded config.yml file')
     log.debug(@config.inspect)
+    log.debug('loaded config.yml file')
     # parent directories for query and blast db
-    @query_parent = File.expand_path(get_config(query_parent,
-                                                @config['query_parent'],
+    @query_parent = File.expand_path(get_config(@config['query_parent'],
                                                 Dir.pwd))
     #
-    @db_parent    = File.expand_path(get_config(db_parent,
-                                                @config['db_parent'],
+    @db_parent    = File.expand_path(get_config(@config['db_parent'],
                                                 Dir.pwd))
     #
     log.debug('query_parent: ' + @query_parent)
     log.debug('db_parent: ' + @db_parent)
     # optional arguments
-    @dbs     = get_config(dbs,     @config['dbs'],              nil)
-    @folders = get_config(nil,     @config['query_folders'],    nil)
-    @opts    = get_config(opts,    @config['opts'],             DEF_OPTIONS)
-    @task    = get_config(task,    @config['task'],             DEF_TASK)
-    @outfmt  = get_config(outfmt,  @config['format']['outfmt'], DEF_FORMAT)
-    @out_dir = get_config(out_dir, @config['output']['dir'],    DEF_OUTPUT_DIR)
-    @out_ext = get_config(out_dir, @config['output']['ext'],    DEF_OUTPUT_EXT)
+    @dbs     = @config['dbs']
+    @folders = @config['query_folders']
+    @opts    = @config['opts']
+    @task    = @config['task']
+    @outfmt  = @config['format']['outfmt']
     #
-    if @dbs.nil?
-      fail 'Databases must be defined in config.yml or when creating object.'
-    end
+    @out_dir = get_config(@config['output']['dir'],    DEF_OUTPUT_DIR)
+    @out_ext = get_config(@config['output']['ext'],    DEF_OUTPUT_EXT)
+    #
+    fail 'Databases must be defined in config.yml.' if @dbs.nil?
+    fail 'Folders must be defined in config.yml.'   if @folders.nil?
     # set existing dbs
     log.info("loads databases (from directory '#{@query_parent}'): " +
       @dbs.join(', '))
@@ -64,8 +60,20 @@ class Blast
       Dir.mkdir @out_dir unless Dir.exist?(@out_dir)
     rescue
       log.error(msg = 'Could not create output directory')
-      error msg
+      raise msg
     end
+    # create output dir with timestamp
+    begin
+      @out_dir = @out_dir +
+                 File::Separator +
+                 Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
+                 '-' + srand.to_s[3..6]
+      Dir.mkdir @out_dir unless Dir.exist?(@out_dir)
+    rescue
+      log.error(msg = 'Could not create output directory')
+      raise msg
+    end
+
     # outfmt specifiers for the blast query (we choose all)
     @outfmt_spec    = @config['format']['specifiers'].keys
     # outfmt specifiers details to add to the report's second line
@@ -74,24 +82,9 @@ class Blast
 
   #
   #
-  # run individual query file
-  def blastn(qfile, db, out_file, query_parent = nil, db_parent = nil)
-    query_parent = @query_parent if query_parent.nil?
-    db_parent    = @db_parent if db_parent.nil?
-    # create command for this call
-    cmd = "blastn -query \"#{File.join(query_parent, qfile)}\" -db \"#{db}\""
-    cmd += " #{@opts} -out #{out_file}"
-    cmd += " -outfmt \"#{@outfmt} #{@outfmt_spec.join(' ')}\""
-    log.info "running '#{qfile}' with database '#{db}' that will \
-      store in '#{out_file}'"
-    log.debug cmd
-    output = `BLASTDB="#{db_parent}" #{cmd}` # actual call to blast
-    log.debug output
-  end
-
-  #
-  #
-  def blastn_folders(folders = nil, query_parent = nil, db_parent = nil)
+  def blast_folders(folders      = nil,
+                    query_parent = nil,
+                    db_parent    = nil)
     query_parent = @query_parent if query_parent.nil?
     folders      = @folders if folders.nil?
     # create new queue to add all operations
@@ -126,11 +119,11 @@ class Blast
 
     until call_queue.empty?
       el = call_queue.pop
-      blastn(el[:qfile],
-             el[:db],
-             el[:out_file],
-             el[:query_parent],
-             el[:db_parent])
+      blast_me(el[:qfile],
+               el[:db],
+               el[:out_file],
+               el[:query_parent],
+               el[:db_parent])
     end
 
     log.info 'Success!!'
@@ -201,11 +194,7 @@ class Blast
   #
   #
   # get default value
-  def get_config(user_var, yml_var, default)
-    if user_var.nil?
-      yml_var.nil? ? default : yml_var
-    else
-      user_var
-    end
+  def get_config(yml_var, default)
+    yml_var.nil? ? default : yml_var
   end
 end # end of class
