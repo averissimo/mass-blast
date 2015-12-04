@@ -190,6 +190,7 @@ class Blast
       raise msg
     end
   end
+
   #
   #
   # get default value

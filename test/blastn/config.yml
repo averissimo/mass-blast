@@ -12,8 +12,8 @@ query_folders:
 
 clean_output: true
 
-db_parent: "./test/db"
-query_parent: "./test"
+db_parent: "test/db"
+query_parent: "test/blastn"
 
 format:
   outfmt: 6

@@ -6,10 +6,10 @@ require 'test/unit'
 #
 #
 #
-class TestBlast < Test::Unit::TestCase
+class TestBlastn < Test::Unit::TestCase
   #
-  TEST_CONFIG  = File.expand_path('./test/config.yml')
-  TEST_RES_DIR = File.expand_path('test/result')
+  TEST_CONFIG  = File.expand_path('./test/blastn/config.yml')
+  TEST_RES_DIR = File.expand_path('test/blastn/result')
   REPORT_FILE  = 'report.csv'
   #
   def initialize(*args)
