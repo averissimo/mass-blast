@@ -11,7 +11,7 @@ class Blast
   #
   include BlastInterface
   #
-  needs_implementation :blast_me
+  needs_implementation :blast
   #
   DEF_OUTPUT_DIR  = 'output'
   DEF_OUTPUT_EXT  = '.out'
@@ -52,11 +52,11 @@ class Blast
 
     until call_queue.empty?
       el = call_queue.pop
-      blast_me(el[:qfile],
-               el[:db],
-               el[:out_file],
-               el[:query_parent],
-               el[:db_parent])
+      blast(el[:qfile],
+            el[:db],
+            el[:out_file],
+            el[:query_parent],
+            el[:db_parent])
     end
 
     logger.info 'Success!!'

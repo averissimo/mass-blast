@@ -10,9 +10,19 @@ Library to query multiple files against many databases
   - Change 'dbs' and 'folder_queries' to specify the databases that should be used and which query folders should be crawled
 - run `ruby script.rb`
 
+## How to test it
+
+    ruby test/tc_blastn.rb
+
+## Type of blast implemented
+
+- Blastn: Implemented in Blastn class
+
 ## Methods available
 
-- blastn(qfile, db, out_file, query_parent=nil, db_parent=nil)
+All different types have two implemented methods, blast and blast_folders
+
+- blast(qfile, db, out_file, query_parent=nil, db_parent=nil)
   - *qfile*: query file path - string
   - *db*: database name - string
   - *out_file*: output file path (can be relative) -string
@@ -21,7 +31,7 @@ Library to query multiple files against many databases
 
 *notes:* '*qfile*' and '*db*' arguments can be relative to '*query_parent*' and '*db_parent*' (respectively).
 
-- blastn_folders( folders=nil, query_parent=nil, db_parent=nil )
+- blast_folders( folders=nil, query_parent=nil, db_parent=nil )
   - *folders*: list of folders (optional) - array of strings
   - *query_parent*: parent directory of folders (optional) - string
   - *db_parent*: parent directory of database (optional) - string
