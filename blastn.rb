@@ -12,8 +12,8 @@ class Blastn < Blast
   end
   #
 
-  def initialize
-    super
+  def initialize(*args)
+    super(*args)
     @opts    = get_config(@config['opts'], DEF_OPTIONS)
     @task    = get_config(@config['task'], DEF_TASK)
     @outfmt  = get_config(@config['format']['outfmt'], DEF_FORMAT)

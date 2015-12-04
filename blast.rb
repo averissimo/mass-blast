@@ -1,5 +1,7 @@
 require 'logger'
 require 'yaml'
+require 'byebug'
+#
 require_relative 'blast_interface'
 require_relative 'reporting'
 #
@@ -11,8 +13,9 @@ class Blast
   #
   needs_implementation :blast_me
   #
-  DEF_OUTPUT_DIR = 'output'
-  DEF_OUTPUT_EXT = '.out'
+  DEF_OUTPUT_DIR  = 'output'
+  DEF_OUTPUT_EXT  = '.out'
+  DEF_CONFIG_PATH = './config.yml'
 
   attr_reader :logger, :out_dir
   attr_writer :out_dir, :dbs, :folders
@@ -20,44 +23,12 @@ class Blast
   #
   #
   # initialize class with all necessary data
-  def initialize
+  def initialize(config_path = DEF_CONFIG_PATH)
     # create logger object
     @logger      = Logger.new(STDOUT)
     logger.level = Logger::INFO
     # load config file
-    reload_config
-    #
-    logger.debug('query_parent: ' + @query_parent)
-    logger.debug('db_parent: ' + @db_parent)
-    #
-    fail 'Databases must be defined in config.yml.' if @dbs.nil?
-    fail 'Folders must be defined in config.yml.'   if @folders.nil?
-    # set existing dbs
-    logger.info("loads databases (from directory '#{@query_parent}'): " +
-      @dbs.join(', '))
-    # create output dir if does not exist
-    begin
-      Dir.mkdir @out_dir unless Dir.exist?(@out_dir)
-    rescue
-      logger.error(msg = 'Could not create output directory')
-      raise msg
-    end
-    # create output dir with timestamp
-    begin
-      @out_dir = @out_dir +
-                 File::Separator +
-                 Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
-                 '-' + srand.to_s[3..6]
-      Dir.mkdir @out_dir
-    rescue
-      logger.error(msg = 'Could not create output directory')
-      raise msg
-    end
-
-    # outfmt specifiers for the blast query (we choose all)
-    @outfmt_spec    = @config['format']['specifiers'].keys
-    # outfmt specifiers details to add to the report's second line
-    @outfmt_details = @config['format']['specifiers'].values
+    reload_config(config_path)
   end
 
   #
@@ -117,7 +88,6 @@ class Blast
     list
   end
 
-  #
   def cleanup
     logger.info("removing #{@out_dir}")
     FileUtils.remove_dir(@out_dir)
@@ -182,8 +152,44 @@ class Blast
     @out_ext = get_config(@config['output']['ext'],    DEF_OUTPUT_EXT)
 
     @out_dir = File.expand_path(@out_dir)
+    create_out_dir
+    #
+    #
+    logger.debug('query_parent: ' + @query_parent)
+    logger.debug('db_parent: ' + @db_parent)
+    #
+    fail 'Databases must be defined in config.yml.' if @dbs.nil?
+    fail 'Folders must be defined in config.yml.'   if @folders.nil?
+    # set existing dbs
+    logger.info("loads databases (from directory '#{@query_parent}'): " +
+      @dbs.join(', '))
+
+    # outfmt specifiers for the blast query (we choose all)
+    @outfmt_spec    = @config['format']['specifiers'].keys
+    # outfmt specifiers details to add to the report's second line
+    @outfmt_details = @config['format']['specifiers'].values
   end
 
+  def create_out_dir
+    # create output dir if does not exist
+    begin
+      Dir.mkdir @out_dir unless Dir.exist?(@out_dir)
+    rescue
+      logger.error(msg = 'Could not create output directory')
+      raise msg
+    end
+    # create output dir with timestamp
+    begin
+      @out_dir = @out_dir +
+                 File::Separator +
+                 Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
+                 '-' + srand.to_s[3..6]
+      Dir.mkdir @out_dir
+    rescue
+      logger.error(msg = 'Could not create output directory')
+      raise msg
+    end
+  end
   #
   #
   # get default value

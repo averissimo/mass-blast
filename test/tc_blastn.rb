@@ -21,8 +21,7 @@ class TestBlast < Test::Unit::TestCase
 
   def test_blastn
     @logger.info('TEST_BLASTN --> Starting test on blastn')
-    b = Blastn.new
-    b.reload_config(TEST_CONFIG)
+    b = Blastn.new(TEST_CONFIG)
     b.blast_folders
     b.gen_report_from_output
 
