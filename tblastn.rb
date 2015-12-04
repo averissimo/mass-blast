@@ -1,9 +1,8 @@
 
 #
 #
-class TBlastn
+class TBlastn < Blast
   # extend Blast main class
-  extend Blast
-
+  
   #
 end
