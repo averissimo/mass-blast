@@ -1,4 +1,4 @@
-require './blast'
+require_relative 'blast'
 #
 #
 class Blastn < Blast
@@ -30,10 +30,10 @@ class Blastn < Blast
     cmd = "blastn -query \"#{File.join(query_parent, qfile)}\" -db \"#{db}\""
     cmd += " #{@opts} -out #{out_file}"
     cmd += " -outfmt \"#{@outfmt} #{@outfmt_spec.join(' ')}\""
-    log.info "running '#{qfile}' with database '#{db}' that will \
+    logger.info "running '#{qfile}' with database '#{db}' that will \
       store in '#{out_file}'"
-    log.debug cmd
+    logger.debug cmd
     output = `BLASTDB="#{db_parent}" #{cmd}` # actual call to blast
-    log.debug output
+    logger.debug output
   end
 end

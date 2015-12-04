@@ -1,7 +1,7 @@
 require 'logger'
 require 'yaml'
-require './blast_interface'
-require './reporting'
+require_relative 'blast_interface'
+require_relative 'reporting'
 #
 #
 #
@@ -14,39 +14,32 @@ class Blast
   DEF_OUTPUT_DIR = 'output'
   DEF_OUTPUT_EXT = '.out'
 
-  #
-  # logger getter
-  def log
-    @logger
-  end
+  attr_reader :logger, :out_dir
+  attr_writer :out_dir, :dbs, :folders
 
   #
   #
   # initialize class with all necessary data
   def initialize
     # create logger object
-    @logger       = Logger.new(STDOUT)
-    @logger.level = Logger::INFO
+    @logger      = Logger.new(STDOUT)
+    logger.level = Logger::INFO
     # load config file
-    @config = YAML.load_file('config.yml')
-    log.debug(@config.inspect)
-    log.debug('loaded config.yml file')
+    reload_config
     #
-    set_config
-    #
-    log.debug('query_parent: ' + @query_parent)
-    log.debug('db_parent: ' + @db_parent)
+    logger.debug('query_parent: ' + @query_parent)
+    logger.debug('db_parent: ' + @db_parent)
     #
     fail 'Databases must be defined in config.yml.' if @dbs.nil?
     fail 'Folders must be defined in config.yml.'   if @folders.nil?
     # set existing dbs
-    log.info("loads databases (from directory '#{@query_parent}'): " +
+    logger.info("loads databases (from directory '#{@query_parent}'): " +
       @dbs.join(', '))
     # create output dir if does not exist
     begin
       Dir.mkdir @out_dir unless Dir.exist?(@out_dir)
     rescue
-      log.error(msg = 'Could not create output directory')
+      logger.error(msg = 'Could not create output directory')
       raise msg
     end
     # create output dir with timestamp
@@ -57,7 +50,7 @@ class Blast
                  '-' + srand.to_s[3..6]
       Dir.mkdir @out_dir
     rescue
-      log.error(msg = 'Could not create output directory')
+      logger.error(msg = 'Could not create output directory')
       raise msg
     end
 
@@ -83,8 +76,8 @@ class Blast
     end
 
     # logging messages
-    log.info 'Going to run queries: ' + list.flatten.join(', ')
-    log.info 'Calling blastn...'
+    logger.info 'Going to run queries: ' + list.flatten.join(', ')
+    logger.info 'Calling blastn...'
 
     until call_queue.empty?
       el = call_queue.pop
@@ -95,7 +88,7 @@ class Blast
                el[:db_parent])
     end
 
-    log.info 'Success!!'
+    logger.info 'Success!!'
   end
 
   #
@@ -107,10 +100,10 @@ class Blast
     list << Dir[File.join(query_parent, query, '*.query')]
       .each do |query_file|
       #
-      log.debug "going to blast with query: '#{query_file}'"
+      logger.debug "going to blast with query: '#{query_file}'"
       # run query against all databases
       @dbs.each do |db|
-        log.debug "using db: #{db}"
+        logger.debug "using db: #{db}"
         new_item = {}
         new_item[:qfile]    = query_file
         new_item[:db]       = db
@@ -124,6 +117,26 @@ class Blast
     list
   end
 
+  #
+  def cleanup
+    logger.info("removing #{@out_dir}")
+    FileUtils.remove_dir(@out_dir)
+  end
+
+  def db_parent=(new_db_parent)
+    @db_parent    = File.expand_path(new_db_parent)
+  end
+
+  def query_parent=(new_query_parent)
+    @query_parent = File.expand_path(new_query_parent)
+  end
+
+  def reload_config(config_path = 'config.yml')
+    @config = YAML.load_file(config_path)
+    logger.debug(@config.inspect)
+    set_config
+    logger.debug('loaded config.yml file')
+  end
   #             _            _
   #            (_)          | |
   #  _ __  _ __ ___   ____ _| |_ ___
@@ -154,21 +167,21 @@ class Blast
   # Set config variables
   def set_config
     # parent directories for query and blast db
-    @query_parent = File.expand_path(get_config(@config['query_parent'],
-                                                Dir.pwd))
+    self.query_parent = get_config(@config['query_parent'], Dir.pwd)
     #
-    @db_parent    = File.expand_path(get_config(@config['db_parent'],
-                                                Dir.pwd))
+    self.db_parent    = get_config(@config['db_parent'], Dir.pwd)
     # optional arguments
-    @dbs     = @config['dbs']
-    @folders = @config['query_folders']
-    @opts    = @config['opts']
-    @task    = @config['task']
-    @outfmt  = @config['format']['outfmt']
+    self.dbs     = @config['dbs']
+    self.folders = @config['query_folders']
+    @opts        = @config['opts']
+    @task        = @config['task']
+    @outfmt      = @config['format']['outfmt']
     @verbose_out = !get_config(@config['clean_output'], false)
     #
     @out_dir = get_config(@config['output']['dir'],    DEF_OUTPUT_DIR)
     @out_ext = get_config(@config['output']['ext'],    DEF_OUTPUT_EXT)
+
+    @out_dir = File.expand_path(@out_dir)
   end
 
   #
