@@ -6,10 +6,6 @@ output:
 
 dbs:
   - blackberry
-#  - blackberry-ripe
-#  - murtilla-ripe
-#  - blueberry-ripe
-#  - maquiberry-ripe
 
 query_folders:
   - query

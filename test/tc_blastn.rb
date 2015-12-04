@@ -1,4 +1,4 @@
-require_relative 'blastn'
+require_relative '../blastn'
 
 require 'logger'
 require 'test/unit'
@@ -32,7 +32,7 @@ class TestBlast < Test::Unit::TestCase
 
     Dir.foreach(TEST_RES_DIR) do |item|
       test_file = TEST_RES_DIR + File::Separator + item
-      next unless File.file?(test_file)# && File.extname(test_file) == '.out'
+      next unless File.file?(test_file) # && File.extname(test_file) == '.out'
       res = FileUtils.cmp(test_file,
                           output_dir + File::Separator + item)
       @logger.info("TEST_BLASTN --> testing: #{item} (same file = #{res})")
