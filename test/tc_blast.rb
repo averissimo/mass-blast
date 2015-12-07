@@ -1,4 +1,5 @@
 require_relative '../blastn'
+require_relative '../tblastn'
 
 require 'logger'
 require 'test/unit'
@@ -24,6 +25,24 @@ class TestBlast < Test::Unit::TestCase
     # create logger object
     @logger       = Logger.new(STDOUT)
     @logger.level = Logger::INFO
+  end
+
+  #
+  # test blastn class
+  def test_tblastn
+    type = 'tblastn'
+    @logger.info('TEST_TBLASTN --> Starting test on blastn')
+    b = TBlastn.new(test_config(type))
+    b.blast_folders
+    b.gen_report_from_output
+
+    output_dir = b.out_dir
+
+    @logger.info("TEST_TBLASTN --> Output directory is: #{output_dir}")
+
+    #test_results(type, output_dir)
+    @logger.info('TEST_TBLASTN --> Removing files created')
+    #b.cleanup
   end
 
   #

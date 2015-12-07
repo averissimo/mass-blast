@@ -47,4 +47,14 @@ module Reporting
       end
     end
   end
+
+  #
+  #
+  def prune_results
+    filepath = File.join(@out_dir, REPORT_FILENAME)
+    csv_text = File.read filepath
+    CSV.parse(csv_text, headers: true) do |row|
+      byebug
+    end
+  end
 end

@@ -180,11 +180,16 @@ class Blast
     end
     # create output dir with timestamp
     begin
-      @out_dir = @out_dir +
-                 File::Separator +
-                 Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
-                 '-' + srand.to_s[3..6]
-      Dir.mkdir @out_dir
+      if @config['force_folder'].nil?
+        @out_dir = @out_dir +
+                   File::Separator +
+                   Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
+                   '-' + srand.to_s[3..6]
+        Dir.mkdir @out_dir
+      else
+        @out_dir = @out_dir + File::Separator + @config['force_folder']
+        Dir.mkdir(@out_dir) unless Dir.exist?(@out_dir)
+      end
     rescue
       logger.error(msg = 'Could not create output directory')
       raise msg
