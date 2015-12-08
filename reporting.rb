@@ -1,4 +1,5 @@
 require 'csv'
+require 'bio'
 #
 #
 #
@@ -18,9 +19,16 @@ module Reporting
     # open report.csv to write
     File.open File.join(@out_dir, REPORT_FILENAME), 'w' do |fw|
       # get header columns and surounded by \"
-      header = ['file', @outfmt_spec].flatten.map { |el| "\"#{el}\"" }
-      detail = ['means the file origin of this line', @outfmt_details]
+      header = ['file', 'task', 'folder', 'file_name', 'db', @outfmt_spec]
                .flatten.map { |el| "\"#{el}\"" }
+      #
+      detail = ['means the file origin of this line']
+      detail << 'means the task used'
+      detail << 'means the folder of origin from the query'
+      detail << 'means the query filename'
+      detail << 'means the database of the result'
+      detail << @outfmt_details
+      detail = detail.flatten.map { |el| "\"#{el}\"" }
 
       fw.puts header.join "\t" # adds header columns
       fw.puts detail.join "\t" # adds explanation of header columns
@@ -40,6 +48,8 @@ module Reporting
   #
   # prepend name of file in each line
   def prepend_name_in_file(file, fw)
+    filename = File.basename(file)
+    str = filename.gsub(/#/, "\t").gsub(/\.out/, '')
     File.open file, 'r' do |f|
       data = f.read
       if data.empty? # in case the blast has no hits
@@ -47,7 +57,7 @@ module Reporting
       else
         # other wise replace the beggining of the line with
         #  the output file name to identify each output
-        fw.puts data.gsub(/^(.|\n|\r)/, "#{File.basename(file)}\t\\1")
+        fw.puts data.gsub(/^(.|\n|\r)/, "#{filename}\t#{str}\t\\1")
       end
     end
   end
@@ -69,9 +79,17 @@ module Reporting
       if skip_first > 0
         skip_first -= 1
         header = row.headers
-        header << 'longest_orf'
+        header << 'nt_aligned_seq'
+        header << 'aa_aligned_seq'
+        header << 'nt_longest_orf'
+        header << 'aa_longest_orf'
+        header << 'peptide'
         aux_header = row.fields
-        aux_header << 'means longest orf in alignment'
+        aux_header << 'means nucleotide alignment from db'
+        aux_header << 'means aminoacid alignment from db'
+        aux_header << 'means longest nucleotide orf in alignment'
+        aux_header << 'means longest aminoacid orf in alignment'
+        aux_header << 'means peptide alignment'
         next
       end
       # remove duplicate by: sseqid
@@ -83,8 +101,15 @@ module Reporting
       csv << aux_header
       #
       db.values.each do |row|
-        orf = find_longest_orf(row['sseq'])
-        row['longest_org'] = orf.to_s
+        spliced = get_nt_seq_from_blastdb(row['sseqid'],
+                                          row['db'],
+                                          row['sstart'],
+                                          row['send'])
+        row['nt_aligned_seq'] = spliced.to_s
+        row['aa_aligned_seq'] = spliced.translate.to_s
+        # orf = find_longest_orf(row['sseq'])
+        orf = find_longest_orf(spliced)
+
         csv << row
       end
     end
@@ -99,7 +124,7 @@ module Reporting
   end
 
   def process_row(row, col_id, db, redundant, deleted)
-    db_id = row[col_id]
+    db_id = row[col_id] + '_' + row["db"]
     new_pident = Float(row['pident'])
     # does not pass the threshold to be added to db
     if new_pident < @identity_threshold
@@ -116,7 +141,19 @@ module Reporting
     true
   end
 
+  def get_nt_seq_from_blastdb(seq_id, db, qstart, qend)
+    cmd = "blastdbcmd -db #{db} \
+                      -dbtype 'nucl' \
+                      -entry all \
+                      -outfmt \"%s %t\" \
+           | awk '{ if( $2 == \"#{seq_id}\" ) { print $1 } }'"
+    output = `#{cmd}`
+    seq = Bio::Sequence::NA.new output
+    spliced = seq.splice("#{qstart}..#{qend}")
+    spliced
+  end
+
   def find_longest_orf(sequence)
-    sequence + "yada"
+    sequence
   end
 end
