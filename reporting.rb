@@ -1,9 +1,13 @@
+require 'csv'
 #
 #
 #
 module Reporting
   #
-  REPORT_FILENAME = 'report.csv'
+  REPORT_FILENAME    = 'report.csv'
+  TRIMMED_FILENAME   = 'trimmed.csv'
+  REDUNDANT_FILENAME = 'redundant.csv'
+  DISCARDED_FILENAME = 'discarded.csv'
   #
   #
   # Generate a report from all the outputs
@@ -53,8 +57,66 @@ module Reporting
   def prune_results
     filepath = File.join(@out_dir, REPORT_FILENAME)
     csv_text = File.read filepath
-    CSV.parse(csv_text, headers: true) do |row|
-      byebug
+    #
+    db = {}
+    redundant = []
+    deleted   = []
+    skip_first = 1
+    header = nil
+    aux_header = nil
+    CSV.parse(csv_text, headers: true, col_sep: "\t") do |row|
+      # skip also second line
+      if skip_first > 0
+        skip_first -= 1
+        header = row.headers
+        header << 'longest_orf'
+        aux_header = row.fields
+        aux_header << 'means longest orf in alignment'
+        next
+      end
+      # remove duplicate by: sseqid
+      process_row(row, 'sseqid', db, redundant, deleted)
     end
+    # save CSVs
+    CSV.open(File.join(@out_dir,TRIMMED_FILENAME), 'wb') do |csv|
+      csv << header
+      csv << aux_header
+      #
+      db.values.each do |row|
+        orf = find_longest_orf(row['sseq'])
+        row['longest_org'] = orf.to_s
+        csv << row
+      end
+    end
+    #
+    CSV.open(File.join(@out_dir, DISCARDED_FILENAME), 'wb') do |csv|
+      deleted.each { |row| csv << row }
+    end
+    #
+    CSV.open(File.join(@out_dir, REDUNDANT_FILENAME), 'wb') do |csv|
+      redundant.each { |row| csv << row }
+    end
+  end
+
+  def process_row(row, col_id, db, redundant, deleted)
+    db_id = row[col_id]
+    new_pident = Float(row['pident'])
+    # does not pass the threshold to be added to db
+    if new_pident < @identity_threshold
+      deleted << row
+      return false
+    end
+    cur_pident = db[db_id].nil? ? nil : Float(db[db_id]['pident'])
+    # if identy is bigger than
+    if cur_pident
+      redundant << (new_pident > cur_pident ? db[db_id] : row)
+      return false if new_pident <= cur_pident
+    end
+    db[db_id] = row # change to new line
+    true
+  end
+
+  def find_longest_orf(sequence)
+    sequence + "yada"
   end
 end

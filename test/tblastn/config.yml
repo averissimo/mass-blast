@@ -13,6 +13,7 @@ query_folders:
 force_folder: tblastn
 
 clean_output: true
+identity_threshold: .40 # value between 0 and 1
 
 db_parent: "test/db"
 query_parent: "test/tblastn"
@@ -59,5 +60,9 @@ format:
     salltitles: "means All Subject Title(s), separated by a '<>'"
     sstrand: "means Subject Strand"
     qcovhsp: "means Query Coverage Per HSP"
+    qaccver: means Query accesion.version
+    qlen: means Query sequence length
+    saccver: means Subject accession.version
+    slen: means Subject sequence length
     qseq: "means Aligned part of query sequence"
     sseq: "means Aligned part of subject sequence"

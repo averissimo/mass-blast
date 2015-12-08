@@ -146,6 +146,10 @@ class Blast
     @opts        = @config['opts']
     @task        = @config['task']
     @outfmt      = @config['format']['outfmt']
+    #
+    @identity_threshold = @config['identity_threshold']
+    @identity_threshold *= 100
+    #
     @verbose_out = !get_config(@config['clean_output'], false)
     #
     @out_dir = get_config(@config['output']['dir'],    DEF_OUTPUT_DIR)
