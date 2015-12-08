@@ -25,6 +25,9 @@ orf:
     - tga
   start_codon:
     - atg
+  reverse: true
+  direct: true
+  min: 30
 
 format:
   outfmt: 6

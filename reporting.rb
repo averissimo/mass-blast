@@ -1,5 +1,6 @@
 require 'csv'
 require 'bio'
+require_relative 'orf'
 #
 #
 #
@@ -96,7 +97,7 @@ module Reporting
       process_row(row, 'sseqid', db, redundant, deleted)
     end
     # save CSVs
-    CSV.open(File.join(@out_dir,TRIMMED_FILENAME), 'wb') do |csv|
+    CSV.open(File.join(@out_dir, TRIMMED_FILENAME), 'wb') do |csv|
       csv << header
       csv << aux_header
       #
@@ -108,8 +109,9 @@ module Reporting
         row['nt_aligned_seq'] = spliced.to_s
         row['aa_aligned_seq'] = spliced.translate.to_s
         # orf = find_longest_orf(row['sseq'])
-        orf = find_longest_orf(spliced)
-
+        orf = ORF.find_longest(spliced)
+        row['nt_longest_orf'] = orf[:nt]
+        row['a_longest_orf']  = orf[:aa]
         csv << row
       end
     end
@@ -124,7 +126,7 @@ module Reporting
   end
 
   def process_row(row, col_id, db, redundant, deleted)
-    db_id = row[col_id] + '_' + row["db"]
+    db_id = row[col_id] + '_' + row['db']
     new_pident = Float(row['pident'])
     # does not pass the threshold to be added to db
     if new_pident < @identity_threshold
@@ -141,19 +143,5 @@ module Reporting
     true
   end
 
-  def get_nt_seq_from_blastdb(seq_id, db, qstart, qend)
-    cmd = "blastdbcmd -db #{db} \
-                      -dbtype 'nucl' \
-                      -entry all \
-                      -outfmt \"%s %t\" \
-           | awk '{ if( $2 == \"#{seq_id}\" ) { print $1 } }'"
-    output = `#{cmd}`
-    seq = Bio::Sequence::NA.new output
-    spliced = seq.splice("#{qstart}..#{qend}")
-    spliced
-  end
 
-  def find_longest_orf(sequence)
-    sequence
-  end
 end

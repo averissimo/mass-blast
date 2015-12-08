@@ -120,6 +120,18 @@ class Blast
 
   include Reporting
   #
+  def get_nt_seq_from_blastdb(seq_id, db, qstart, qend)
+    cmd = "blastdbcmd -db #{db} \
+                      -dbtype 'nucl' \
+                      -entry all \
+                      -outfmt \"%s %t\" \
+           | awk '{ if( $2 == \"#{seq_id}\" ) { print $1 } }'"
+    output = `#{cmd}`
+    seq = Bio::Sequence::NA.new output
+    spliced = seq.splice("#{qstart}..#{qend}")
+    spliced
+  end
+  #
   #
   # Generate filenames for each of the query's output
   def gen_filename(prefix, query, db)
@@ -149,6 +161,14 @@ class Blast
     #
     @identity_threshold = @config['identity_threshold']
     @identity_threshold *= 100
+    #
+    # orf options
+    @orf = {}
+    @orf[:stop]    = @config['orf']['stop_codon']
+    @orf[:start]   = @config['orf']['start_codon']
+    @orf[:reverse] = @config['orf']['reverse']
+    @orf[:direct]  = @config['orf']['direct']
+    @orf[:min]     = @config['orf']['min']
     #
     @verbose_out = !get_config(@config['clean_output'], false)
     #
