@@ -87,8 +87,7 @@ module Reporting
         header << 'aa_longest_orf'
         header << 'peptide'
         aux_header = row.fields
-        aux_header << 'means number of results for this \
-                       contig with less identity'
+        aux_header << 'means number of results for this contig with less identity'
         aux_header << 'means nucleotide alignment from db'
         aux_header << 'means aminoacid alignment from db'
         aux_header << 'means longest nucleotide orf in alignment'

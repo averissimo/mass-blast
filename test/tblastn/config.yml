@@ -10,7 +10,7 @@ dbs:
 query_folders:
   - query
 
-force_folder: tblastn
+force_folder: test_tblastn
 
 clean_output: true
 identity_threshold: .40 # value between 0 and 1

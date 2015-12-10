@@ -36,14 +36,14 @@ class TestBlast < Test::Unit::TestCase
     b = TBlastn.new(test_config(type))
     b.blast_folders
     b.gen_report_from_output
+    b.prune_results
 
     output_dir = b.out_dir
 
     @logger.info("TEST_TBLASTN --> Output directory is: #{output_dir}")
-
     test_results(type, output_dir)
     @logger.info('TEST_TBLASTN --> Removing files created')
-    b.cleanup
+    # b.cleanup
   end
 
   #
@@ -54,6 +54,7 @@ class TestBlast < Test::Unit::TestCase
     b = Blastn.new(test_config(type))
     b.blast_folders
     b.gen_report_from_output
+    b.prune_results
 
     output_dir = b.out_dir
 
