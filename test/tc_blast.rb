@@ -1,5 +1,6 @@
 require_relative '../blastn'
 require_relative '../tblastn'
+require_relative '../orf'
 
 require 'logger'
 require 'test/unit'
@@ -40,9 +41,9 @@ class TestBlast < Test::Unit::TestCase
 
     @logger.info("TEST_TBLASTN --> Output directory is: #{output_dir}")
 
-    #test_results(type, output_dir)
+    test_results(type, output_dir)
     @logger.info('TEST_TBLASTN --> Removing files created')
-    #b.cleanup
+    b.cleanup
   end
 
   #
@@ -77,6 +78,6 @@ class TestBlast < Test::Unit::TestCase
       @logger.info("TEST_BLASTN --> testing: #{item} (same file = #{res})")
       assert(res)
     end
+    #
   end
-  #
 end

@@ -80,12 +80,15 @@ module Reporting
       if skip_first > 0
         skip_first -= 1
         header = row.headers
+        header << 'contig_count'
         header << 'nt_aligned_seq'
         header << 'aa_aligned_seq'
         header << 'nt_longest_orf'
         header << 'aa_longest_orf'
         header << 'peptide'
         aux_header = row.fields
+        aux_header << 'means number of results for this \
+                       contig with less identity'
         aux_header << 'means nucleotide alignment from db'
         aux_header << 'means aminoacid alignment from db'
         aux_header << 'means longest nucleotide orf in alignment'
@@ -101,15 +104,17 @@ module Reporting
       csv << header
       csv << aux_header
       #
-      db.values.each do |row|
+      db.values.each do |item|
+        row = item[:row]
         spliced = get_nt_seq_from_blastdb(row['sseqid'],
                                           row['db'],
                                           row['sstart'],
                                           row['send'])
+        row['contig_count']   = item[:count]
         row['nt_aligned_seq'] = spliced.to_s
         row['aa_aligned_seq'] = spliced.translate.to_s
         # orf = find_longest_orf(row['sseq'])
-        orf = ORF.find_longest(spliced)
+        orf = ORF.find_longest(spliced, @orf)
         row['nt_longest_orf'] = orf[:nt]
         row['a_longest_orf']  = orf[:aa]
         csv << row
@@ -133,13 +138,15 @@ module Reporting
       deleted << row
       return false
     end
-    cur_pident = db[db_id].nil? ? nil : Float(db[db_id]['pident'])
+    cur_pident = db[db_id].nil? ? nil : Float(db[db_id][:row]['pident'])
     # if identy is bigger than
     if cur_pident
-      redundant << (new_pident > cur_pident ? db[db_id] : row)
+      redundant << (new_pident > cur_pident ? db[db_id][:row] : row)
+      db[db_id][:count] += 1
       return false if new_pident <= cur_pident
     end
-    db[db_id] = row # change to new line
+    db[db_id] = { count: 1 } if db[db_id].nil?
+    db[db_id][:row] = row # change to new line
     true
   end
 

@@ -8,7 +8,7 @@ class ORF
                       stop:  %w(tag, taa, tga),
                       reverse: true,
                       direct: true,
-                      min: 30 }
+                      min: 0 }
   #
   def self.find_idx(seq, idx, option_name, cmp_sign, fallback_value, options)
     option_name = option_name.to_sym
@@ -35,7 +35,6 @@ class ORF
       # default position if no start option is the beggining
       idx = fallback_value
     end
-    byebug if option_name == :stop
     idx
   end
 
@@ -68,13 +67,15 @@ class ORF
     else
       best_end_idx += 1 unless best_end_idx + 2 > sequence.size
     end
-    sequence.splice "#{best_start_idx}..#{best_end_idx}"
+    orf_seq = sequence.splice "#{best_start_idx}..#{best_end_idx}"
+    return '' if orf_seq.nil? || orf_seq.size < options[:min]
+    orf_seq
   end
 
   # find longest orf according to options
   #  in config file
   # sequence is a Bio::Sequence::NT class
-  def self.find_longest(sequence, options)
+  def self.find_longest(sequence, options = DEFAULT_OPTIONS)
     sequence = Bio::Sequence::NA.new(sequence) if sequence.class == String
     #
     result = {}
@@ -83,7 +84,11 @@ class ORF
       temp_orf = find(sequence.reverse, options)
       result[:nt].size if temp_orf.size > result[:nt].size
     end
-    result[:aa] = result[:nt].translate
+    result[:aa] = if result[:nt] == ''
+                    ''
+                  else
+                    result[:nt].translate
+                  end
     result
   end
 end
