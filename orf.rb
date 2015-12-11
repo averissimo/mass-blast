@@ -40,6 +40,7 @@ class ORF
 
   #
   def self.find(sequence, options)
+    return sequence if sequence.size == 0
     # string should be more efficient
     seq = sequence.to_s
     # initi best_start_idx to be at the end of

@@ -1,3 +1,6 @@
 output/
 config.yml
 *~
+Gemfile.lock
+vendor/bundle
+.bundle

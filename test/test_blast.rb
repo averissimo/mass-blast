@@ -38,7 +38,7 @@ class TestBlast < Test::Unit::TestCase
     b.gen_report_from_output
     b.prune_results
 
-    output_dir = b.out_dir
+    output_dir = b.store.output.dir
 
     @logger.info("TEST_TBLASTN --> Output directory is: #{output_dir}")
     test_results(type, output_dir)
@@ -56,7 +56,7 @@ class TestBlast < Test::Unit::TestCase
     b.gen_report_from_output
     b.prune_results
 
-    output_dir = b.out_dir
+    output_dir = b.store.output.dir
 
     @logger.info("TEST_BLASTN --> Output directory is: #{output_dir}")
 
