@@ -12,12 +12,22 @@ class TestORF < Test::Unit::TestCase
   #
   def test_longest
     parent = File.expand_path(File.join('test', 'find_orfs'))
-    Dir.foreach(parent) do |item|
-      test_file = File.join(parent, item)
-      next unless File.file?(test_file) && File.extname(test_file) == '.yml'
-      data_file = YAML.load_file(test_file)
-      assert_equal(data_file['output'],
-                   ORF.find_longest(data_file['input'])[:nt].to_s)
+    test_file = File.join(parent, 'data.yml')
+    data_file = YAML.load_file(test_file)
+    data_file['test'].each do |item|
+      orf = ORF.new(item['input'])
+      orf.find
+      assert_equal(symbolize_keys(item['output']), orf.nt)
     end
+  end
+
+  private
+
+  def symbolize_keys(old_hash)
+    new_hash = {}
+    old_hash.keys.each do |key|
+      new_hash[key.to_sym] = old_hash[key]
+    end
+    new_hash
   end
 end

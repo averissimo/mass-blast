@@ -1,7 +1,7 @@
-require './blastn.rb'
+require_relative 'blastn'
+require_relative 'tblastn'
 
-b = Blastn.new # create Blast object
-#b.blast_folders # blast folders
+b = TBlastn.new('config_tblastn.yml') # create Blast object
+b.blast_folders # blast folders
 b.gen_report_from_output # generate report.csv
-
 b.prune_results

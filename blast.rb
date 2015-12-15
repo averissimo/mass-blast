@@ -24,9 +24,11 @@ class Blast
     super(config_path)
     # create logger object
     @logger      = Logger.new(STDOUT)
-    logger.level = Logger::INFO
+    logger.level = Logger::DEBUG
     # load config file
     reload_config(config_path)
+    #
+    @blastdb_cache = {}
   end
 
   #
@@ -91,6 +93,58 @@ class Blast
     FileUtils.remove_dir(@store.output.dir)
   end
 
+  #
+  def load_all_blastdb
+    @store.db.list.each do |db_item|
+      load_blastdb_item(db_item)
+    end
+  end
+
+  #
+  def load_blastdb_item(db)
+    #
+    return true if !@blastdb_cache.nil? && !@blastdb_cache[db].nil?
+    #
+    cmd = "blastdbcmd -db #{db}" \
+      " -dbtype 'nucl'" \
+      ' -entry all' \
+      " -outfmt \"%s %t\""
+    logger.debug "getting cache for blastdb for: #{db}"
+    logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
+    output = `BLASTDB="#{@store.db.parent}" #{cmd}`
+    @blastdb_cache[db] = {}
+    output.split("\n").each do |line|
+      pair = line.split(' ')
+      @blastdb_cache[db][pair[1]] = pair[0]
+    end
+    true
+  end
+
+  def get_nt_seq_from_blastdb(seq_id, db, start_idx, end_idx, frame)
+    output = ''
+    start_idx = Integer(start_idx)
+    end_idx   = Integer(end_idx)
+    frame     = Integer(frame)
+    begin
+      load_blastdb_item(db)
+      output = @blastdb_cache[db][seq_id]
+    rescue StandardError => e
+      logger.unknown "failed on getting from blastdb: #{e.message}"
+      return 'Failed on getting sequence from database,' \
+        ' see log for more information'
+    end
+    seq = Bio::Sequence::NA.new(output)
+    # check if should use complement sequence
+    #  i.e. sframe column is negative
+    if frame < 0
+      seq = seq.complement
+      start_idx = seq.size - start_idx + 1
+      end_idx   = seq.size - end_idx + 1
+    end
+    spliced = seq.subseq(start_idx, end_idx)
+    spliced
+  end
+
   #             _            _
   #            (_)          | |
   #  _ __  _ __ ___   ____ _| |_ ___
@@ -99,23 +153,12 @@ class Blast
   # | .__/|_|  |_| \_/ \__,_|\__\___|
   # | |
   # |_|
+  #
+  #
 
   private
 
   include Reporting
-  #
-  def get_nt_seq_from_blastdb(seq_id, db, qstart, qend)
-    cmd = "blastdbcmd -db #{db} \
-                      -dbtype 'nucl' \
-                      -entry all \
-                      -outfmt \"%s %t\" \
-           | awk '{ if( $2 == \"#{seq_id}\" ) { print $1 } }'"
-    output = `#{cmd}`
-    seq = Bio::Sequence::NA.new output
-    spliced = seq.splice("#{qstart}..#{qend}")
-    spliced
-  end
-
   #
   #
   # Generate filenames for each of the query's output

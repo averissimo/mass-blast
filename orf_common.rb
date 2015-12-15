@@ -15,6 +15,7 @@ module ORFCommon
   #
   # transform range to sequence
   def get_range(arg1, arg2 = nil)
+    return Bio::Sequence::NA.new('') if arg1.nil?
     if arg2.nil?
       start = arg1[:start]
       stop = arg1[:stop]
@@ -78,5 +79,9 @@ module ORFCommon
   # create hash symbol from index
   def frame_sym(index)
     "frame#{index + 1}".to_sym
+  end
+
+  def size_of_frame(frame)
+    seq_size = seq.size - frame - (seq.size - frame) % 3
   end
 end

@@ -1,3 +1,36 @@
-input: atgggttcaaccggcgagactcagatgactccgacccaagtctccgacgaggaagccaacctcttcgccatgcagctcgccagcgcctccgtccttcccatggtcctcaaagccgccattgaactcgacctcttggagatcatggccaaagccggacccggcgcgttcctctcacccaaggacttaactgctcagctcccgaccaagaaccccgaagctccggtcatgctcgaccgcatccttcgcctcctggccagctactccattctaacctactccttgcgcacacttcctgatgggaaagtggagaggctctatggtttgggacctgtgtgcaagttcttgaccaagaatgaggatggtgtctcaattgctcctctctgcctcatgaaccaggacaaggtcctcatcgagagctggtatcacttgaaggatgcagttcttgatggtggaattccatttaacaaggcctatggaatgactgcttttgaataccatggaactgacccaagattcaacaaggtcttcaacagaggaatggctgaccactccaccatcaccatgaagaaaatccttgagacttacaaaggatttgagggcctaacatccatcgttgatgttggtggtggcaccggagctgttgtgaacatgatcgtctccaagtacccttcgatcaagggcataaacttcgacttgcctcatgttatcgaagacgctcctcaatatcctggtgtgcaacatgttggaggagacatgtttgtaagtgtaccaaaaggagatgctattttcatgaagtggatatgtcacgattggagtgatgagcattgcttgaaattcttgaagaactgctatgctgcgcttccggacaatgggaaagtgattctgggtgagtgcattcttcctgtag
+test:
+  -
+    input: aaaatgaaaaaaatgtaaaaa
+    output:
+      frame1: aaaaaaatg
+      frame2: ''
+      frame3: ''
+  -
+    input: aaaaaaaaaaaaaaa
+    output:
+      frame1: ''
+      frame2: ''
+      frame3: ''
+  -
+    input: aaaaaaaaatgaaaaa
+    output:
+      frame1: 'aaaaaaaaa'
+      frame2: ''
+      frame3: ''
+  -
+    input: aaaaaaaatgaaaa
 
-output: atgggttcaaccggcgagactcagatgactccgacccaagtctccgacgaggaagccaacctcttcgccatgcagctcgccagcgcctccgtccttcccatggtcctcaaagccgccattgaactcgacctcttggagatcatggccaaagccggacccggcgcgttcctctcacccaaggacttaactgctcagctcccgaccaagaaccccgaagctccggtcatgctcgaccgcatccttcgcctcctggccagctactccattctaacctactccttgcgcacacttcctgatgggaaagtggagaggctctatggtttgggacctgtgtgcaagttcttgaccaagaatgaggatggtgtctcaattgctcctctctgcctcatgaaccaggacaaggtcctcatcgagagctggtatcacttgaaggatgcagttcttgatggtggaattccatttaacaaggcctatggaatgactgcttttgaataccatggaactgacccaagattcaacaaggtcttcaacagaggaatggctgaccactccaccatcaccatgaagaaaatccttgagacttacaaaggatttgagggcctaacatccatcgttgatgttggtggtggcaccggagctgttgtgaacatgatcgtctccaagtacccttcgatcaagggcataaacttcgacttgcctcatgttatcgaagacgctcctcaatatcctggtgtgcaacatgttggaggagacatgtttgtaagtgtaccaaaaggagatgctattttcatgaagtggatatgtcacgattggagtgatgagcattgcttgaaattcttgaagaactgctatgctgcgcttccggacaatgggaaagtgattctgggtgagtgcattcttcctgtagcaccagacactagccttgccaccaagggagttgtccatatcgatgtgatcatgttggctcacaaccccggaggcaaagagaggacggagcaggagtttgaagccttggctaaggggtccggattccaaggctttcgagtcgcgtgttgtgctttcaacacctatgtcattgagtttcttaag
+    output:
+      frame1: ''
+      frame2: ''
+      frame3: 'aaaaaa'
+  - input: atgaaataa
+    output:
+      frame1: ''
+      frame2: ''
+      frame3: ''
+  - input: aaaatgaaaaaataaataa
+    output:
+      frame1: 'aaaaaa'
+      frame2: 'aaatgaaaaaataaa'
+      frame3: ''

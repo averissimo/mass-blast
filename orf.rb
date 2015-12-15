@@ -43,18 +43,18 @@ class ORF
   #
   # return aminoacid sequence
   def aa
-    find if @orf.nil?
-    res = longest
-    res.each do |key, val|
-      res[key] = val.translate
-    end
-    res
+    # return already generated aa sequence
+    return @res_aa unless @res_aa.nil?
+    # save result
+    l = longest
+    return l if @res_aa.nil?
+    @res_aa
   end
 
   #
   # return nucletotide sequence
   def nt
-    find if @orf.nil?
+    return @res_nt unless @res_nt.nil?
     longest
   end
 
@@ -121,14 +121,30 @@ class ORF
   end
 
   #
-  # get the longest sequence in each frame
+  # get the longest sequence in each frame and translate
+  #  to aminoacid
   def longest
+    # run find method if search has not been done
     find if @orf.nil?
-    res = { frame1: nil, frame2: nil, frame3: nil }
+    #
+    res_nt = { frame1: '', frame2: '', frame3: '' }
+    res_aa = res_nt.clone
+    # if @orf is empty then no point in continuing
+    return res_nt if @orf.nil? || @orf.size == 0
+    # for each orf get the longest sequence
     @orf.each do |key, val|
-      res[key] = get_range(val[:longest])
+      res_nt[key] = get_range(val[:longest])
     end
-    res
+    @res_nt = res_nt
+    # translate to aa sequence
+    unless @res_nt.nil?
+      @res_nt.each do |key, val|
+        res_aa[key] = val.translate
+      end
+    end
+    @res_aa = res_aa
+    # return the nucleotide sequence as default
+    res_nt
   end
 
   #
@@ -200,7 +216,13 @@ class ORF
                            frame,
                            start_idxs.empty? || stop_idxs.empty?)
     if valid.empty?
-      valid = fallback.uniq
+      valid = fallback.uniq.collect do |range|
+        if get_range_str(range[:start], range[:stop]).size == size_of_frame(frame)
+          nil
+        else
+          range
+        end
+      end.compact
       logger.info 'no ORF with start and stop codons,' \
         ' defaulting to fallback'
     end
@@ -214,6 +236,7 @@ class ORF
   def determine_valid_ranges(idxs, arrays, seq_size, frame, added_pos)
     start = idxs[:start]
     stop  = idxs[:stop]
+    arr   = []
     #
     #
     # iterate on each start codon
@@ -224,19 +247,27 @@ class ORF
         next if pos_start >= pos_stop
         # add a fall back where starts from begining
         if (pos_stop - frame) >= options[:min]
-          arrays[:fallback] << { start: frame, stop: pos_stop, fallback: true }
+          arr << { start: frame, stop: pos_stop, fallback: true }
         end
         # ignore if size of orf is smaller than minimum
-        next if (pos_stop - pos_start + 1) < options[:min] || added_pos
+        next if (pos_stop - pos_start + 1) < options[:min]
         # if all conditions hold add as valid orf
-        arrays[:valid] << { start: pos_start,
-                            stop:  pos_stop,
-                            fallback: false }
+        arr << { start: pos_start,
+                 stop:  pos_stop,
+                 fallback: added_pos }
       end
       next unless ((seq_size - 1) - pos_start) >= options[:min]
-      arrays[:fallback] << { start: pos_start,
-                             stop: seq_size - 1,
-                             fallback: true }
+      arr << { start: pos_start,
+               stop: seq_size - 1,
+               fallback: true }
+    end
+    #
+    arr.each do |item|
+      if item[:fallback]
+        arrays[:fallback] << item
+      else
+        arrays[:valid] << item
+      end
     end
   end
 
