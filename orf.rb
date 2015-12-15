@@ -1,9 +1,12 @@
-require 'logger'
 require 'bio'
+
+require_relative 'orf_common'
 #
 #
 #
 class ORF
+  #
+  include ORFCommon
   #
   DEFAULT_OPTIONS = { start: %w(atg),
                       stop:  %w(tag taa tga),
@@ -16,15 +19,29 @@ class ORF
   attr_reader :logger, :options, :seq, :sequence
   attr_writer :options
 
-  def longest
-    find if @orf.nil?
-    res = { frame1: nil, frame2: nil, frame3: nil }
-    @orf.each do |key, val|
-      res[key] = get_range(val[:longest])
-    end
-    res
+  # class initializer that normalizes sequence to Bio::Sequence,
+  #  merges given options and creates logger
+  def initialize(sequence, options = {})
+    super
+    sequence = Bio::Sequence::NA.new(sequence) if sequence.class == String
+    @sequence = sequence
+    @seq = @sequence.to_s
+    #
+    self.options = DEFAULT_OPTIONS.merge(options.nil? ? {} : options)
   end
 
+  #
+  # For a given sequence, find longest ORF
+  #
+  def self.find(sequence, options = {})
+    # merge options with default
+    orf = ORF.new(sequence, options)
+    @result = orf.find
+    #
+  end
+
+  #
+  # return aminoacid sequence
   def aa
     find if @orf.nil?
     res = longest
@@ -34,48 +51,30 @@ class ORF
     res
   end
 
+  #
+  # return nucletotide sequence
   def nt
     find if @orf.nil?
     longest
-  end
-
-  def initialize(sequence, options = {})
-    sequence = Bio::Sequence::NA.new(sequence) if sequence.class == String
-    @sequence = sequence
-    @seq = @sequence.to_s
-    #
-    self.options = DEFAULT_OPTIONS.merge(options.nil? ? {} : options)
-    @logger      = Logger.new(STDOUT)
-    if options[:debug]
-      logger.level = Logger::INFO
-    else
-      logger.level = Logger::UNKNOWN
-    end
-  end
-  #
-  # For a given sequence, find longest ORF
-  #
-
-  def self.find(sequence, options = {})
-    # merge options with default
-    orf = ORF.new(sequence, options)
-    @result = orf.find
-    #
   end
 
   #
   #
   #
   def find
+    # if sequence is nil or empty there is no point
+    #  in trying to run the find algorithm
     return sequence if sequence.nil? || sequence.size == 0
     #
     start_idx = lookup_codons_idx(:start)
     stop_idx  = lookup_codons_idx(:stop)
-    res = get_longest(start_idx, stop_idx, seq.size, [0, 1, 2])
+    res       = get_longest(start_idx, stop_idx, seq.size, [0, 1, 2])
+    #
     logger.info "start codons idx: #{start_idx}"
     logger.info "stop codons idx: #{stop_idx}"
     logger.info res
-    @orf = { frame1: {}, frame2: {}, frame3: {} }
+    #
+    orf = { frame1: {}, frame2: {}, frame3: {} }
     # iterate over each frame and range to return the
     #  longest above the minimum sequence length
     # these are the preferences:
@@ -83,84 +82,53 @@ class ORF
     #  2: range that only has start/stop
     #  3: full sequence
     res.each_with_index do |frame, index|
-      frame_val = []
-      frame_fal = []
-      frame.each do |range|
-        if range[:fallback]
-          frame_fal << range
-        else
-          frame_val << range
-        end
-      end
-      hash_name = "frame#{index + 1}".to_sym
-      @orf[hash_name][:orfs] = (frame_val.empty? ? frame_fal : frame_val)
-      longest = { len: nil, range: nil }
-      @orf[hash_name][:orfs].each do |range|
-        len = range[:stop] - range[:stop] + 1
-        if longest[:range].nil? || len > longest[:len]
-          longest[:len]   = len
-          longest[:range] = range
-        end
-      end
-      @orf[hash_name][:longest] = longest[:range]
+      find_longest(frame, index, orf)
     end
+    # print ranges if debug is activated
+    orf.each { |k, f| f[:orfs].each { |r| print_range(k, r) } } \
+      if options[:debug]
     #
-    if options[:debug]
-      @orf.each do |key, frame|
-        frame[:orfs].each do |range|
-          print_range(key, range)
-        end
-      end
-    end
-    #
-    @orf
+    @orf = orf
   end
 
   private
 
-  def get_range(arg1, arg2 = nil)
-    if arg2.nil?
-      start = arg1[:start]
-      stop = arg1[:stop]
-    else
-      start = arg1
-      stop = arg2
+  #
+  # iterate over all ranges in frame and find the longest
+  def find_longest(frame, index, orf)
+    # temporary arrays to keep valid and fallback ranges
+    frame_val = []
+    frame_fal = []
+    frame.each do |range|
+      if range[:fallback]
+        frame_fal << range
+      else
+        frame_val << range
+      end
     end
-    Bio::Sequence::NA.new(get_range_str(start, stop))
-  end
-
-  def get_range_str(start, stop)
-    seq[start..stop]
+    # hash name
+    hash_name = frame_sym(index)
+    orf[hash_name][:orfs] = (frame_val.empty? ? frame_fal : frame_val)
+    longest = { len: nil, range: nil }
+    orf[hash_name][:orfs].each do |range|
+      len = range[:stop] - range[:stop] + 1
+      if longest[:range].nil? || len > longest[:len]
+        longest[:len]   = len
+        longest[:range] = range
+      end
+    end
+    orf[hash_name][:longest] = longest[:range]
   end
 
   #
-  # auxiliary method that prints range
-  #
-  def print_range(key, range)
-    # simple proc to add spaces, works as auxiliary
-    #  method to print range
-    add_spaces = proc do |str|
-      str.gsub(/(.{1})/, '\1 ').strip
+  # get the longest sequence in each frame
+  def longest
+    find if @orf.nil?
+    res = { frame1: nil, frame2: nil, frame3: nil }
+    @orf.each do |key, val|
+      res[key] = get_range(val[:longest])
     end
-
-    orf = add_spaces.call(get_range_str(range[:start], range[:stop]))
-    pre = if range[:start] == 0
-            ''
-          else
-            add_spaces.call(get_range_str(0, range[:start] - 1))
-          end
-    suf = if range[:end] == seq.size - 1
-            ''
-          else
-            add_spaces.call(get_range_str(range[:stop] + 1, seq.size - 1))
-          end
-    #
-    sep = '|'
-    str = "#{key}: #{pre}#{sep}#{orf}#{sep}#{suf}"
-    str += ' : ' \
-      "size=#{seq[range[:start]..range[:stop]].size}"
-    str += ' (fallback)' if range[:fallback]
-    logger.info str
+    res
   end
 
   #
@@ -171,26 +139,22 @@ class ORF
     option_name = option_name.to_sym
     # if start option does not exist, then should
     #  treat start of sequence as the start
-    if options[option_name] && !options[option_name].empty?
-      # iterate over all start codons to see which
-      #  is best
-      options[option_name].each do |codon|
-        temp_idxs = []
-        until (new_idx = \
-          seq.index(codon,
-                    (temp_idxs.empty? ? 0 : temp_idxs.last + 1))).nil?
-          temp_idxs << new_idx
-        end
-        idxs << temp_idxs
+    return idxs if options[option_name].nil? || options[option_name].empty?
+    # iterate over all start codons to see which
+    #  is best
+    options[option_name].each do |codon|
+      # initialize temporary index as empty
+      temp_idxs = []
+      # index starts at position 0
+      new_idx   = seq.index(codon, 0)
+      until new_idx.nil?
+        # necessary normalization
+        temp_idxs << index_normalization(option_name, new_idx)
+        new_idx   = seq.index(codon, new_idx + 1)
       end
+      idxs << temp_idxs
     end
-    idxs.flatten.sort.collect do |idx|
-      if option_name == :start
-        idx + 3
-      elsif option_name == :stop
-        idx - 1
-      end
-    end
+    idxs.flatten.sort
   end
 
   #
@@ -216,6 +180,7 @@ class ORF
     seq_size -= (seq_size - frame) % 3
     start = start_idxs.clone
     stop  = stop_idxs.clone
+    #
     stop << seq_size - 1 if stop_idxs.empty?
     start << frame if start_idxs.empty?
     #
@@ -229,28 +194,50 @@ class ORF
     valid = []
     fallback = []
     # iterate on each start codon
+    determine_valid_ranges({ start: start, stop: stop },
+                           { valid: valid, fallback: fallback },
+                           seq_size,
+                           frame,
+                           start_idxs.empty? || stop_idxs.empty?)
+    if valid.empty?
+      valid = fallback.uniq
+      logger.info 'no ORF with start and stop codons,' \
+        ' defaulting to fallback'
+    end
+    valid
+  end
+
+  #
+  # given star and stop codons indexes, decide which are the valid
+  #  sequence for an orf
+  # TODO: reject sequences that have a stop codon in them
+  def determine_valid_ranges(idxs, arrays, seq_size, frame, added_pos)
+    start = idxs[:start]
+    stop  = idxs[:stop]
+    #
+    #
+    # iterate on each start codon
     start.each do |pos_start|
       # iterate on each stop codon
       stop.each do |pos_stop|
         # ignore if start is bigger than stop index
         next if pos_start >= pos_stop
         # add a fall back where starts from begining
-        fallback << { start: frame, stop: pos_stop, fallback: true } \
-          if (pos_stop - frame) >= options[:min]
-        # ignore if size of orf is smaller than minimum
-        next if (pos_stop - pos_start + 1) < options[:min]
-        # if all conditions hold add as valid orf
-        if !start_idxs.empty? || !stop_idxs.empty?
-          valid << { start: pos_start, stop:  pos_stop, fallback: false }
+        if (pos_stop - frame) >= options[:min]
+          arrays[:fallback] << { start: frame, stop: pos_stop, fallback: true }
         end
+        # ignore if size of orf is smaller than minimum
+        next if (pos_stop - pos_start + 1) < options[:min] || added_pos
+        # if all conditions hold add as valid orf
+        arrays[:valid] << { start: pos_start,
+                            stop:  pos_stop,
+                            fallback: false }
       end
-      fallback << { start: pos_start, stop: seq_size - 1, fallback: true } \
-        if (seq_size - 1 - pos_start) >= options[:min]
+      next unless ((seq_size - 1) - pos_start) >= options[:min]
+      arrays[:fallback] << { start: pos_start,
+                             stop: seq_size - 1,
+                             fallback: true }
     end
-    valid = fallback.uniq if valid.empty?
-    logger.info 'no ORF with start and stop codons,' \
-      ' defaulting to fallback' if valid.empty?
-    valid
   end
 
   def get_longest(start_idx, stop_idx, seq_size, read_frame = [0, 1, 2])
