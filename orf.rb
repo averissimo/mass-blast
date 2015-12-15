@@ -245,6 +245,9 @@ class ORF
       stop.each do |pos_stop|
         # ignore if start is bigger than stop index
         next if pos_start >= pos_stop
+        # ignore if there is a stop codon between pos_start
+        #  and pos_stop
+        next if pos_stop > stop.bsearch { |el| el > pos_start }
         # add a fall back where starts from begining
         if (pos_stop - frame) >= options[:min]
           arr << { start: frame, stop: pos_stop, fallback: true }

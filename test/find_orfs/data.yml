@@ -1,5 +1,17 @@
 test:
   -
+    input: aaaatgaaaaaaatgtaataataataaaaa
+    output:
+      frame1: aaaaaaatg
+      frame2: ''
+      frame3: ''
+  -
+    input: aaaaaaaaataataataataaaaa
+    output:
+      frame1: aaaaaaaaa
+      frame2: ''
+      frame3: ''
+  -
     input: aaaatgaaaaaaatgtaaaaa
     output:
       frame1: aaaaaaatg
@@ -24,13 +36,27 @@ test:
       frame1: ''
       frame2: ''
       frame3: 'aaaaaa'
-  - input: atgaaataa
+  -
+    input: atgaaataa
     output:
       frame1: ''
       frame2: ''
       frame3: ''
-  - input: aaaatgaaaaaataaataa
+  -
+    input: aaaatgaaaaaataaataa
     output:
       frame1: 'aaaaaa'
-      frame2: 'aaatgaaaaaataaa'
+      frame2: ''
+      frame3: ''
+  -
+    input: aaaatcgaaaataaaataa
+    output:
+      frame1: ''
+      frame2: 'aaatcgaaaataaaa'
+      frame3: 'aatcgaaaa'
+  -
+    input: aaaatgcaaataaaataa
+    output:
+      frame1: 'caaataaaa'
+      frame2: 'aaatgcaaa'
       frame3: ''
