@@ -111,7 +111,7 @@ class ORF
     orf[hash_name][:orfs] = (frame_val.empty? ? frame_fal : frame_val)
     longest = { len: nil, range: nil }
     orf[hash_name][:orfs].each do |range|
-      len = range[:stop] - range[:stop] + 1
+      len = range[:stop] - range[:start] + 1
       if longest[:range].nil? || len > longest[:len]
         longest[:len]   = len
         longest[:range] = range
@@ -248,8 +248,11 @@ class ORF
         # ignore if there is a stop codon between pos_start
         #  and pos_stop
         next if pos_stop > stop.bsearch { |el| el > pos_start }
-        # add a fall back where starts from begining
-        if (pos_stop - frame) >= options[:min]
+        # add a fallback where starts from begining
+        # note: must check if from beggining to end there
+        #  are stop codons, if so do not show it
+        if (pos_stop - frame) >= options[:min] &&
+           !(pos_stop > stop.bsearch { |el| el > frame })
           arr << { start: frame, stop: pos_stop, fallback: true }
         end
         # ignore if size of orf is smaller than minimum
@@ -260,6 +263,9 @@ class ORF
                  fallback: added_pos }
       end
       next unless ((seq_size - 1) - pos_start) >= options[:min]
+
+      next if !(temp_res = stop.bsearch { |el| el > pos_start }).nil? &&
+              (seq_size - 1) > temp_res
       arr << { start: pos_start,
                stop: seq_size - 1,
                fallback: true }

@@ -10,6 +10,10 @@ module ORFCommon
     logger.level = (options[:debug] ? Logger::INFO : Logger::UNKNOWN)
   end
 
+  def range_to_s(range, str = '')
+    print_range(str, range)
+  end
+
   private
 
   #
@@ -38,27 +42,30 @@ module ORFCommon
     # simple proc to add spaces, works as auxiliary
     #  method to print range
     add_spaces = proc do |str|
-      str.gsub(/(.{1})/, '\1 ').strip
+      str.gsub(/([atgc]{1})/, '\1 ').strip
     end
-
-    orf = add_spaces.call(get_range_str(range[:start], range[:stop]))
-    pre = if range[:start] == 0
-            ''
-          else
-            add_spaces.call(get_range_str(0, range[:start] - 1))
-          end
-    suf = if range[:end] == seq.size - 1
-            ''
-          else
-            add_spaces.call(get_range_str(range[:stop] + 1, seq.size - 1))
-          end
-    #
-    sep = '|'
-    str = "#{key}: #{pre}#{sep}#{orf}#{sep}#{suf}"
-    str += ' : ' \
-      "size=#{seq[range[:start]..range[:stop]].size}"
-    str += ' (fallback)' if range[:fallback]
-    logger.info str
+    if range.nil?
+      str = "#{key} : (empty)"
+    else
+      orf = add_spaces.call(get_range_str(range[:start], range[:stop]))
+      pre = if range[:start] == 0
+              ''
+            else
+              add_spaces.call(get_range_str(0, range[:start] - 1))
+            end
+      suf = if range[:end] == seq.size - 1
+              ''
+            else
+              add_spaces.call(get_range_str(range[:stop] + 1, seq.size - 1))
+            end
+      #
+      sep = '|'
+      str = "#{key}: #{pre}#{sep}#{orf}#{sep}#{suf}"
+      str += ' : ' \
+        "size=#{seq[range[:start]..range[:stop]].size}"
+      str += ' (fallback)' if range[:fallback]
+    end
+    puts str
   end
 
   #

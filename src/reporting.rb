@@ -155,11 +155,18 @@ module Reporting
       end
     end
     # joins all threads, waiting for all to be finished
+    result = []
     threads.each do |thr|
       # add the result of each tread to the csv document
       thr.value.each do |el|
-        csv << el
+        result << el
       end
+    end
+    result.sort_by! do |line|
+      [line['file'], line['pident'], line['qcovs'], line['sseqid']]
+    end
+    result.each do |line|
+      csv << line
     end
     csv
   end
