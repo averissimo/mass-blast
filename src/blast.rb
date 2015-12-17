@@ -20,10 +20,14 @@ class Blast
   #
   #
   # initialize class with all necessary data
-  def initialize(config_path = nil)
+  def initialize(config_path = nil, silent = false)
     super(config_path)
     # create logger object
-    @logger      = Logger.new(STDOUT)
+    if silent
+      @logger = Logger.new('blast.log')
+    else
+      @logger = Logger.new(STDOUT)
+    end
     logger.level = Logger::DEBUG
     # load config file
     reload_config(config_path)

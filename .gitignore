@@ -5,3 +5,5 @@ Gemfile.lock
 vendor/bundle
 .bundle
 config_*.yml
+blast.log
+tmp/

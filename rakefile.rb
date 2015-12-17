@@ -1,14 +1,12 @@
 require 'rake/testtask'
 require 'rake/clean'
 require 'byebug'
+require 'rspec/core/rake_task'
 
-
-
-Rake::TestTask.new do |t|
-  t.name = 'test_orf'
-  t.libs << 'test'
-  t.test_files = FileList['test/test_orf.rb']
-  t.verbose = true
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = Dir.glob('spec/**/spec_*.rb')
+  t.rspec_opts = '--format documentation'
+  # t.rspec_opts << ' more options'
 end
 
 Rake::TestTask.new do |t|
