@@ -28,8 +28,6 @@ RSpec.describe Blast do
         end
       end
     end
-    #
-    # b.cleanup
   end
   #
   describe TBlastn do
