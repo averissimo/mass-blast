@@ -148,7 +148,7 @@ module Reporting
         result = []
         until queue.size == 0
           el = queue.pop
-          logger.info("item \##{el[:index]} being processed :)")
+          logger.debug("item \##{el[:index]} being processed :)")
           result << process_item(el[:item])
         end
         result

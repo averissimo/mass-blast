@@ -28,7 +28,7 @@ class Blast
     else
       @logger = Logger.new(STDOUT)
     end
-    logger.level = Logger::DEBUG
+    logger.level = Logger::INFO
     # load config file
     reload_config(config_path)
     #
@@ -52,18 +52,25 @@ class Blast
 
     # logging messages
     logger.info 'Going to run queries: ' + list.flatten.join(', ')
-    logger.info 'Calling blastn...'
+    logger.info 'Blasting...'
 
     until call_queue.empty?
       el = call_queue.pop
-      blast(el[:qfile],
-            el[:db],
-            el[:out_file],
-            el[:query_parent],
-            el[:db_parent])
+      cmd = blast(el[:qfile],
+                  el[:db],
+                  el[:out_file],
+                  el[:query_parent],
+                  el[:db_parent])
+      #
+      logger.info "running '#{el[:qfile]}'"
+      logger.info "  with database '#{el[:db]}' that will store in:"
+      logger.info "  '#{el[:out_file]}'"
+      logger.debug cmd
+      #
+      output = `#{cmd}` # actual call to blast
+      #
+      logger.debug '  ' + output
     end
-
-    logger.info 'Success!!'
   end
 
   #
