@@ -10,8 +10,8 @@ module ConfigBlast
   def initialize(*args)
     # setup config defaults
     @store = Configatron::RootStore.new
-    @store.config.default = File.expand_path('default.yml')
-    @store.config.user    = File.expand_path('config.yml')
+    @store.config.default = File.expand_path('config/default.yml')
+    @store.config.user    = File.expand_path('config/config.yml')
   end
 
   def reload_config(config_path = nil)
@@ -20,7 +20,7 @@ module ConfigBlast
     logger.info("loads configuration from defaults: #{@store.config.default}")
     @store.configure_from_hash(YAML.load_file(@store.config.default))
     logger.info("loads configuration from user: #{config_path}")
-    @store.configure_from_hash(YAML.load_file(config_path))
+    @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
     # process the configuration to adjust paths and values
     process_config
     logger.debug('loaded and processed configuration files')

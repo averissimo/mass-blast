@@ -4,7 +4,7 @@ require 'byebug'
 #
 require_relative 'blast_interface'
 require_relative 'reporting'
-require_relative 'config_blast'
+require_relative '../config/config_blast'
 #
 #
 #
