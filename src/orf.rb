@@ -1,6 +1,7 @@
 require 'bio'
 
 require_relative 'orf_common'
+require_relative 'orf_finder'
 #
 #
 #
@@ -8,14 +9,7 @@ class ORF
   #
   include ORFCommon
   #
-  DEFAULT_OPTIONS = { start: %w(atg),
-                      stop:  %w(tag taa tga),
-                      reverse: true,
-                      direct: true,
-                      min: 6,
-                      default_to_seq: false,
-                      debug: false }
-
+  #
   attr_reader :logger, :options, :seq, :sequence
   attr_writer :options
 
@@ -27,7 +21,7 @@ class ORF
     @sequence = sequence
     @seq = @sequence.to_s
     #
-    self.options = DEFAULT_OPTIONS.merge(options.nil? ? {} : options)
+    self.options = ORFFinder::DEFAULT_OPTIONS.merge(options.nil? ? {} : options)
   end
 
   #
@@ -66,6 +60,8 @@ class ORF
     #  in trying to run the find algorithm
     return sequence if sequence.nil? || sequence.size == 0
     #
+    orf = { frame1: {}, frame2: {}, frame3: {} }
+    #
     start_idx = lookup_codons_idx(:start)
     stop_idx  = lookup_codons_idx(:stop)
     res       = get_longest(start_idx, stop_idx, seq.size, [0, 1, 2])
@@ -73,8 +69,6 @@ class ORF
     logger.info "start codons idx: #{start_idx}"
     logger.info "stop codons idx: #{stop_idx}"
     logger.info res
-    #
-    orf = { frame1: {}, frame2: {}, frame3: {} }
     # iterate over each frame and range to return the
     #  longest above the minimum sequence length
     # these are the preferences:
