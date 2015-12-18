@@ -237,20 +237,20 @@ class ORF
     start.each do |pos_start|
       # iterate on each stop codon
       stop.each do |pos_stop|
+        # add a fallback where starts from begining
+        # note: must check if from beggining to end there
+        #  are stop codons, if so do not show it
+        if (pos_stop + 1 - frame) >= options[:min] &&
+           !(pos_stop > stop.bsearch { |el| el >= (frame - 1) })
+          arr << { start: frame, stop: pos_stop, fallback: true }
+        end
         # ignore if start is bigger than stop index
         next if pos_start >= pos_stop
         # ignore if there is a stop codon between pos_start
         #  and pos_stop
-        next if pos_stop > stop.bsearch { |el| el > pos_start }
-        # add a fallback where starts from begining
-        # note: must check if from beggining to end there
-        #  are stop codons, if so do not show it
-        if (pos_stop - frame) >= options[:min] &&
-           !(pos_stop > stop.bsearch { |el| el > frame })
-          arr << { start: frame, stop: pos_stop, fallback: true }
-        end
+        next if pos_stop > stop.bsearch { |el| el >= (pos_start - 1) }
         # ignore if size of orf is smaller than minimum
-        next if (pos_stop - pos_start + 1) < options[:min]
+        next if (pos_stop + 1 - pos_start) < options[:min]
         # if all conditions hold add as valid orf
         arr << { start: pos_start,
                  stop:  pos_stop,
@@ -258,7 +258,7 @@ class ORF
       end
       next unless ((seq_size - 1) - pos_start) >= options[:min]
 
-      next if !(temp_res = stop.bsearch { |el| el > pos_start }).nil? &&
+      next if !(temp_res = stop.bsearch { |el| el >= (pos_start - 1) }).nil? &&
               (seq_size - 1) > temp_res
       arr << { start: pos_start,
                stop: seq_size - 1,

@@ -27,6 +27,38 @@ test:
   -
     config:
       <<: *default
+    input: atgaaataa
+    output:
+      frame1: 'atgaaa'
+      frame2: ''
+      frame3: ''
+  -
+    config:
+      <<: *default
+    input: aaaatgcaaataaaataa
+    output:
+      frame1: 'caaataaaa'
+      frame2: 'aaatgcaaa'
+      frame3: ''
+  - # stop codon immediatlt after start codon
+    config:
+      <<: *default
+    input: aaaatgtaaaaataaaaa
+    output:
+      frame1: 'aaaatg'
+      frame2: ''
+      frame3: ''
+  -
+    config:
+      <<: *default
+    input: aaaatgaaataataaaaa
+    output:
+      frame1: 'aaaatgaaa'
+      frame2: ''
+      frame3: ''
+  -
+    config:
+      <<: *default
     input: aaaatgaaaaaaatgtaataataataaaaa
     output:
       frame1: aaaaaaatg
@@ -75,14 +107,6 @@ test:
   -
     config:
       <<: *default
-    input: atgaaataa
-    output:
-      frame1: ''
-      frame2: ''
-      frame3: ''
-  -
-    config:
-      <<: *default
     input: aaaatgaaaaaataaataa
     output:
       frame1: 'aaaaaa'
@@ -96,11 +120,3 @@ test:
       frame1: ''
       frame2: 'aaatcgaaaataaaa'
       frame3: 'aatcgaaaa'
-  -
-    config:
-      <<: *default
-    input: aaaatgcaaataaaataa
-    output:
-      frame1: 'caaataaaa'
-      frame2: 'aaatgcaaa'
-      frame3: ''

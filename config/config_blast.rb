@@ -7,11 +7,16 @@ require 'yaml'
 #
 module ConfigBlast
   #
-  def initialize
+  def initialize(config_path = nil, silent = false)
     # setup config defaults
     @store = Configatron::RootStore.new
     @store.config.default = File.expand_path('config/default.yml')
-    @store.config.user    = File.expand_path('config/config.yml')
+    @store.configure_from_hash(YAML.load_file(@store.config.default))
+    #
+    config_path = @store.config.user if config_path.nil?
+    #
+    @store.config.user = File.expand_path(config_path)
+    @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
   end
 
   def reload_config(config_path = nil)
@@ -30,12 +35,7 @@ module ConfigBlast
 
   # create output dir if does not exist
   def create_output_dir
-    begin
-      Dir.mkdir @store.output.dir unless Dir.exist?(@store.output.dir)
-    rescue
-      logger.error(msg = 'Could not create output directory')
-      raise msg
-    end
+    make_dir(@store.output.dir)
     # create output dir with timestamp
     begin
       if !@store.key?(:force_folder)
@@ -49,6 +49,20 @@ module ConfigBlast
       end
     rescue StandardError => e
       logger.error msg = "Could not create output directory (why: #{e.message})"
+      raise msg
+    end
+    #
+    # Create output directory inner structure
+    make_dir(File.join(@store.output.dir, @store.output.intermediate))
+    make_dir(File.join(@store.output.dir, @store.output.blast_results))
+  end
+
+  def make_dir(dirpath)
+    #
+    begin
+      Dir.mkdir dirpath unless Dir.exist?(dirpath)
+    rescue
+      logger.error(msg = "Could not create '#{dirpath}' directory")
       raise msg
     end
   end

@@ -10,6 +10,8 @@ module Reporting
   TRIMMED_FILENAME   = 'trimmed.csv'
   REDUNDANT_FILENAME = 'redundant.csv'
   DISCARDED_FILENAME = 'discarded.csv'
+  FASTA_NT_FILENAME  = 'nt_longest_orfs.fasta'
+  FASTA_AA_FILENAME  = 'aa_longest_orfs.fasta'
   #
   NUM_THREADS = 5
   #
@@ -17,7 +19,9 @@ module Reporting
   # Generate a report from all the outputs
   def gen_report_from_output
     # find all output files
-    outs = Dir[File.join(@store.output.dir, "*#{@store.output.extension}")]
+    outs = Dir[File.join(@store.output.dir,
+                         @store.output.blast_results,
+                         "*#{@store.output.extension}")]
 
     # open report.csv to write
     File.open File.join(@store.output.dir, REPORT_FILENAME), 'w' do |fw|
@@ -70,20 +74,42 @@ module Reporting
   def generate_headers(row, header, aux_header)
     header.concat row.headers
     header.concat %w(contig_count nt_aligned_seq aa_aligned_seq
-                     nt_longest_orf_frame1 aa_longest_orf_frame1
-                     nt_longest_orf_frame2 aa_longest_orf_frame2
-                     nt_longest_orf_frame3 aa_longest_orf_frame3)
+                     nt_orf_frame1  nt_orf_frame1_len
+                     aa_orf_frame1  aa_orf_frame1_len
+                     nt_orf_frame2  nt_orf_frame2_len
+                     aa_orf_frame2  aa_orf_frame2_len
+                     nt_orf_frame3  nt_orf_frame3_len
+                     aa_orf_frame3  aa_orf_frame3_len
+                     nt_orf_frame-1 nt_orf_frame-1_len
+                     aa_orf_frame-1 aa_orf_frame-1_len
+                     nt_orf_frame-2 nt_orf_frame-2_len
+                     aa_orf_frame-2 aa_orf_frame-2_len
+                     nt_orf_frame-3 nt_orf_frame-3_len
+                     aa_orf_frame-3 aa_orf_frame-3_len
+                     nt_longest_orf nt_longest_orf_len
+                     aa_longest_orf aa_longest_orf_len)
     aux_header.concat row.fields
-    aux_header.concat ['means number of results for this contig ' \
-      'with less identity',
-                       'means nucleotide alignment from db',
-                       'means aminoacid alignment from db',
-                       'means longest nucleotide orf in read frame1 alignment',
-                       'means longest aminoacid orf in read frame1 alignment',
-                       'means longest nucleotide orf in read frame2 alignment',
-                       'means longest aminoacid orf in read frame2 alignment',
-                       'means longest nucleotide orf in read frame3 alignment',
-                       'means longest aminoacid orf in read frame3 alignment']
+    verbose_explanation = proc do |type, frame, is_len|
+      "means #{is_len ? 'length of ' : ''}longest #{type} " \
+        "on read frame#{frame} alignment"
+    end
+    aux_header.concat \
+      [
+        'means number of results for this contig with less identity',
+        'means nucleotide alignment from db',
+        'means amino-acid alignment from db'
+      ]
+    #
+    [1, 2, 3, -1, -2, -3].each do |el|
+      aux_header.concat [verbose_explanation.call('nucleotide', el, false),
+                         verbose_explanation.call('nucleotide', el, true),
+                         verbose_explanation.call('amino-acid', el, false),
+                         verbose_explanation.call('amino-acid', el, true)]
+    end
+    aux_header.concat ['means longest nucleotide orf in alignment',
+                       'means length of longest nucleotide orf in alignment',
+                       'means longest amino-acid orf in alignment',
+                       'means length of longest amino-acid orf in alignment']
   end
 
   #
@@ -111,20 +137,35 @@ module Reporting
     # save CSVs
     #
     #
+    fasta_files = nil
     CSV.open(File.join(@store.output.dir, TRIMMED_FILENAME), 'wb') do |csv|
       # add header and second line explaining header to the csv
       csv << header
       csv << aux_header
       #
-      process_db(db, csv)
+      fasta_files = process_db(db, csv)
     end
     logger.info "finished writing #{TRIMMED_FILENAME}"
     #
-    CSV.open(File.join(@store.output.dir, DISCARDED_FILENAME), 'wb') do |csv|
+    File.open(File.join(@store.output.dir, FASTA_NT_FILENAME), 'wb') do |fid|
+      fid.write fasta_files[:nt].join("\n")
+    end
+    #
+    File.open(File.join(@store.output.dir, FASTA_AA_FILENAME), 'wb') do |fid|
+      fid.write fasta_files[:aa].join("\n")
+    end
+    #
+    CSV.open(File.join(@store.output.dir,
+                       @store.output.intermediate,
+                       DISCARDED_FILENAME),
+             'wb') do |csv|
       deleted.each { |row| csv << row }
     end
     #
-    CSV.open(File.join(@store.output.dir, REDUNDANT_FILENAME), 'wb') do |csv|
+    CSV.open(File.join(@store.output.dir,
+                       @store.output.intermediate,
+                       REDUNDANT_FILENAME),
+             'wb') do |csv|
       redundant.each { |row| csv << row }
     end
     logger.info "finished writing #{REDUNDANT_FILENAME}" \
@@ -165,10 +206,16 @@ module Reporting
     result.sort_by! do |line|
       [line['file'], line['pident'], line['qcovs'], line['sseqid']]
     end
+    fasta_files = { nt: [], aa: [] }
     result.each do |line|
       csv << line
-    end
-    csv
+      #
+      fasta_files[:nt] << ">line['sseqid']-#{line['db']}-#{line['qseqid']}"
+      fasta_files[:aa] << fasta_files[:nt].last
+      fasta_files[:nt] << line['nt_longest_orf']
+      fasta_files[:aa] << line['aa_longest_orf']
+     end
+    fasta_files
   end
 
   #
@@ -184,14 +231,29 @@ module Reporting
     row['nt_aligned_seq'] = spliced.to_s
     row['aa_aligned_seq'] = spliced.translate.to_s
     #
-    orf = ORF.new(spliced, @store.orf.to_hash)
+    orf = ORFFinder.new(spliced, @store.orf.to_hash)
     #
-    row['nt_longest_orf_frame1'] = orf.nt[:frame1]
-    row['aa_longest_orf_frame1'] = orf.aa[:frame1]
-    row['nt_longest_orf_frame2'] = orf.nt[:frame2]
-    row['aa_longest_orf_frame2'] = orf.aa[:frame2]
-    row['nt_longest_orf_frame3'] = orf.nt[:frame3]
-    row['aa_longest_orf_frame3'] = orf.aa[:frame3]
+    add_row_proc = proc do |frame|
+      direction  = (frame > 0 ? :direct : :reverse)
+      common_str = "longest_orf_frame#{frame}"
+      frame_sym  = "frame#{frame.abs}".to_sym
+      row["nt_#{common_str}"]     = orf.nt[direction][frame_sym]
+      row["nt_#{common_str}_len"] = row["nt_#{common_str}"].size
+      row["aa_#{common_str}"]     = orf.aa[direction][frame_sym]
+      row["aa_#{common_str}_len"] = row["aa_#{common_str}"].size
+      #
+      row["nt_#{common_str}"].size
+    end
+    #
+    frames = [+1, +2, +3, -1, -2, -3]
+    arr = frames.collect do |el|
+      add_row_proc.call(el)
+    end
+    max_idx = arr.rindex(arr.max)
+    row['nt_longest_orf']     = row["nt_longest_orf_frame#{frames[max_idx]}"]
+    row['nt_longest_orf_len'] = row['nt_longest_orf'].size
+    row['aa_longest_orf']     = row['nt_longest_orf'].translate
+    row['aa_longest_orf_len'] = row['aa_longest_orf'].size
     row
   end
 

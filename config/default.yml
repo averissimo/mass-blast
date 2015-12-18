@@ -24,7 +24,15 @@ orf:
 output:
   dir: output
   extension: .out
+  intermediate: intermediate
+  blast_results: blast_results
 
+debug:
+  level: "info"
+  file:
+
+config:
+  user: config/user.yml
 #
 # removes blanks lines
 clean_output: true

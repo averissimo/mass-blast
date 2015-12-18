@@ -20,16 +20,22 @@ class Blast
   #
   #
   # initialize class with all necessary data
-  def initialize(config_path = nil, silent = false)
+  def initialize(config_path = nil)
     super(config_path)
     # create logger object
-    if silent
-      @logger = Logger.new('blast.log')
-    else
+    if @store.debug.file.nil?
       @logger = Logger.new(STDOUT)
+    else
+      @logger = Logger.new(@store.debug.file)
     end
-    logger.level = Logger::INFO
+    if @store.debug.level == 'info'
+      logger.level = Logger::INFO
+    elsif @store.debug.level == 'debug'
+      logger.level = Logger::DEBUG
+    else
+      logger.level = Logger::INFO
     # load config file
+  end
     reload_config(config_path)
     #
     @blastdb_cache = {}
@@ -180,6 +186,8 @@ class Blast
     list << prefix unless prefix.nil?
     list << name
     list << db
-    File.join(@store.output.dir, list.join('#') + @store.output.extension)
+    File.join(@store.output.dir,
+              @store.output.blast_results,
+              list.join('#') + @store.output.extension)
   end
 end # end of class
