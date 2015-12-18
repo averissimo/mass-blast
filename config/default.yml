@@ -26,6 +26,7 @@ output:
   extension: .out
   intermediate: intermediate
   blast_results: blast_results
+  fastas: fasta_files
 
 debug:
   level: "info"

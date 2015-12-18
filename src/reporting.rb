@@ -8,6 +8,7 @@ module Reporting
   #
   REPORT_FILENAME    = 'report.csv'
   TRIMMED_FILENAME   = 'trimmed.csv'
+  RESULTS_FILENAME   = 'results.csv'
   REDUNDANT_FILENAME = 'redundant.csv'
   DISCARDED_FILENAME = 'discarded.csv'
   FASTA_NT_FILENAME  = 'nt_longest_orfs.fasta'
@@ -146,19 +147,48 @@ module Reporting
       fasta_files = process_db(db, csv)
     end
     logger.info "finished writing #{TRIMMED_FILENAME}"
-    #
-    File.open(File.join(@store.output.dir, FASTA_NT_FILENAME), 'wb') do |fid|
-      fid.write fasta_files[:nt].join("\n")
+    include_headers = %w(task folder file_name db
+                         qseqid evalue pident qcovs
+                         sseqid
+                         contig_count
+                         nt_aligned_seq aa_aligned_seq
+                         nt_longest_orf nt_longest_orf_len
+                         aa_longest_orf aa_longest_orf_len)
+    csv_r = CSV.read(File.join(@store.output.dir, TRIMMED_FILENAME),
+                     'rb',
+                     headers: true)
+    csv_r.headers.each do |col_name|
+      csv_r.delete col_name unless include_headers.include?(col_name)
+    end
+    CSV.open(File.join(@store.output.dir, RESULTS_FILENAME), 'wb') do |csv|
+      csv << csv_r.headers
+      csv_r.each do |row|
+        csv << row
+      end
     end
     #
-    File.open(File.join(@store.output.dir, FASTA_AA_FILENAME), 'wb') do |fid|
-      fid.write fasta_files[:aa].join("\n")
+    fasta_files.keys.each do |fasta_db|
+      File.open(File.join(@store.output.dir,
+                          @store.output.fastas,
+                          fasta_db.to_s + '_' + FASTA_NT_FILENAME),
+                'wb') do |fid|
+        fid.write fasta_files[fasta_db][:nt].join("\n")
+      end
+      #
+      File.open(File.join(@store.output.dir,
+                          @store.output.fastas,
+                          fasta_db.to_s + '_' + FASTA_AA_FILENAME),
+                'wb') do |fid|
+        fid.write fasta_files[fasta_db][:aa].join("\n")
+      end
     end
     #
     CSV.open(File.join(@store.output.dir,
                        @store.output.intermediate,
                        DISCARDED_FILENAME),
              'wb') do |csv|
+      csv << header
+      csv << aux_header
       deleted.each { |row| csv << row }
     end
     #
@@ -166,6 +196,8 @@ module Reporting
                        @store.output.intermediate,
                        REDUNDANT_FILENAME),
              'wb') do |csv|
+      csv << header
+      csv << aux_header
       redundant.each { |row| csv << row }
     end
     logger.info "finished writing #{REDUNDANT_FILENAME}" \
@@ -206,15 +238,18 @@ module Reporting
     result.sort_by! do |line|
       [line['file'], line['pident'], line['qcovs'], line['sseqid']]
     end
-    fasta_files = { nt: [], aa: [] }
+    fasta_files = {}
     result.each do |line|
       csv << line
       #
-      fasta_files[:nt] << ">line['sseqid']-#{line['db']}-#{line['qseqid']}"
-      fasta_files[:aa] << fasta_files[:nt].last
-      fasta_files[:nt] << line['nt_longest_orf']
-      fasta_files[:aa] << line['aa_longest_orf']
-     end
+      fasta_files[line['db']] = { nt: [], aa: [] } \
+        if fasta_files[line['db']].nil?
+      fasta_files[line['db']][:nt] << \
+        ">line['sseqid']-#{line['db']}-#{line['qseqid']}"
+      fasta_files[line['db']][:aa] << fasta_files[line['db']][:nt].last
+      fasta_files[line['db']][:nt] << line['nt_longest_orf']
+      fasta_files[line['db']][:aa] << line['aa_longest_orf']
+    end
     fasta_files
   end
 

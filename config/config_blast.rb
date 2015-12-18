@@ -55,6 +55,7 @@ module ConfigBlast
     # Create output directory inner structure
     make_dir(File.join(@store.output.dir, @store.output.intermediate))
     make_dir(File.join(@store.output.dir, @store.output.blast_results))
+    make_dir(File.join(@store.output.dir, @store.output.fastas))
   end
 
   def make_dir(dirpath)
