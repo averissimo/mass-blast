@@ -7,7 +7,7 @@ require 'yaml'
 #
 module ConfigBlast
   #
-  def initialize(*args)
+  def initialize
     # setup config defaults
     @store = Configatron::RootStore.new
     @store.config.default = File.expand_path('config/default.yml')
@@ -72,7 +72,7 @@ module ConfigBlast
     fail 'Databases must be defined in config.yml.' if @store.db.list.nil?
     fail 'Folders must be defined in config.yml.'   if @store.query.folders.nil?
     # set existing dbs
-    logger.info("loads databases (from directory '#{@store.db.parent}'): " +
-      @store.db.list.join(', '))
+    logger.info("loads databases (from directory '#{@store.db.parent}'): ")
+    @store.db.list.each { |db| logger.info(" - #{db}") }
   end
 end
