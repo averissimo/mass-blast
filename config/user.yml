@@ -43,9 +43,8 @@ db:
   list:
 #
 # Directories that holds all queries in form of fasta files
-# All query files must have either extensions:
-#  .fasta
-#  .query
+# All query files must have as extensions:
+#  .fasta .query .fas .fna
 query:
   parent: db_and_queries
   # It supports multiple folders holding the queries by

@@ -85,7 +85,9 @@ class Blast
   def blast_folders_each(query, query_parent, db_parent, call_queue)
     list = []
     # go through all queries in each directory
-    list << Dir[File.join(query_parent, query, '*.fasta'),
+    list << Dir[File.join(query_parent, query, '*.fas'),
+                File.join(query_parent, query, '*.fna'),
+                File.join(query_parent, query, '*.fasta'),
                 File.join(query_parent, query, '*.query')]
       .each do |query_file|
       #
