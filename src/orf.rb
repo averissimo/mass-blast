@@ -210,11 +210,11 @@ class ORF
                            frame,
                            start_idxs.empty? || stop_idxs.empty?)
     if valid.empty?
-      valid = fallback.uniq.collect do |range|
-        if get_range_str(range[:start], range[:stop]).size == size_of_frame(frame)
+      valid = fallback.uniq.collect do |r|
+        if get_range_str(r[:start], r[:stop]).size == size_of_frame(frame)
           nil
         else
-          range
+          r
         end
       end.compact
       logger.info 'no ORF with start and stop codons,' \

@@ -84,10 +84,22 @@ module ConfigBlast
     logger.debug('query_parent: ' + @store.query.parent)
     logger.debug('db_parent: ' + @store.db.parent)
     #
-    fail 'Databases must be defined in config.yml.' if @store.db.list.nil?
-    fail 'Folders must be defined in config.yml.'   if @store.query.folders.nil?
+    fail 'Database parent must be defined in config/user.yml.' \
+      if @store.db.parent.nil?
+    fail 'Folders must be defined in config/user.yml.' \
+      if @store.query.folders.nil?
     # set existing dbs
     logger.info("loads databases (from directory '#{@store.db.parent}'): ")
+    if @store.db.list.nil? || @store.db.list.empty?
+      @store.db.list = []
+      Dir[File.join(@store.db.parent, '*.nhr')].each do |filename|
+        next unless File.file? filename
+        no_ext = File.basename(filename, File.extname(filename))
+        @store.db.list << no_ext.gsub(/\.[0-9]+/, '')
+      end
+    end
+    fail "No blast dbs found in #{@store.db.parent}." \
+      if @store.db.list.nil? || @store.db.list.empty?
     @store.db.list.each { |db| logger.info(" - #{db}") }
   end
 end

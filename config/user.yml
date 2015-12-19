@@ -1,0 +1,56 @@
+# Blast options and task
+#  updated to blast+ version: 2.2.30+
+#
+# Options currently implemented for engine are:
+#  - tblastn
+#  - blastn
+# default in user.yml is tblastn
+engine: tblastn
+#
+# Opts are engine specific, the default in user.yml
+#  are for tblastn
+#
+# Example of valid options (as of the writing of this file):
+#  - for tblastn (default in user.yml):
+# opts: "-max_target_seqs 500 -evalue 1E-20"
+#  - for blastn:
+# opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
+opts: "-max_target_seqs 500 -evalue 1E-20"
+# Task for engine which again are also specific for each
+#  engine.
+#
+# Example of valid options (as of the writing of this file)
+#  and separated by a comma:
+#  - for tblastn:
+# tblastn, tblastn-fast
+#  - for blastn:
+# blastn, blastn-short, dc-megablast, megablast, rmblastn
+task: tblastn
+# Threshold that should filter out results by identity
+#  values can take between 0 and 1 (i.e. 0% and 100%)
+identity_threshold: .40
+#
+# Directory that holds all database files in blastdb format
+#  if you need to convert a fasta file to this format, you
+#  can use the tool from blast+:
+#    $ makeblastdb
+#  or put the files in db_and_queries/import_db and run the
+#  the script that is in that folder
+db:
+  parent: db_and_queries/db
+  # In case list is empty it will use all blast dbs in parent
+  #  that have a .nhr extension
+  list:
+#
+# Directories that holds all queries in form of fasta files
+# All query files must have either extensions:
+#  .fasta
+#  .query
+query:
+  parent: db_and_queries
+  # It supports multiple folders holding the queries by
+  #  adding new lines in 'folders' options
+  # note: all new lines must follow indentation and start
+  #  with a dash '-' (without quotes)
+  folders:
+    - queries

@@ -34,8 +34,8 @@ class Blast
       logger.level = Logger::DEBUG
     else
       logger.level = Logger::INFO
+    end
     # load config file
-  end
     reload_config(config_path)
     #
     @blastdb_cache = {}
@@ -85,7 +85,8 @@ class Blast
   def blast_folders_each(query, query_parent, db_parent, call_queue)
     list = []
     # go through all queries in each directory
-    list << Dir[File.join(query_parent, query, '*.query')]
+    list << Dir[File.join(query_parent, query, '*.fasta'),
+                File.join(query_parent, query, '*.query')]
       .each do |query_file|
       #
       logger.debug "going to blast with query: '#{query_file}'"

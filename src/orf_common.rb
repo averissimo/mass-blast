@@ -89,6 +89,6 @@ module ORFCommon
   end
 
   def size_of_frame(frame)
-    seq_size = seq.size - frame - (seq.size - frame) % 3
+    seq.size - frame - (seq.size - frame) % 3
   end
 end
