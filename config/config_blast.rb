@@ -60,10 +60,9 @@ module ConfigBlast
 
   def make_dir(dirpath)
     Dir.mkdir dirpath unless Dir.exist?(dirpath)
-    rescue
-      logger.error(msg = "Could not create '#{dirpath}' directory")
-      raise msg
-    end
+  rescue
+    logger.error(msg = "Could not create '#{dirpath}' directory")
+    raise msg
   end
 
   #
