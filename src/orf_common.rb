@@ -33,7 +33,21 @@ module ORFCommon
   #
   # tranform range to string
   def get_range_str(start, stop)
-    seq[start..stop]
+    # check if there is a start codon before start
+    #  and an end codon after stop, if there is, show it!
+    start_codon = ''
+    stop_codon = ''
+    if start - 3 >= 0 &&
+       options[:start].include?(seq[(start - 3)..(start - 1)])
+      start_codon = seq[(start - 3)..(stop - 3)]
+    end
+
+    if stop + 3 <= seq.size - 1 &&
+       options[:stop].include?(seq[(stop + 1)..(stop + 3)])
+      stop_codon = seq[(stop + 1)..(stop + 3)]
+    end
+
+    "#{start_codon}#{seq[start..stop]}#{stop_codon}"
   end
 
   #
