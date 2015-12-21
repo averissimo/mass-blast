@@ -45,6 +45,7 @@ class Blast
   def blast_folders(folders      = nil,
                     query_parent = nil,
                     db_parent    = nil)
+    db_parent     = @store.db.parent if db_parent.nil?
     query_parent  = @store.query.parent if query_parent.nil?
     query_folders = @store.query.folders if folders.nil?
     # create new queue to add all operations
@@ -59,13 +60,15 @@ class Blast
     logger.info 'Going to run queries: ' + list.flatten.join(', ')
     logger.info 'Blasting...'
 
+    logger.info 'Setting BLASTDB environment variable'
+    ENV['BLASTDB'] = db_parent
+
     until call_queue.empty?
       el = call_queue.pop
       cmd = blast(el[:qfile],
                   el[:db],
                   el[:out_file],
-                  el[:query_parent],
-                  el[:db_parent])
+                  el[:query_parent])
       #
       logger.info "running '#{el[:qfile]}'"
       logger.info "  with database '#{el[:db]}' that will store in:"
