@@ -8,12 +8,11 @@ class Blastn < Blast
     query_parent = @store.query.parent if query_parent.nil?
     db_parent    = @store.db.parent if db_parent.nil?
     # create command for this call
-    cmd = "BLASTDB=\"#{db_parent}\""                             \
-          " blastn -query \"#{File.join(query_parent, qfile)}\"" \
-          " -db \"#{db}\""                                       \
-          " #{@store.opts}"                                      \
-          " -out #{out_file}"                                    \
-          " -outfmt \"#{@store.format.outfmt}"                   \
+    cmd = "blastn -query \"#{File.join(query_parent, qfile)}\"" \
+          " -db \"#{File.join(db_parent, db)}\""                \
+          " #{@store.opts}"                                     \
+          " -out #{out_file}"                                   \
+          " -outfmt \"#{@store.format.outfmt}"                  \
           " #{@store.format.specifiers.keys.join(' ')}\""
     cmd
   end
