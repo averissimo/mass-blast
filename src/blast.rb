@@ -128,13 +128,14 @@ class Blast
     #
     return true if !@blastdb_cache.nil? && !@blastdb_cache[db].nil?
     #
+    ENV['BLASTDB'] = @store.db.parent
     cmd = "blastdbcmd -db #{db}" \
-      " -dbtype 'nucl'" \
+      " -dbtype nucl" \
       ' -entry all' \
       " -outfmt \"%s %t\""
     logger.debug "getting cache for blastdb for: #{db}"
     logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
-    output = `BLASTDB="#{@store.db.parent}" #{cmd}`
+    output = `#{cmd}`
     @blastdb_cache[db] = {}
     output.split("\n").each do |line|
       pair = line.split(' ')
