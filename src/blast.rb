@@ -60,7 +60,8 @@ class Blast
     logger.info 'Going to run queries: ' + list.flatten.join(', ')
     logger.info 'Blasting...'
 
-    logger.info 'Setting BLASTDB environment variable'
+    logger.debug 'Setting BLASTDB environment variable:'
+    logger.debug "  -> #{db_parent}"
     ENV['BLASTDB'] = db_parent
 
     until call_queue.empty?
