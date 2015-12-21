@@ -135,6 +135,12 @@ module Reporting
         process_row(row, 'sseqid', db, redundant, deleted)
       end
     end
+    #
+    if @store.key?('prune_identical') && @store.prune_identical.size > 0
+      @store.prune_identical.each do |prune_col|
+        db = posterior_filter(prune_col, db, redundant)
+      end
+    end
     # save CSVs
     #
     #
@@ -290,6 +296,35 @@ module Reporting
     row['aa_longest_orf']     = row['nt_longest_orf'].translate
     row['aa_longest_orf_len'] = row['aa_longest_orf'].size
     row
+  end
+
+  #
+  #
+  def posterior_filter(col_id, db, redundant)
+    new_db = {}
+    db.values.each do |val|
+      row = val[:row]
+      db_id = "#{row[col_id]}_#{row['db']}"
+      new_pident = Float(row['pident'])
+
+      cur_pident = \
+        new_db[db_id].nil? ? nil : Float(new_db[db_id][:row]['pident'])
+      # if row has valid identity
+      if cur_pident
+        # add to redudant array the previous row or the current
+        redundant << (new_pident > cur_pident ? new_db[db_id][:row] : row)
+        # increases count by one
+        new_db[db_id][:count] += new_db[db_id][:count]
+        # does not replace row if identity is not bigger than current one
+        next if new_pident <= cur_pident
+      end
+      # start the count if it is the first contig
+      new_db[db_id] = { count: val[:count] } if new_db[db_id].nil?
+      # if it reaches here, then the row has a better identity
+      #  than the previous (or there were no contigs before in db)
+      new_db[db_id][:row] = row
+    end
+    new_db
   end
 
   #

@@ -30,6 +30,9 @@ task: tblastn
 #  values can take between 0 and 1 (i.e. 0% and 100%)
 identity_threshold: .40
 #
+prune_identical:
+  - qseq
+#
 # Directory that holds all database files in blastdb format
 #  if you need to convert a fasta file to this format, you
 #  can use the tool from blast+:
