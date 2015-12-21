@@ -7,7 +7,7 @@ require 'yaml'
 #
 module ConfigBlast
   #
-  def initialize(config_path = nil, silent = false)
+  def initialize(config_path = nil)
     # setup config defaults
     @store = Configatron::RootStore.new
     @store.config.default = File.expand_path('config/default.yml')

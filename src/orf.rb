@@ -211,7 +211,7 @@ class ORF
                            start_idxs.empty? || stop_idxs.empty?)
     if valid.empty?
       valid = fallback.uniq.collect do |r|
-        if get_range_str(r[:start], r[:stop]).size == size_of_frame(frame)
+        if get_range_str(r[:start], r[:stop], false).size == size_of_frame(frame)
           nil
         else
           r

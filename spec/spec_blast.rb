@@ -12,7 +12,7 @@ RSpec.describe Blast do
   describe Blastn do
     #
     type = 'blastn'
-    b = Blastn.new(test_config(type), true)
+    b = Blastn.new(test_config(type))
     b.blast_folders
     b.gen_report_from_output
     b.prune_results
@@ -32,7 +32,7 @@ RSpec.describe Blast do
   #
   describe TBlastn do
     type = 'tblastn'
-    b = TBlastn.new(test_config(type), true)
+    b = TBlastn.new(test_config(type))
     b.blast_folders
     b.gen_report_from_output
 

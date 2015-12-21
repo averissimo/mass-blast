@@ -29,7 +29,8 @@ test:
       <<: *default
     input: atgaaataa
     output:
-      frame1: 'atgaaa'
+      frame1: 'atgaaataa' # ORF that was found is atgaaa with stop codon taa
+                          #  atg at the beggining is considered a intermediate
       frame2: ''
       frame3: ''
   -
@@ -37,15 +38,15 @@ test:
       <<: *default
     input: aaaatgcaaataaaataa
     output:
-      frame1: 'caaataaaa'
-      frame2: 'aaatgcaaa'
+      frame1: 'atgcaaataaaataa'
+      frame2: 'aaatgcaaataa'
       frame3: ''
   - # stop codon immediatlt after start codon
     config:
       <<: *default
     input: aaaatgtaaaaataaaaa
     output:
-      frame1: 'aaaatg'
+      frame1: 'aaaatgtaa' # again, atg is considered an intermediate
       frame2: ''
       frame3: ''
   -
@@ -53,7 +54,7 @@ test:
       <<: *default
     input: aaaatgaaataataaaaa
     output:
-      frame1: 'aaaatgaaa'
+      frame1: 'aaaatgaaataa'
       frame2: ''
       frame3: ''
   -
@@ -61,7 +62,7 @@ test:
       <<: *default
     input: aaaatgaaaaaaatgtaataataataaaaa
     output:
-      frame1: aaaaaaatg
+      frame1: atgaaaaaaatgtaa
       frame2: ''
       frame3: ''
   -
@@ -69,7 +70,7 @@ test:
       <<: *default
     input: aaaaaaaaataataataataaaaa
     output:
-      frame1: aaaaaaaaa
+      frame1: aaaaaaaaataa
       frame2: ''
       frame3: ''
   -
@@ -77,7 +78,7 @@ test:
       <<: *default
     input: aaaatgaaaaaaatgtaaaaa
     output:
-      frame1: aaaaaaatg
+      frame1: atgaaaaaaatgtaa
       frame2: ''
       frame3: ''
   -
@@ -93,7 +94,7 @@ test:
       <<: *default
     input: aaaaaaaaatgaaaaa
     output:
-      frame1: 'aaaaaaaaa'
+      frame1: 'aaaaaaaaatga'
       frame2: ''
       frame3: ''
   -
@@ -103,13 +104,13 @@ test:
     output:
       frame1: ''
       frame2: ''
-      frame3: 'aaaaaa'
+      frame3: 'aaaaaatga'
   -
     config:
       <<: *default
     input: aaaatgaaaaaataaataa
     output:
-      frame1: 'aaaaaa'
+      frame1: 'atgaaaaaataa'
       frame2: ''
       frame3: ''
   -
@@ -118,5 +119,5 @@ test:
     input: aaaatcgaaaataaaataa
     output:
       frame1: ''
-      frame2: 'aaatcgaaaataaaa'
-      frame3: 'aatcgaaaa'
+      frame2: 'aaatcgaaaataaaataa'
+      frame3: 'aatcgaaaataa'
