@@ -59,9 +59,7 @@ module ConfigBlast
   end
 
   def make_dir(dirpath)
-    #
-    begin
-      Dir.mkdir dirpath unless Dir.exist?(dirpath)
+    Dir.mkdir dirpath unless Dir.exist?(dirpath)
     rescue
       logger.error(msg = "Could not create '#{dirpath}' directory")
       raise msg
@@ -95,7 +93,7 @@ module ConfigBlast
       Dir[File.join(@store.db.parent, '*.nhr')].each do |filename|
         next unless File.file? filename
         no_ext = File.basename(filename, File.extname(filename))
-        @store.db.list << no_ext.gsub(/\.[0-9]+/, '')
+        @store.db.list << no_ext.gsub(/\.[0-9]+$/, '')
       end
     end
     fail "No blast dbs found in #{@store.db.parent}." \

@@ -1,6 +1,5 @@
 require 'rake/testtask'
 require 'rake/clean'
-require 'byebug'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|

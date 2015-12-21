@@ -1,6 +1,5 @@
 require 'logger'
 require 'yaml'
-require 'byebug'
 #
 require_relative 'blast_interface'
 require_relative 'reporting'

@@ -245,7 +245,7 @@ module Reporting
       fasta_files[line['db']] = { nt: [], aa: [] } \
         if fasta_files[line['db']].nil?
       fasta_files[line['db']][:nt] << \
-        ">line['sseqid']-#{line['db']}-#{line['qseqid']}"
+        ">#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
       fasta_files[line['db']][:aa] << fasta_files[line['db']][:nt].last
       fasta_files[line['db']][:nt] << line['nt_longest_orf']
       fasta_files[line['db']][:aa] << line['aa_longest_orf']
