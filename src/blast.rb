@@ -98,7 +98,7 @@ class Blast
         new_item[:qfile]        = query_file
         new_item[:db]           = db
         new_item[:out_file]     = gen_filename(query, query_file, db)
-        new_item[:query_parent] = '' # empty, because it will
+        new_item[:query_parent] = nil # empty, because it will
         #                             already have the prefix
         new_item[:db_parent] = db_parent
         call_queue << new_item
