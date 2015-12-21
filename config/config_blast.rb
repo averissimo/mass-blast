@@ -95,8 +95,11 @@ module ConfigBlast
         @store.db.list << no_ext.gsub(/\.[0-9]+$/, '')
       end
     end
-    fail "No blast dbs found in #{@store.db.parent}." \
-      if @store.db.list.nil? || @store.db.list.empty?
+    if @store.db.list.nil? || @store.db.list.empty?
+      logger.error "No blast dbs found in #{@store.db.parent}."
+      exit
+    end
+
     @store.db.list.each { |db| logger.info(" - #{db}") }
   end
 end
