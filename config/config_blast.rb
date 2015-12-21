@@ -96,7 +96,9 @@ module ConfigBlast
       end
     end
     if @store.db.list.nil? || @store.db.list.empty?
-      logger.error "No blast dbs found in #{@store.db.parent}."
+      msg = "No blast dbs found in #{@store.db.parent}."
+      logger.error msg
+      puts msg
       exit
     end
 
