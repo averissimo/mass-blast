@@ -145,7 +145,9 @@ module Reporting
     #
     #
     fasta_files = nil
-    CSV.open(File.join(@store.output.dir, TRIMMED_FILENAME), 'wb') do |csv|
+    CSV.open(File.join(@store.output.dir, TRIMMED_FILENAME),
+             'wb',
+             col_sep: "\t") do |csv|
       # add header and second line explaining header to the csv
       csv << header
       csv << aux_header
@@ -166,7 +168,9 @@ module Reporting
     csv_r.headers.each do |col_name|
       csv_r.delete col_name unless include_headers.include?(col_name)
     end
-    CSV.open(File.join(@store.output.dir, RESULTS_FILENAME), 'wb') do |csv|
+    CSV.open(File.join(@store.output.dir, RESULTS_FILENAME),
+             'wb',
+             col_sep: "\t") do |csv|
       csv << csv_r.headers
       csv_r.each do |row|
         csv << row
@@ -177,14 +181,16 @@ module Reporting
       File.open(File.join(@store.output.dir,
                           @store.output.fastas,
                           fasta_db.to_s + '_' + FASTA_NT_FILENAME),
-                'wb') do |fid|
+                'wb',
+                col_sep: "\t") do |fid|
         fid.write fasta_files[fasta_db][:nt].join("\n")
       end
       #
       File.open(File.join(@store.output.dir,
                           @store.output.fastas,
                           fasta_db.to_s + '_' + FASTA_AA_FILENAME),
-                'wb') do |fid|
+                'wb',
+                col_sep: "\t") do |fid|
         fid.write fasta_files[fasta_db][:aa].join("\n")
       end
     end
@@ -192,7 +198,8 @@ module Reporting
     CSV.open(File.join(@store.output.dir,
                        @store.output.intermediate,
                        DISCARDED_FILENAME),
-             'wb') do |csv|
+             'wb',
+             col_sep: "\t") do |csv|
       csv << header
       csv << aux_header
       deleted.each { |row| csv << row }
@@ -201,7 +208,8 @@ module Reporting
     CSV.open(File.join(@store.output.dir,
                        @store.output.intermediate,
                        REDUNDANT_FILENAME),
-             'wb') do |csv|
+             'wb',
+             col_sep: "\t") do |csv|
       csv << header
       csv << aux_header
       redundant.each { |row| csv << row }
