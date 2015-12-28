@@ -164,7 +164,8 @@ module Reporting
                          aa_longest_orf aa_longest_orf_len)
     csv_r = CSV.read(File.join(@store.output.dir, TRIMMED_FILENAME),
                      'rb',
-                     headers: true)
+                     headers: true,
+                     col_sep: "\t")
     csv_r.headers.each do |col_name|
       csv_r.delete col_name unless include_headers.include?(col_name)
     end
