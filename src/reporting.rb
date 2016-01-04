@@ -302,11 +302,14 @@ module Reporting
     max_idx = arr.rindex(arr.max)
     row['nt_longest_orf']     = row["nt_longest_orf_frame#{frames[max_idx]}"]
     row['nt_longest_orf_len'] = row['nt_longest_orf'].size
-    row['aa_longest_orf']     = row['nt_longest_orf'].translate
+    row['aa_longest_orf']     = (if row['nt_longest_orf'].empty?
+                                   ''
+                                 else
+                                   row['nt_longest_orf'].translate
+                                 end)
     row['aa_longest_orf_len'] = row['aa_longest_orf'].size
     row
   end
-
 
   def posterior_filter(col_id, db, redundant)
     new_db = {}
