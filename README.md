@@ -5,14 +5,26 @@ Library to query multiple files against many databases
 
 # How to use
 
-- Options are configurable via `config.yml` file
+- Options are configurable via `config/user.yml` file
   - Change 'db_parent' and 'query_parent' to specify the parent directories for blast databases and queries
   - Change 'dbs' and 'folder_queries' to specify the databases that should be used and which query folders should be crawled
 - run `ruby script.rb`
 
+## External data
+
+The test blast database and the taxonomy database are not kept in the git tree anymore, to get this auxiliary data run the command below or call mass-blast via script.rb
+
+- run `ruby bootstrap.rb`
+
+If you need to include it on your code use:
+
+    require_relative 'src/download'
+    
+    ExternalData.download(path_to_db_parent)
+
 ## How to test it
 
-    rake spec
+- run `rake spec`
 
 ## Type of blast implemented
 
