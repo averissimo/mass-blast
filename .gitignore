@@ -7,3 +7,9 @@ vendor/bundle
 config_*.yml
 blast.log
 tmp/
+
+taxdb.btd
+taxdb.bti
+*.nhr
+*.nin
+*.nsq
