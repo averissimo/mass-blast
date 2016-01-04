@@ -12,11 +12,12 @@ Library to query multiple files against many databases
 
 ## How to test it
 
-    ruby test/tc_blastn.rb
+    rake spec
 
 ## Type of blast implemented
 
-- Blastn: Implemented in Blastn class
+- Blastn
+- TBlastn
 
 ## Methods available
 
