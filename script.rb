@@ -1,5 +1,7 @@
 require_relative 'src/blastn'
 require_relative 'src/tblastn'
+require_relative 'src/download'
+
 require 'configatron'
 #
 #
@@ -21,6 +23,8 @@ def run_user_config
     fail "Cannot recognize engine: #{config['engine']}. Please check" \
         ' documentation for implemented engines'
   end
+  # download taxdb from ncbi
+  ExternalData.download(config['db', 'parent'])
   # blast folders
   b.blast_folders
   # generate report.csv
