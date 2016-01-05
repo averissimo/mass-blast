@@ -58,7 +58,7 @@ class ExternalData
     #
     uri = URI FVESCA_URI
     #
-    Net::HTTP.start(uri.host, uri.port) do |http|
+    Net::HTTP.start(uri.host, uri.port, read_timeout: 600) do |http|
       request = Net::HTTP::Get.new uri.path
       #
       logger.info "  downloading #{uri} ..."
@@ -109,7 +109,7 @@ class ExternalData
     #
     logger.info "File downloading to #{tar_path}..."
     #
-    Net::FTP.open('ftp.ncbi.nlm.nih.gov') do |ftp|
+    Net::FTP.open('ftp.ncbi.nlm.nih.gov', read_timeout: 600) do |ftp|
       logger.info '  logging in to ftp...'
       ftp.login
       logger.info '  going to \'blast/db\'...'
