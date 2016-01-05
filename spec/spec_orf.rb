@@ -1,4 +1,5 @@
 require_relative 'spec_helper'
+require 'logger'
 
 #
 #
@@ -13,7 +14,8 @@ RSpec.describe ORF do
         .each_with_index do |item, index|
         #
         it "hashes shoud match in test \##{index}" do
-          orf = ORF.new(item['input'], symbolize_keys(item['config']))
+          orf = ORF.new(item['input'], symbolize_keys(item['config']),
+                        Logger.new('output/log.orf.txt'))
           orf.find
           expect(orf.nt).to eq(symbolize_keys(item['output']))
         end
@@ -25,7 +27,8 @@ RSpec.describe ORF do
         .each_with_index do |item, index|
         #
         it "hashes shoud match in test \##{index}" do
-          orf = ORF.new(item['input'], symbolize_keys(item['config']))
+          orf = ORF.new(item['input'], symbolize_keys(item['config']),
+                        Logger.new('output/log.orf.txt'))
           orf.find
           expect(orf.nt).to eq(symbolize_keys(item['output']))
         end

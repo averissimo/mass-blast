@@ -28,6 +28,7 @@ class Blast
     elsif @store.debug.show_stdout_if_file
       @logger = Logger.new(TeeIO.new(STDOUT, @store.debug.file))
     else
+      puts "All output messages are in the log file: #{@store.debug.file}"
       @logger = Logger.new(@store.debug.file)
     end
     #

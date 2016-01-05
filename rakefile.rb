@@ -8,6 +8,18 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   # t.rspec_opts << ' more options'
 end
 
+RSpec::Core::RakeTask.new(:'spec:blast') do |t|
+  t.pattern = Dir.glob('spec/spec_blast.rb')
+  t.rspec_opts = '--format documentation'
+  # t.rspec_opts << ' more options'
+end
+
+RSpec::Core::RakeTask.new(:'spec:orf') do |t|
+  t.pattern = Dir.glob('spec/spec_orf.rb')
+  t.rspec_opts = '--format documentation'
+  # t.rspec_opts << ' more options'
+end
+
 task default: :bootstrap
 
 desc 'Download all external databases'
