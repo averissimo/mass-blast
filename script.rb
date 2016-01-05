@@ -24,7 +24,7 @@ def run_user_config
         ' documentation for implemented engines'
   end
   # download taxdb from ncbi
-  ExternalData.download(config['db', 'parent'])
+  ExternalData.download(config['db']['parent'])
   # blast folders
   b.blast_folders
   # generate report.csv
