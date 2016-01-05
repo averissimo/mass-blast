@@ -30,7 +30,7 @@ output:
 
 debug:
   level: "info"
-  file:
+  file: output/log.txt
 
 config:
   user: config/user.yml

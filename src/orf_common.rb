@@ -1,4 +1,4 @@
-require 'logger'
+require_relative 'my_logger'
 #
 #
 #
@@ -6,8 +6,9 @@ module ORFCommon
   #
   def initialize(sequence, options)
     # logger for instance
-    @logger      = Logger.new(STDOUT)
-    logger.level = (options[:debug] ? Logger::INFO : Logger::UNKNOWN)
+    @logger         = MyLogger.new(STDOUT)
+    logger.progname = 'ORFCommon'
+    logger.level    = (options[:debug] ? Logger::INFO : Logger::UNKNOWN)
   end
 
   def range_to_s(range, str = '')

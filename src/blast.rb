@@ -1,4 +1,4 @@
-require 'logger'
+require_relative 'my_logger'
 require 'yaml'
 #
 require_relative 'blast_interface'
@@ -23,10 +23,11 @@ class Blast
     super(config_path)
     # create logger object
     if @store.debug.file.nil?
-      @logger = Logger.new(STDOUT)
+      @logger = MyLogger.new(STDOUT)
     else
-      @logger = Logger.new(@store.debug.file)
+      @logger = MyLogger.new(@store.debug.file)
     end
+    #
     if @store.debug.level == 'info'
       logger.level = Logger::INFO
     elsif @store.debug.level == 'debug'
@@ -34,6 +35,10 @@ class Blast
     else
       logger.level = Logger::INFO
     end
+    #
+    logger.progname = 'Blast'
+    #
+    logger.info "Log level: #{@store.debug.level}"
     # load config file
     reload_config(config_path)
     #
