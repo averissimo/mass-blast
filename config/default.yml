@@ -31,6 +31,7 @@ output:
 debug:
   level: "info"
   file: output/log.txt
+  show_stdout_if_file: true
 
 config:
   user: config/user.yml

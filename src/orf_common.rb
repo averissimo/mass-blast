@@ -1,12 +1,17 @@
-require_relative 'my_logger'
+require 'logger'
+require_relative 'tee_io'
 #
 #
 #
 module ORFCommon
   #
-  def initialize(sequence, options)
+  def initialize(sequence, options, logger_file)
     # logger for instance
-    @logger         = MyLogger.new(STDOUT)
+    if logger_file.nil?
+      @logger = Logger.new(STDOUT)
+    else
+      @logger = logger_file.clone
+    end
     logger.progname = 'ORFCommon'
     logger.level    = (options[:debug] ? Logger::INFO : Logger::UNKNOWN)
   end

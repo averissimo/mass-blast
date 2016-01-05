@@ -13,14 +13,14 @@ class ORFFinder
                       default_to_seq: false,
                       debug: false }
 
-  def initialize(sequence, options = {})
+  def initialize(sequence, options = {}, logger = nil)
     #
     sequence = Bio::Sequence::NA.new(sequence) if sequence.class == String
     options = DEFAULT_OPTIONS.merge(options.nil? ? {} : options)
     #
     @output = {}
-    @output[:direct]  = ORF.new(sequence, options) if options[:direct]
-    @output[:reverse] = ORF.new(sequence.complement, options) \
+    @output[:direct]  = ORF.new(sequence, options, logger) if options[:direct]
+    @output[:reverse] = ORF.new(sequence.complement, options, logger) \
       if options[:reverse]
   end
 

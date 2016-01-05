@@ -1,4 +1,4 @@
-require_relative 'my_logger'
+require 'logger'
 require 'net/ftp'
 require 'net/http'
 
@@ -72,7 +72,7 @@ class ExternalData
   end
 
   def self.download(parent_path = 'db_and_queries/db')
-    logger = MyLogger.new(STDOUT)
+    logger = Logger.new(STDOUT)
     logger.progname = 'Download'
     #
     run = proc do |files, parent, fun|

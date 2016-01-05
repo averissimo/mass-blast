@@ -15,7 +15,7 @@ class ORF
 
   # class initializer that normalizes sequence to Bio::Sequence,
   #  merges given options and creates logger
-  def initialize(sequence, options = {})
+  def initialize(sequence, options = {}, logger_file = nil)
     super
     sequence = Bio::Sequence::NA.new(sequence) if sequence.class == String
     @sequence = sequence

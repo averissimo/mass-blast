@@ -281,7 +281,7 @@ module Reporting
     row['nt_aligned_seq'] = spliced.to_s
     row['aa_aligned_seq'] = spliced.translate.to_s
     #
-    orf = ORFFinder.new(spliced, @store.orf.to_hash)
+    orf = ORFFinder.new(spliced, @store.orf.to_hash, logger)
     #
     add_row_proc = proc do |frame|
       direction  = (frame > 0 ? :direct : :reverse)

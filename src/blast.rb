@@ -1,9 +1,10 @@
-require_relative 'my_logger'
+require 'logger'
 require 'yaml'
 #
 require_relative 'blast_interface'
 require_relative 'reporting'
 require_relative '../config/config_blast'
+require_relative 'tee_io'
 #
 #
 #
@@ -23,9 +24,11 @@ class Blast
     super(config_path)
     # create logger object
     if @store.debug.file.nil?
-      @logger = MyLogger.new(STDOUT)
+      @logger = Logger.new(STDOUT)
+    elsif @store.debug.show_stdout_if_file
+      @logger = Logger.new(TeeIO.new(STDOUT, @store.debug.file))
     else
-      @logger = MyLogger.new(@store.debug.file)
+      @logger = Logger.new(@store.debug.file)
     end
     #
     if @store.debug.level == 'info'
