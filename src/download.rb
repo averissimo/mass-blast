@@ -53,12 +53,13 @@ class ExternalData
   FVESCA_URI  = 'http://sels.tecnico.ulisboa.pt/software-archive/data/fvesca_db.tar.gz'
   SPEC_PARENT = 'spec/db'
   attr_reader :logger
+  TIMEOUT = 600
 
   def self.download_fvesca(parent_path, logger)
     #
     uri = URI FVESCA_URI
     #
-    Net::HTTP.start(uri.host, uri.port, read_timeout: 600) do |http|
+    Net::HTTP.start(uri.host, uri.port, read_timeout: TIMEOUT) do |http|
       request = Net::HTTP::Get.new uri.path
       #
       logger.info "  downloading #{uri} ..."
@@ -91,16 +92,29 @@ class ExternalData
         end
       end
     end
-
     # download if database does not exist
     run.call(['taxdb.btd', 'taxdb.bti'], parent_path, :download_taxdb)
     #
     run.call(['taxdb.btd', 'taxdb.bti'], SPEC_PARENT, :download_taxdb)
-
     #
     run.call(['fvesca_scaffolds.nhr',
               'fvesca_scaffolds.nin',
               'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
+  rescue StandardError => e
+    msg = \
+      case e
+      #
+      when Net::ReadTimeout
+        'Took too long to retrieve file, please retry again' \
+          " and hope for a better internet connection (#{e.message})."
+      when SocketError
+        "No internet connection, please try later (#{e.message})."
+      else
+        e.message
+      end
+    logger.progname = logger.progname + ' - Error'
+    logger.fatal msg
+    exit
   end
 
   def self.download_taxdb(parent_path, logger)
@@ -109,7 +123,8 @@ class ExternalData
     #
     logger.info "File downloading to #{tar_path}..."
     #
-    Net::FTP.open('ftp.ncbi.nlm.nih.gov', read_timeout: 600) do |ftp|
+    Net::FTP.open('ftp.ncbi.nlm.nih.gov') do |ftp|
+      ftp.read_timeout = TIMEOUT
       logger.info '  logging in to ftp...'
       ftp.login
       logger.info '  going to \'blast/db\'...'

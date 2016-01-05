@@ -53,6 +53,10 @@ module Reporting
       "'#{File.join(@store.output.dir, REPORT_FILENAME)}' from " +
       outs.size.to_s + ' files'
     logger.debug 'report was built from: ' + outs.join(', ')
+  rescue StandardError => e
+    logger.progname = logger.progname + ' - Error'
+    logger.fatal e.message
+    exit
   end
 
   #
@@ -217,6 +221,10 @@ module Reporting
     end
     logger.info "finished writing #{REDUNDANT_FILENAME}" \
       " and #{DISCARDED_FILENAME}"
+  rescue StandardError => e
+    logger.progname = logger.progname + ' - Error'
+    logger.fatal e.message
+    exit
   end
 
   #

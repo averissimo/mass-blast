@@ -88,10 +88,11 @@ class Blast
       output = `#{cmd}` # actual call to blast
       #
       logger.debug '  ' + output
-    rescue StandardError => e
-      logger.fatal e.message
-      fail e.message
     end
+  rescue StandardError => e
+    logger.progname = logger.progname + ' - Error'
+    logger.fatal e.message
+    exit
   end
 
   #
