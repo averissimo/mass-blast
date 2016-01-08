@@ -66,7 +66,8 @@ class Blast
     end
 
     # logging messages
-    logger.info 'Going to run queries: ' + list.flatten.join(', ')
+    logger.info 'Going to run queries: ' + list.flatten
+      .collect { |i| i.gsub(FileUtils.pwd + File::Separator, '') }.join(', ')
     logger.info 'Blasting...'
 
     logger.debug 'Setting BLASTDB environment variable:'
@@ -80,9 +81,11 @@ class Blast
                   el[:out_file],
                   el[:query_parent])
       #
-      logger.info "running '#{el[:qfile]}'"
+      logger.info 'running '\
+        "'#{el[:qfile].gsub(FileUtils.pwd + File::Separator, '')}'"
       logger.info "  with database '#{el[:db]}' that will store in:"
-      logger.info "  '#{el[:out_file]}'"
+      logger.info \
+        "  '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
       logger.debug cmd
       #
       output = `#{cmd}` # actual call to blast

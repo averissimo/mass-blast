@@ -6,6 +6,7 @@
 #  - reverse: search the reverse sequence
 #  - direct: search the given sequence (at least this and reverse must be used)
 #  - min: minimum size of sequence
+#  - max: maximum size of sequence
 orf:
   stop_codon:
     - tag
@@ -15,7 +16,8 @@ orf:
     - atg
   reverse: true
   direct: true
-  min: 30
+  min: 100
+  max: 300
 
 #
 # output directory options:

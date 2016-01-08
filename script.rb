@@ -19,6 +19,8 @@ def run_user_config
     b = TBlastn.new(ARGV[0])
   when 'blastn'
     b = Blastn.new ARGV[0]
+  when 'tblastx'
+    b = TBlastx.new ARGV[0]
   else
     fail "Cannot recognize engine: #{config['engine']}. Please check" \
         ' documentation for implemented engines'

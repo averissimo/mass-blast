@@ -22,7 +22,8 @@ module ConfigBlast
   def reload_config(config_path = nil)
     config_path = @store.config.user if config_path.nil?
     # get configuration from default yml file
-    logger.info("loads configuration from defaults: #{@store.config.default}")
+    logger.info('loads configuration from defaults: ' \
+      "#{@store.config.default.gsub(FileUtils.pwd + File::Separator, '')}")
     @store.configure_from_hash(YAML.load_file(@store.config.default))
     logger.info("loads configuration from user: #{config_path}")
     @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))

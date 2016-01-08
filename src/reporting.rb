@@ -50,7 +50,8 @@ module Reporting
       end
     end
     logger.info 'generated ' \
-      "'#{File.join(@store.output.dir, REPORT_FILENAME)}' from " +
+      "'#{File.join(@store.output.dir.gsub(FileUtils.pwd + File::Separator, ''), REPORT_FILENAME)}'" \
+        ' from ' +
       outs.size.to_s + ' files'
     logger.debug 'report was built from: ' + outs.join(', ')
   rescue StandardError => e
