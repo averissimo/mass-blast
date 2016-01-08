@@ -32,6 +32,9 @@ class Blast
       @logger = Logger.new(@store.debug.file)
     end
     #
+    @fatal_logger = Logger.new('output/log.exceptions.txt')
+    @fatal_logger.progname = 'Blast'
+    #
     if @store.debug.level == 'info'
       logger.level = Logger::INFO
     elsif @store.debug.level == 'debug'
@@ -95,6 +98,7 @@ class Blast
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
+    @fatal_logger.fatal e
     exit
   end
 
@@ -205,7 +209,7 @@ class Blast
   def gen_filename(prefix, query, db)
     name = query.gsub(%r{[\S]+\/}, '').gsub(/[\.]query/, '').gsub(/[ ]/, '_')
     list = []
-    list << @store.task
+    list << (@store.key?('task') ? @store.task : 'no-task')
     list << prefix unless prefix.nil?
     list << name
     list << db

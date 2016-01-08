@@ -2,6 +2,7 @@ require_relative '../src/orf'
 require_relative '../src/blast'
 require_relative '../src/blastn'
 require_relative '../src/tblastn'
+require_relative '../src/tblastx'
 
 require 'yaml'
 require 'rspec'
