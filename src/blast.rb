@@ -22,30 +22,6 @@ class Blast
   # initialize class with all necessary data
   def initialize(config_path = nil)
     super(config_path)
-    # create logger object
-    if @store.debug.file.nil?
-      @logger = Logger.new(STDOUT)
-    elsif @store.debug.show_stdout_if_file
-      @logger = Logger.new(TeeIO.new(STDOUT, @store.debug.file))
-    else
-      puts "All output messages are in the log file: #{@store.debug.file}"
-      @logger = Logger.new(@store.debug.file)
-    end
-    #
-    @fatal_logger = Logger.new('output/log.exceptions.txt')
-    @fatal_logger.progname = 'Blast'
-    #
-    if @store.debug.level == 'info'
-      logger.level = Logger::INFO
-    elsif @store.debug.level == 'debug'
-      logger.level = Logger::DEBUG
-    else
-      logger.level = Logger::INFO
-    end
-    #
-    logger.progname = 'Blast'
-    #
-    logger.info "Log level: #{@store.debug.level}"
     # load config file
     reload_config(config_path)
     #
@@ -153,7 +129,7 @@ class Blast
       " -dbtype nucl" \
       ' -entry all' \
       " -outfmt \"%s %t\""
-    logger.debug "getting cache for blastdb for: #{db}"
+    logger.info "getting cache for blastdb for: #{db}"
     logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
     output = `#{cmd}`
     @blastdb_cache[db] = {}

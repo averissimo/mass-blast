@@ -17,6 +17,31 @@ module ConfigBlast
     #
     @store.config.user = File.expand_path(config_path)
     @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
+    #
+    # create logger object
+    if @store.debug.file.nil?
+      @logger = Logger.new(STDOUT)
+    elsif @store.debug.show_stdout_if_file
+      @logger = Logger.new(TeeIO.new(STDOUT, @store.debug.file))
+    else
+      puts "All output messages are in the log file: #{@store.debug.file}"
+      @logger = Logger.new(@store.debug.file)
+    end
+    #
+    @fatal_logger = Logger.new('output/log.exceptions.txt')
+    @fatal_logger.progname = 'Blast'
+    #
+    if @store.debug.level == 'info'
+      logger.level = Logger::INFO
+    elsif @store.debug.level == 'debug'
+      logger.level = Logger::DEBUG
+    else
+      logger.level = Logger::INFO
+    end
+    #
+    logger.progname = 'Blast'
+    #
+    logger.info "Log level: #{@store.debug.level}"
   end
 
   def reload_config(config_path = nil)

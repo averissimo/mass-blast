@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-
+gem 'byebug'
 gem 'bio'
 gem 'deep_merge'
 gem 'rspec'
