@@ -1,14 +1,15 @@
 source 'http://rubygems.org'
 
-gem 'bio'
-gem 'deep_merge'
-gem 'configatron'
+gem 'bio', '~> 1.5', '>= 1.5.0'
+gem 'deep_merge', '~> 1.0', '>= 1.0.1'
+gem 'configatron', '~> 4.5', '>= 4.5.0'
+
+gem 'orf_finder', '~> 0.1', '>= 0.1.0'
 
 group :development do
-  gem 'byebug'
+  gem 'byebug', '~> 8.2', '>= 8.2.1'
 end
 
 group :test do
-  gem 'rspec'
+  gem 'rspec', '~> 3.4', '>= 3.4.0'
 end
-

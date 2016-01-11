@@ -1,6 +1,6 @@
 require 'csv'
 require 'bio'
-require_relative 'orf'
+require 'orf'
 require_relative 'results_db'
 
 #
