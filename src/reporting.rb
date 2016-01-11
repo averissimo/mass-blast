@@ -25,11 +25,11 @@ module Reporting
                        nt_longest_orf nt_longest_orf_len
                        aa_longest_orf aa_longest_orf_len)
   #
-  attr_accessor :db_results
+  attr_accessor :db
   #
   def initialize(*args)
     super(*args)
-    @db_results = ResultsDB.new @store.identity_threshold, logger
+    @db = ResultsDB.new @store.identity_threshold, logger
   end
 
   #                _     _ _
@@ -43,7 +43,7 @@ module Reporting
 
   #
   #
-  # Generate a report from all the outputs
+  # Generate a report from all the files from the Blast calls
   def gen_report_from_output
     # find all output files
     outs = Dir[File.join(@store.output.dir,
@@ -87,37 +87,35 @@ module Reporting
 
   #
   #
+  # From all results start filtering according to the options
+  #  given by the user, i.e. remove all:
+  #  - Rows that have an identity below the threshold
+  #  - Identical lines that have the same pair of column and database
   def prune_results
     logger.info "pruning results from #{FILE_REPORT} file"
-    filepath = File.join(@store.output.dir, FILE_REPORT)
-    csv_text = File.read filepath
+    #
     # build from report csv the database of results
-    build_db(csv_text)
+    csv_str = File.read(File.join(@store.output.dir, FILE_REPORT))
+    build_db(csv_str)
     #
     # remove rows that share the same information
     if @store.key?('prune_identical') && @store.prune_identical.size > 0
       @store.prune_identical.each do |prune_col|
-        db_results.remove_identical(prune_col)
+        db.remove_identical(prune_col)
       end
     end
     #
     # save CSVs
     #
     # write trimmed file
-    db_results.write_trimmed(@store.output.dir, FILE_TRIMMED)
+    db.write_trimmed(@store.output.dir, FILE_TRIMMED)
     logger.info "finished writing #{FILE_TRIMMED}"
     #
-    db_rsults.write_results(@store.output_dir, FILE_RESULTS, RESULTS_HEADERS)
-    #
-    db_results.write_deleted(File.join(@store.output.dir,
-                                       @store.output.intermediate),
-                             FILE_DISCARDED)
-
-    db_results.write_redundant(File.join(@store.output.dir,
-                                         @store.output.intermediate),
-                               FILE_REDUNDANT)
-    logger.info "finished writing #{FILE_REDUNDANT}" \
-      " and #{FILE_DISCARDED}"
+    db.write_results(@store.output.dir, FILE_RESULTS, RESULTS_HEADERS)
+    db.write_deleted(File.join(@store.output.dir, @store.output.intermediate),
+                     FILE_DISCARDED)
+    db.write_redundant(File.join(@store.output.dir, @store.output.intermediate),
+                       FILE_REDUNDANT)
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -181,7 +179,7 @@ module Reporting
   #
   # Add calculated headers from Blast results
   def add_headers
-    db_results.header.concat \
+    db.header.concat \
       %w(contig_count nt_aligned_seq aa_aligned_seq
          nt_orf_frame+1 nt_orf_frame+1_len aa_orf_frame+1  aa_orf_frame+1_len
          nt_orf_frame+2 nt_orf_frame+2_len aa_orf_frame+2  aa_orf_frame+2_len
@@ -194,19 +192,19 @@ module Reporting
       "means #{is_len ? 'length of ' : ''}longest #{type} " \
         "on read frame#{frame} alignment"
     end
-    db_results.header_meaning.concat \
+    db.header_meaning.concat \
       ['means number of results for this contig with less identity',
        'means nucleotide alignment from db',
        'means amino-acid alignment from db']
     #
     [+1, +2, +3, -1, -2, -3].each do |el|
-      db_results.header_meaning.concat \
+      db.header_meaning.concat \
         [verbose_explanation.call('nucleotide', el, false),
          verbose_explanation.call('nucleotide', el, true),
          verbose_explanation.call('amino-acid', el, false),
          verbose_explanation.call('amino-acid', el, true)]
     end
-    db_results.header_meaning.concat \
+    db.header_meaning.concat \
       ['means longest nucleotide orf in alignment',
        'means length of longest nucleotide orf in alignment',
        'means longest amino-acid orf in alignment',
@@ -226,12 +224,12 @@ module Reporting
       # skip also second line
       if skip_first
         skip_first = false
-        db_results.header = row.headers
-        db_results.header_meaning = row.fields
+        db.header = row.headers
+        db.header_meaning = row.fields
       else
         # remove duplicate by: sseqid
         count += 1
-        item = db_results.add("#{row['sseqid']}_#{row[DB::BLAST_DB]}", row)
+        item = db.add("#{row['sseqid']}_#{row[DB::BLAST_DB]}", row)
         load_blastdb_item(item['db'])
         process_item(item)
       end

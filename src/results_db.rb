@@ -92,8 +92,6 @@ class ResultsDB
   #
   # add new item to the database of results
   def add(db_id, new_row)
-    logger.debug "\t class: #{new_row.class}"
-    logger.debug "\t new row count: #{new_row.count}" if new_row.class == DB
     new_row = DB.new(new_row, logger) unless new_row.class == DB
     # preliminary check if the identity is above
     #  configured threshold or already
@@ -107,7 +105,6 @@ class ResultsDB
     #  next if clause
     best_row = nil
     # check if there is a element in @db with the 'db_id'
-    before = db[db_id].count if cur_row
     if cur_row
       # add to redundant array the worst element
       redundant << if new_row > cur_row
@@ -127,8 +124,6 @@ class ResultsDB
     end
     # force update the db entry to the best row
     db[db_id] = best_row
-    logger.debug("\tcount before: #{before}") if cur_row
-    logger.debug("\tcount after: #{db[db_id].count}") if cur_row
     db[db_id]
   end
 
@@ -166,12 +161,17 @@ class ResultsDB
     CSV.open(File.join(parent_path, filename),
              'wb',
              col_sep: "\t") do |csv|
-      csv << header
-      csv << header_meaning
+      csv << cols
+      header_meaning_idx = header_meaning.each_index.select do |i|
+        cols.include?(header[i])
+      end
+      csv << header_meaning.values_at(*header_meaning_idx)
       db.values.each do |row|
-        csv << row.row.reject { |k, _v| !cols.include?(k) }
+        new_row = row.row.reject { |k, _v| !cols.include?(k) }
+        csv << new_row.map { |el| el[1] }
       end
     end
+    logger.info "Finished writing #{filename}."
   end
 
   def write_fasta_files
@@ -195,6 +195,7 @@ class ResultsDB
               col_sep: "\t") do |fid|
       fid.write fasta_files[fasta_db][type].join("\n")
     end
+    logger.info "Finished writing #{filename}."
   end
 
   #
