@@ -1,6 +1,14 @@
 source 'http://rubygems.org'
-gem 'byebug', group: :development
+
 gem 'bio'
 gem 'deep_merge'
-gem 'rspec'
 gem 'configatron'
+
+group :development do
+  gem 'byebug'
+end
+
+group :test do
+  gem 'rspec'
+end
+
