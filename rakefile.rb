@@ -3,19 +3,13 @@ require 'rake/clean'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = Dir.glob('spec/**/spec_*.rb')
+  t.pattern = Dir.glob('test/**/test_*.rb')
   t.rspec_opts = '--format documentation'
   # t.rspec_opts << ' more options'
 end
 
 RSpec::Core::RakeTask.new(:'spec:blast') do |t|
-  t.pattern = Dir.glob('spec/spec_blast.rb')
-  t.rspec_opts = '--format documentation'
-  # t.rspec_opts << ' more options'
-end
-
-RSpec::Core::RakeTask.new(:'spec:orf') do |t|
-  t.pattern = Dir.glob('spec/spec_orf.rb')
+  t.pattern = Dir.glob('test/test_blast.rb')
   t.rspec_opts = '--format documentation'
   # t.rspec_opts << ' more options'
 end
