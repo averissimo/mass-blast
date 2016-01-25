@@ -51,7 +51,7 @@ class ExternalData
   #
   TAR_FILE    = 'taxdb.tar.gz'
   FVESCA_URI  = 'http://sels.tecnico.ulisboa.pt/software-archive/data/fvesca_db.tar.gz'
-  SPEC_PARENT = 'spec/db'
+  SPEC_PARENT = 'test/db'
   attr_reader :logger
   TIMEOUT = 600
 

@@ -14,9 +14,9 @@ class DB
 
   def initialize(row, logger = nil)
     @row       = row
-    @identity  = Float(row[IDENTITY])
-    @coverage  = Float(row[COVERAGE])
-    @evalue    = Float(row[EVALUE])
+    @identity  = (row[IDENTITY].nil? ? 0 : Float(row[IDENTITY]))
+    @coverage  = (row[COVERAGE].nil? ? 0 : Float(row[COVERAGE]))
+    @evalue    = (row[EVALUE].nil? ? 1 : Float(row[EVALUE]))
     @count     = 1
     @to_delete = false
 

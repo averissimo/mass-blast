@@ -147,7 +147,7 @@ module Reporting
     row['nt_aligned_seq'] = spliced.to_s
     row['aa_aligned_seq'] = spliced.translate.to_s
     #
-    orf = ORFFinder.new(spliced, @store.orf.to_hash, logger)
+    orf = ORFFinder.new(spliced, @store.codon_table, @store.orf.to_hash, logger)
     #
     add_row_proc = proc do |frame|
       direction  = (frame > 0 ? :direct : :reverse)
@@ -220,6 +220,7 @@ module Reporting
     skip_first = true
     count = 0 # counter for number of lines being processed
     # parse the report results and generate
+    item_list = []
     CSV.parse(csv_text, headers: true, col_sep: "\t") do |row|
       # skip also second line
       if skip_first
@@ -230,9 +231,25 @@ module Reporting
         # remove duplicate by: sseqid
         count += 1
         item = db.add("#{row['sseqid']}_#{row[DB::BLAST_DB]}", row)
-        load_blastdb_item(item['db'])
-        process_item(item)
+        if item
+          item_list << item
+        end
       end
+    end
+    #
+    db_list = {}
+    item_list.each do |item|
+      db_list[item['db']] = [] if db_list[item['db']].nil?
+      db_list[item['db']] << item.row['sseqid']
+    end
+    #
+    db_list.each do |k, v|
+      load_blastdb_item(k, v.uniq)
+    end
+    #
+    item_list.each do |item|
+      load_blastdb_item(item['db'])
+      process_item(item)
     end
     #
     add_headers

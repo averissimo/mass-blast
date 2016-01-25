@@ -18,6 +18,7 @@ orf:
   direct: true
   min: 100
 
+codon_table: 1
 #
 # output directory options:
 #  - dir: output directory's name

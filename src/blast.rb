@@ -15,7 +15,7 @@ class Blast
   #
   needs_implementation :blast
   #
-  attr_reader :logger, :store
+  attr_reader :logger, :store, :blastdb_cache
 
   #
   #
@@ -120,22 +120,24 @@ class Blast
   end
 
   #
-  def load_blastdb_item(db)
+  def load_blastdb_item(db, items = nil)
     #
     return true if !@blastdb_cache.nil? && !@blastdb_cache[db].nil?
     #
     ENV['BLASTDB'] = @store.db.parent
     cmd = "blastdbcmd -db #{db}" \
-      " -dbtype nucl" \
+      ' -dbtype nucl' \
       ' -entry all' \
       " -outfmt \"%s %t\""
     logger.info "getting cache for blastdb for: #{db}"
+    logger.info "  for #{items.size} query results"
     logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
     output = `#{cmd}`
     @blastdb_cache[db] = {}
     output.split("\n").each do |line|
       pair = line.split(' ')
-      @blastdb_cache[db][pair[1]] = pair[0]
+      @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
+                                               items.include?(pair[1])
     end
     true
   end
