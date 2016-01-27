@@ -95,8 +95,7 @@ module Reporting
     logger.info "pruning results from #{FILE_REPORT} file"
     #
     # build from report csv the database of results
-    csv_str = File.read(File.join(@store.output.dir, FILE_REPORT))
-    build_db(csv_str)
+    build_db()
     #
     # remove rows that share the same information
     if @store.key?('prune_identical') && @store.prune_identical.size > 0
@@ -212,48 +211,63 @@ module Reporting
   end
 
   #
+  # read report file
+  def read_csv
+    # read csv
+    logger.info 'loading report to memory...'
+    csv_filename = File.join(@store.output.dir, FILE_REPORT)
+    # skip second line of csv, as it has the meanings
+    count = 0 # counter for number of lines being processed
+    # parse the report results and generate
+    db_list = {}
+    #
+    File.open(csv_filename).each do |line|
+      row = line.gsub(/"|\n/, '').split("\t")
+      if db.header.empty?
+        db.header = row
+        next
+      elsif db.header_meaning.empty?
+        db.header_meaning = row
+        next
+      end
+      #
+      new_item = Hash[db.header.zip row]
+      # remove duplicate by: sseqid
+      count += 1
+      #db_list["#{new_item['sseqid']}_#{new_item[DB::BLAST_DB]}"] = new_item
+      db.add("#{new_item['sseqid']}_#{new_item[DB::BLAST_DB]}", new_item)
+    end
+    require 'objspace'
+    puts "Size of begining: #{ObjectSpace.memsize_of_all}"
+    GC.start
+    puts "Size of begining: #{ObjectSpace.memsize_of_all}"
+    logger.info "Number of rows in report file: #{count}"
+  end
+
+  #
   #
   # from the csv file of the report, it builds the database of results
   #  for prunnig (/filtering)
-  def build_db(csv_text)
-    # skip second line of csv, as it has the meanings
-    skip_first = true
-    count = 0 # counter for number of lines being processed
-    # parse the report results and generate
-    item_list = []
-    CSV.parse(csv_text, headers: true, col_sep: "\t") do |row|
-      # skip also second line
-      if skip_first
-        skip_first = false
-        db.header = row.headers
-        db.header_meaning = row.fields
-      else
-        # remove duplicate by: sseqid
-        count += 1
-        item = db.add("#{row['sseqid']}_#{row[DB::BLAST_DB]}", row)
-        if item
-          item_list << item
-        end
-      end
-    end
+  def build_db
+    byebug
+    read_csv
     #
-    db_list = {}
-    item_list.each do |item|
-      db_list[item['db']] = [] if db_list[item['db']].nil?
-      db_list[item['db']] << item.row['sseqid']
-    end
+    GC.start # remove csv_text from memory
     #
-    db_list.each do |k, v|
+    byebug
+    db.blast_dbs.each do |k, v|
       load_blastdb_item(k, v.uniq)
+      db_list[k] = nil
+      GC.start # remove csv_text from memory
     end
     #
-    item_list.each do |item|
+    byebug
+    db.values.each do |item|
       load_blastdb_item(item['db'])
       process_item(item)
     end
     #
     add_headers
-    logger.info "Number of rows in report file: #{count}"
   end
 
   #

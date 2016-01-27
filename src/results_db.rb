@@ -46,7 +46,7 @@ class DB
   end
 
   def add_count(val = 1)
-    #logger.debug "adding count (#{@count}) by #{val}"
+    # logger.debug "adding count (#{@count}) by #{val}"
     @count += val
   end
 end
@@ -130,7 +130,16 @@ class ResultsDB
   #
   # names of blast dbs contained in the results
   def blast_dbs
-    db.values.collect { |el| el.row[BLAST_DB] }.uniq
+    db_list = {}
+    db.values.each do |el|
+      db_list[el.row['db']] = [] if db_list[el.row['db']].nil?
+      db_list[el.row['db']] << el.row['sseqid']
+    end
+
+    db_list.keys.each do |k|
+      db_list[k].uniq!
+    end
+    db_list
   end
 
   #
