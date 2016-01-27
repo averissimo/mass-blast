@@ -259,7 +259,7 @@ class ResultsDB
              col_sep: "\t") do |csv|
       csv << header
       csv << header_meaning
-      list.each { |row| csv << row.row }
+      list.each { |item| csv << item.row.values }
     end
   end
 

@@ -249,7 +249,6 @@ module Reporting
       GC.start # remove csv_text from memory
     end
     #
-    byebug
     db.values.each do |item|
       process_item(item)
     end
