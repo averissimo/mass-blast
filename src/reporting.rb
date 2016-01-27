@@ -29,7 +29,7 @@ module Reporting
   #
   def initialize(*args)
     super(*args)
-    @db = ResultsDB.new @store.identity_threshold, logger
+    @db = ResultsDB.new @store.identity_threshold, @store.output.dir, logger
   end
 
   #                _     _ _
@@ -111,10 +111,6 @@ module Reporting
     logger.info "finished writing #{FILE_TRIMMED}"
     #
     db.write_results(@store.output.dir, FILE_RESULTS, RESULTS_HEADERS)
-    db.write_deleted(File.join(@store.output.dir, @store.output.intermediate),
-                     FILE_DISCARDED)
-    db.write_redundant(File.join(@store.output.dir, @store.output.intermediate),
-                       FILE_REDUNDANT)
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -219,7 +215,6 @@ module Reporting
     # skip second line of csv, as it has the meanings
     count = 0 # counter for number of lines being processed
     # parse the report results and generate
-    db_list = {}
     #
     File.open(csv_filename).each do |line|
       row = line.gsub(/"|\n/, '').split("\t")
@@ -234,13 +229,9 @@ module Reporting
       new_item = Hash[db.header.zip row]
       # remove duplicate by: sseqid
       count += 1
-      #db_list["#{new_item['sseqid']}_#{new_item[DB::BLAST_DB]}"] = new_item
       db.add("#{new_item['sseqid']}_#{new_item[DB::BLAST_DB]}", new_item)
     end
-    require 'objspace'
-    puts "Size of begining: #{ObjectSpace.memsize_of_all}"
     GC.start
-    puts "Size of begining: #{ObjectSpace.memsize_of_all}"
     logger.info "Number of rows in report file: #{count}"
   end
 
@@ -249,21 +240,17 @@ module Reporting
   # from the csv file of the report, it builds the database of results
   #  for prunnig (/filtering)
   def build_db
-    byebug
     read_csv
     #
     GC.start # remove csv_text from memory
     #
-    byebug
     db.blast_dbs.each do |k, v|
       load_blastdb_item(k, v.uniq)
-      db_list[k] = nil
       GC.start # remove csv_text from memory
     end
     #
     byebug
     db.values.each do |item|
-      load_blastdb_item(item['db'])
       process_item(item)
     end
     #

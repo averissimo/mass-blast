@@ -18,7 +18,6 @@ class DB
     @coverage  = (row[COVERAGE].nil? ? 0 : Float(row[COVERAGE]))
     @evalue    = (row[EVALUE].nil? ? 1 : Float(row[EVALUE]))
     @count     = 1
-    @to_delete = false
 
     unless logger.nil?
       @logger = logger.clone
@@ -61,14 +60,15 @@ class ResultsDB
 
   #
   #
-  def initialize(identity_threshold, logger = nil)
+  def initialize(identity_threshold, output_dir, logger = nil)
     @threshold = identity_threshold
+    @output_dir = output_dir
     # hash of DB instances
     initialize_db
     # list of deleted DB instances
-    @deleted    = []
+    @deleted    = nil
     # list of redundant DB instances
-    @redundant  = []
+    @redundant  = nil
     # list of string that makes the header
     @header     = []
     # list of strings with each of the headers meaning
@@ -85,6 +85,31 @@ class ResultsDB
     end
   end
 
+  def write_deleted(row)
+    if @deleted.nil?
+      @deleted = open_2_write(@output_dir, Reporting::FILE_DISCARDED)
+      write_headers(@deleted)
+    end
+    write(@deleted, row)
+  end
+
+  def write_headers(fid)
+    fid.write header.join("\t")
+    fid.write header_meaning.join("\t")
+  end
+
+  def write_redundant(row)
+    if @redundant.nil?
+      @redundant = open_2_write(@output_dir, Reporting::FILE_REDUNDANT)
+      write_headers(@redundant)
+    end
+    write(@redundant, row)
+  end
+
+  def write(fid, row)
+    fid.write row.values.join("\t")
+  end
+
   def size
     db.size
   end
@@ -96,7 +121,7 @@ class ResultsDB
     # preliminary check if the identity is above
     #  configured threshold or already
     if new_row.identity < threshold
-      deleted << new_row
+      write_deleted new_row
       return false
     end
     # set current row as existing one
@@ -107,16 +132,17 @@ class ResultsDB
     # check if there is a element in @db with the 'db_id'
     if cur_row
       # add to redundant array the worst element
-      redundant << if new_row > cur_row
-                     best_row = new_row
-                     cur_row
-                   else
-                     best_row = cur_row
-                     new_row
-                   end
+      old_row = if new_row > cur_row
+                  best_row = new_row
+                  cur_row
+                else
+                  best_row = cur_row
+                  new_row
+                end
+      write_redundant old_row
       # increment the count with the item that was sent
       #  to the redundant list (last element of that list)
-      best_row.add_count(redundant.last.count)
+      best_row.add_count(old_row.count)
     else
       # if there is not an element in the db then, the new
       #  row is the best one. duhh :)
@@ -154,12 +180,12 @@ class ResultsDB
     end
   end
 
-  def write_redundant(parent_path, filename)
-    write_csv(parent_path, filename, redundant)
+  def open_2_write(parent_path, filename)
+    File.open(File.join(parent_path, filename), 'wb')
   end
 
-  def write_deleted(parent_path, filename)
-    write_csv(parent_path, filename, deleted)
+  def write(fid, db_item)
+    fid.write(db_item.row.values.join("\t"))
   end
 
   def write_trimmed(parent_path, filename)
