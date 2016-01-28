@@ -125,6 +125,7 @@ class ExternalData
     #
     Net::FTP.open('ftp.ncbi.nlm.nih.gov') do |ftp|
       ftp.read_timeout = TIMEOUT
+      ftp.passive = true
       logger.info '  logging in to ftp...'
       ftp.login
       logger.info '  going to \'blast/db\'...'
