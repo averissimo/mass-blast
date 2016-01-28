@@ -1,4 +1,5 @@
 require 'configatron/core'
+require 'rbconfig'
 
 require 'yaml'
 
@@ -17,6 +18,8 @@ module ConfigBlast
     #
     @store.config.user = File.expand_path(config_path)
     @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
+    #
+    set_os
     #
     # create logger object
     if @store.debug.file.nil?
@@ -96,7 +99,8 @@ module ConfigBlast
   # Set config variables
   def process_config
     # optional arguments
-    @store.identity_threshold *= 100
+    @store.identity.min *= 100
+    @store.identity.max *= 100
     # convert paths to an absolutes
     @store.output.dir   = File.expand_path(@store.output.dir)
     @store.db.parent    = File.expand_path(@store.db.parent)
@@ -129,5 +133,23 @@ module ConfigBlast
     end
 
     @store.db.list.each { |db| logger.info(" - #{db}") }
+  end
+
+  def set_os
+    @store.os = (
+      host_os = RbConfig::CONFIG['host_os']
+      case host_os
+      when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
+        :windows
+      when /darwin|mac os/
+        :macosx
+      when /linux/
+        :linux
+      when /solaris|bsd/
+        :unix
+      else
+        :unknown
+      end
+    )
   end
 end

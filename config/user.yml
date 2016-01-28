@@ -28,7 +28,9 @@ opts: "-max_target_seqs 500 -evalue 1E-20"
 task: tblastn
 # Threshold that should filter out results by identity
 #  values can take between 0 and 1 (i.e. 0% and 100%)
-identity_threshold: .40
+identity:
+  min: .40
+  max: 1
 #
 prune_identical:
   - qseq

@@ -4,7 +4,9 @@
 # Blast options and task
 opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
 task: megablast
-identity_threshold: .40 # value between 0 and 1
+identity:
+  min: .40 # value between 0 and 1
+  max: 1   # value between 0 and 1
 
 force_folder: example_blastn
 

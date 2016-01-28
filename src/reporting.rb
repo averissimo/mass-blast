@@ -29,7 +29,7 @@ module Reporting
   #
   def initialize(*args)
     super(*args)
-    @db = ResultsDB.new @store.identity_threshold, @store.output.dir, logger
+    @db = ResultsDB.new @store.identity.min, @store.identity.max, @store.output.dir, logger
   end
 
   #                _     _ _

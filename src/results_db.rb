@@ -54,14 +54,15 @@ end
 class ResultsDB
   #
   attr_accessor :db, :deleted, :redundant
-  attr_accessor :header, :header_meaning, :threshold
+  attr_accessor :header, :header_meaning, :threshold, :threshold_max
 
   attr_reader :logger
 
   #
   #
-  def initialize(identity_threshold, output_dir, logger = nil)
-    @threshold = identity_threshold
+  def initialize(identity_min, identity_max, output_dir, logger = nil)
+    @threshold = identity_min
+    @threshold_max = identity_max
     @output_dir = output_dir
     # hash of DB instances
     initialize_db
@@ -120,7 +121,7 @@ class ResultsDB
     new_row = DB.new(new_row, logger) unless new_row.class == DB
     # preliminary check if the identity is above
     #  configured threshold or already
-    if new_row.identity < threshold
+    if new_row.identity < threshold && new_row.identity > threshold_max
       write_deleted new_row
       return false
     end

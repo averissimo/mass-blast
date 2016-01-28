@@ -128,8 +128,14 @@ class Blast
     cmd = "blastdbcmd -db #{db}" \
       ' -dbtype nucl' \
       ' -entry all' \
-      " -outfmt \"%s %t\"" \
-      "| grep '#{items.join('\|')}'"
+      " -outfmt \"%s %t\""
+    cmd += if [:linux, :unix, :macosx].include?(@store.os)
+             " | grep '#{items.join('\|')}'"
+           elsif @store.os == :windows
+             " | find \"#{items.join(' ')}\""
+           else
+             '' # with unkown systems, shows all
+           end
     logger.info "getting cache for blastdb for: #{db}"
     logger.info "  for #{items.size} query results"
     logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
