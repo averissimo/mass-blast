@@ -121,7 +121,7 @@ class ResultsDB
     new_row = DB.new(new_row, logger) unless new_row.class == DB
     # preliminary check if the identity is above
     #  configured threshold or already
-    if new_row.identity < threshold && new_row.identity > threshold_max
+    if new_row.identity < threshold || new_row.identity > threshold_max
       write_deleted new_row
       return false
     end
@@ -182,7 +182,7 @@ class ResultsDB
   end
 
   def open_2_write(parent_path, filename)
-    File.open(File.join(parent_path, filename), 'wb')
+    File.open(File.join(parent_path,  filename), 'wb')
   end
 
   def write(fid, db_item)

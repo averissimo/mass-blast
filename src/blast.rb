@@ -11,7 +11,8 @@ require_relative 'tee_io'
 class Blast
   #
   include BlastInterface
-  include ConfigBlast
+  include Reporting
+  include ConfigBlast # must be last method to include
   #
   needs_implementation :blast
   #
@@ -22,8 +23,6 @@ class Blast
   # initialize class with all necessary data
   def initialize(config_path = nil)
     super(config_path)
-    # load config file
-    reload_config(config_path)
     #
     @blastdb_cache = {}
   end
@@ -184,7 +183,6 @@ class Blast
 
   private
 
-  include Reporting
   #
   #
   # Generate filenames for each of the query's output

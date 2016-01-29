@@ -27,9 +27,13 @@ module Reporting
   #
   attr_accessor :db
   #
-  def initialize(*args)
-    super(*args)
-    @db = ResultsDB.new @store.identity.min, @store.identity.max, @store.output.dir, logger
+  def initialize(config_path)
+    @db = ResultsDB.new @store.identity.min,
+                        @store.identity.max,
+                        File.join(@store.output.dir,
+                                  @store.output.intermediate),
+                        logger
+    super()
   end
 
   #                _     _ _

@@ -45,6 +45,9 @@ module ConfigBlast
     logger.progname = 'Blast'
     #
     logger.info "Log level: #{@store.debug.level}"
+    #
+    reload_config(config_path)
+    super
   end
 
   def reload_config(config_path = nil)
