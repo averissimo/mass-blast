@@ -129,23 +129,20 @@ class Blast
       ' -dbtype nucl' \
       ' -entry all' \
       " -outfmt \"%s %t\""
-    # cannot use the same logic in windows.. strange!!
-    if [:linux, :unix, :macosx].include?(@store.os)
-      cmd += " | grep '#{items.join('\|')}'"
     #
     logger.info "getting cache for blastdb for: #{db}"
     logger.info "  for #{items.size} query results"
-    logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}\""
-    if @store.os == :windows
-      output = `#{cmd} | find \"#{items.join(' ')}\""`
-    else
-      output = `#{cmd}`
+    logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}"
+    #
     @blastdb_cache[db] = {}
-    output.split("\n").each do |line|
-      pair = line.split(' ')
-      @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
-                                               items.include?(pair[1])
+    open("| #{cmd}", 'w+') do |sub|
+      sub.each_line do |line|
+        pair = line.split(' ')
+        @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
+                                                 items.include?(pair[1])
+      end
     end
+    #
     true
   end
 
