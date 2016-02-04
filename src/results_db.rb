@@ -31,9 +31,10 @@ class DB
   end
 
   def <=>(other)
-    (identity <=> other.identity &&
-     coverage <=> other.coverage &&
-     evalue <=> other.evalue)
+    (identity <=> other.identity).nonzero? ||
+      (coverage <=> other.coverage).nonzero? ||
+      (evalue <=> other.evalue).nonzero? ||
+      0
   end
 
   def [](key)
@@ -78,6 +79,10 @@ class ResultsDB
     @logger = (logger.nil? ? Logger.new(STDOUT) : logger.clone)
     @logger.level = Logger::INFO if logger.nil?
     @logger.progname = 'ResultDB'
+  end
+
+  def [](key)
+    db[key]
   end
 
   def values
@@ -125,6 +130,9 @@ class ResultsDB
       write_deleted new_row
       return false
     end
+    if db_id.nil?
+      db_id = size + 1
+    end
     # set current row as existing one
     cur_row = db[db_id]
     # initialize best row as nil, to be assigned in the
@@ -132,6 +140,8 @@ class ResultsDB
     best_row = nil
     # check if there is a element in @db with the 'db_id'
     if cur_row
+      #require 'byebug'
+      #byebug
       # add to redundant array the worst element
       old_row = if new_row > cur_row
                   best_row = new_row
