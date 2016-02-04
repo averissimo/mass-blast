@@ -17,7 +17,12 @@ orf:
   reverse: true
   direct: true
   min: 100
-
+#
+prune_identical:
+  first: sseqid
+  list:
+    - nt_aligned_seq
+#
 codon_table: 1
 #
 # output directory options:

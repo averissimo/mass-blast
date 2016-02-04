@@ -102,8 +102,11 @@ module Reporting
     build_db()
     #
     # remove rows that share the same information
-    if @store.key?('prune_identical') && @store.prune_identical.size > 0
-      @store.prune_identical.each do |prune_col|
+    if @store.key?('prune_identical') &&
+       @store.prune_identical.key?('list') &&
+       @store.prune_identical.list.size > 0
+      #
+      @store.prune_identical.list.each do |prune_col|
         db.remove_identical(prune_col)
       end
     end
@@ -220,6 +223,9 @@ module Reporting
     count = 0 # counter for number of lines being processed
     # parse the report results and generate
     #
+    col_id = @store.prune_identical.first # removes the first and uses
+                                          #  it as col_id
+    #
     File.open(csv_filename).each do |line|
       row = line.gsub(/"|\n/, '').split("\t")
       if db.header.empty?
@@ -233,7 +239,7 @@ module Reporting
       new_item = Hash[db.header.zip row]
       # remove duplicate by: sseqid
       count += 1
-      db.add("#{new_item['sseqid']}_#{new_item[DB::BLAST_DB]}", new_item)
+      db.add("#{new_item[col_id]}_#{new_item[DB::BLAST_DB]}", new_item)
     end
     GC.start
     logger.info "Number of rows in report file: #{count}"

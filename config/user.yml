@@ -33,7 +33,9 @@ identity:
   max: 1
 #
 prune_identical:
-  - qseq
+  first: sseqid
+  list:
+    - nt_aligned_seq
 #
 # Directory that holds all database files in blastdb format
 #  if you need to convert a fasta file to this format, you
