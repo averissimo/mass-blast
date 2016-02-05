@@ -192,7 +192,7 @@ class ResultsDB
   end
 
   def open_2_write(parent_path, filename)
-    File.open(File.join(parent_path,  filename), 'wb')
+    File.open(File.join(parent_path, filename), 'wb')
   end
 
   def write(fid, db_item)
