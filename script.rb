@@ -33,6 +33,8 @@ def run_user_config
   b.gen_report_from_output
   # prune results
   b.prune_results
+  #
+  b.write_fasta
 end
 #
 run_user_config

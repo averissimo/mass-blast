@@ -32,6 +32,8 @@ module Reporting
                         @store.identity.max,
                         File.join(@store.output.dir,
                                   @store.output.intermediate),
+                        File.join(@store.output.dir,
+                                  @store.output.fastas),
                         @store.prune_identical.key?('use_worst') \
                           && @store.prune_identical.use_worst,
                         logger
@@ -126,6 +128,12 @@ module Reporting
     @fatal_logger.fatal e
     exit
   end
+
+  def write_fasta
+    db.write_fasta_files
+  end
+
+
 
   #               _            _
   #              (_)          | |

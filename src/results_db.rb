@@ -68,11 +68,13 @@ class ResultsDB
   def initialize(identity_min,
                  identity_max,
                  output_dir,
+                 fasta_dir,
                  keep_worst = false,
                  logger = nil)
     @threshold     = identity_min
     @threshold_max = identity_max
     @output_dir    = output_dir
+    @fasta_dir     = fasta_dir
     @keep_worst    = keep_worst
     # hash of DB instances
     initialize_db
@@ -235,8 +237,8 @@ class ResultsDB
     fasta_files = gather_fasta
     #
     fasta_files.keys.each do |fasta_db|
-      write_fasta_each(fasta_db, :nt, FILE_FASTA_NT)
-      write_fasta_each(fasta_db, :aa, FILE_FASTA_AA)
+      write_fasta_each(fasta_db, :nt, Reporting::FILE_FASTA_NT, fasta_files)
+      write_fasta_each(fasta_db, :aa, Reporting::FILE_FASTA_AA, fasta_files)
     end
   end
 
@@ -244,9 +246,8 @@ class ResultsDB
 
   #
   # write each fasta file method (will be called for nt and aa)
-  def write_fasta_each(fasta_db, type, filename)
-    File.open(File.join(@store.output.dir,
-                        @store.output.fastas,
+  def write_fasta_each(fasta_db, type, filename, fasta_files)
+    File.open(File.join(@fasta_dir,
                         fasta_db.to_s + '_' + filename),
               'wb',
               col_sep: "\t") do |fid|
