@@ -31,9 +31,13 @@ class DB
   end
 
   def <=>(other)
+    # highest identity wins!
     (identity <=> other.identity).nonzero? ||
+      # highest coverage wins"
       (coverage <=> other.coverage).nonzero? ||
-      (evalue <=> other.evalue).nonzero? ||
+      # lowest evalue wins!
+      (other.evalue <=> evalue).nonzero? ||
+      # else they are equal!
       0
   end
 
@@ -140,8 +144,6 @@ class ResultsDB
     best_row = nil
     # check if there is a element in @db with the 'db_id'
     if cur_row
-      #require 'byebug'
-      #byebug
       # add to redundant array the worst element
       old_row = if new_row > cur_row
                   best_row = new_row
