@@ -65,10 +65,15 @@ class ResultsDB
 
   #
   #
-  def initialize(identity_min, identity_max, output_dir, logger = nil)
-    @threshold = identity_min
+  def initialize(identity_min,
+                 identity_max,
+                 output_dir,
+                 keep_worst = false,
+                 logger = nil)
+    @threshold     = identity_min
     @threshold_max = identity_max
-    @output_dir = output_dir
+    @output_dir    = output_dir
+    @keep_worst    = keep_worst
     # hash of DB instances
     initialize_db
     # list of deleted DB instances
@@ -134,9 +139,7 @@ class ResultsDB
       write_deleted new_row
       return false
     end
-    if db_id.nil?
-      db_id = size + 1
-    end
+    db_id = size + 1 if db_id.nil?
     # set current row as existing one
     cur_row = db[db_id]
     # initialize best row as nil, to be assigned in the
@@ -152,6 +155,12 @@ class ResultsDB
                   best_row = cur_row
                   new_row
                 end
+      # switch best and old if the worst is to be kept!
+      if @keep_worst
+        temp_row = best_row
+        best_row = old_row
+        old_row  = temp_row
+      end
       write_redundant old_row
       # increment the count with the item that was sent
       #  to the redundant list (last element of that list)

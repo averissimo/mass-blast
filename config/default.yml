@@ -19,6 +19,7 @@ orf:
   min: 100
 #
 prune_identical:
+  use_worst: false
   first: sseqid
   list:
     - nt_aligned_seq

@@ -32,6 +32,8 @@ module Reporting
                         @store.identity.max,
                         File.join(@store.output.dir,
                                   @store.output.intermediate),
+                        @store.prune_identical.key?('use_worst') \
+                          && @store.prune_identical.use_worst,
                         logger
     super()
   end
