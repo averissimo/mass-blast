@@ -4,7 +4,7 @@ gem 'bio', '~> 1.5', '>= 1.5.0'
 gem 'deep_merge', '~> 1.0', '>= 1.0.1'
 gem 'configatron', '~> 4.5', '>= 4.5.0'
 
-gem 'orf_finder', '~> 0.1', '>= 0.1.0'
+gem 'orf_finder', '~> 0.1', '>= 0.1.4'
 
 group :development do
   gem 'byebug', '~> 8.2', '>= 8.2.1'

@@ -1,5 +1,6 @@
 require 'logger'
 require 'yaml'
+
 #
 require_relative 'blast_interface'
 require_relative 'reporting'
@@ -70,6 +71,7 @@ class Blast
       #
       logger.debug '  ' + output
     end
+    logger.info "Finished BLAST step."
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -168,6 +170,49 @@ class Blast
     end
     spliced = seq.subseq(start_idx, end_idx)
     spliced
+  end
+
+  def db_information
+    ENV['BLASTDB'] = @store.db.parent
+
+    cmd = proc do |db|
+      `blastdbcmd -db #{db} -dbtype nucl -info`
+    end
+
+    result = @store.db.list.collect do |el|
+      output = cmd.call(el)
+      seqs  = Integer \
+        output.scan(/([0-9,]+) sequences;/).last.first.delete(',')
+      bases = Integer \
+        output.scan(/([0-9,]+) total bases/).last.first.delete(',')
+      { db: el, sequences: seqs, bases: bases }
+    end
+  end
+
+  def query_information
+    queries = @store.query.folders.collect do |query|
+      Dir[File.join(@store.query.parent, query, '*.fas'),
+          File.join(@store.query.parent, query, '*.fna'),
+          File.join(@store.query.parent, query, '*.fasta'),
+          File.join(@store.query.parent, query, '*.query')]
+    end.flatten.compact
+    #
+    count = 0
+    seqs  = 0
+    #
+    queries.each do |el|
+      file = Bio::FastaFormat.open(el)
+      file.each do |entry|
+        seq = entry.to_biosequence
+        if seq.guess == Bio::Sequence::AA
+          count += seq.size * 3
+        else
+          count += seq.size
+        end
+        seqs += 1
+      end
+    end
+    { base: count, sequences: seqs }
   end
 
   #             _            _

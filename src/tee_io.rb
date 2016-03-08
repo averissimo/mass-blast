@@ -3,7 +3,7 @@ class TeeIO < IO
   #
   def initialize(orig, file)
     @orig = orig
-    @file = File.new(file,'wb')
+    @file = Logger::LogDevice.new(file)
   end
 
   def write(string)
