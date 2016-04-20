@@ -37,8 +37,13 @@ def run_user_config
       #  individual config files generated
       Dir.mkdir('tmp') unless Dir.exist? 'tmp'
       # output folder will be named with database as suffix
-      output_folder = Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
-                      '-' + srand.to_s[3..6] + '-' + item
+      if config['force_folder'].nil? || config['force_folder'].strip == ''
+        output_folder = Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
+                        '-' + srand.to_s[3..6]
+      else
+        output_folder = config['force_folder']
+      end
+      output_folder += '-' + item
       # add .yml to config name
       new_config = File.join('tmp', output_folder + '.config.yml')
       # write change configuration to file, forcing only a single db
