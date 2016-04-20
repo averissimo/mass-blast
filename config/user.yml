@@ -7,6 +7,9 @@
 # default in user.yml is tblastn
 engine: tblastn
 #
+# separate each transcriptome in a individual folder
+separate_db: false
+#
 # Opts are engine specific, the default in user.yml
 #  are for tblastn
 #

@@ -68,9 +68,8 @@ class Blast
         "  '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
       logger.debug cmd
       #
-      Open3.popen3("#{cmd}") do |stdout, stderr, _status, _thread|
-        logger.info "  #{stderr.read}"
-        logger.debug "  #{stdout}"
+      Open3.popen3("#{cmd}") do |_i, _o, e, _t|
+        logger.warn "  #{e.read}" # log error messages
       end
       #
     end
@@ -145,7 +144,7 @@ class Blast
         @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
                                                  items.include?(pair[1])
       end
-      e.each_line { |line| logger.info line }
+      e.each_line { |line| logger.warn line }
       e.close
       o.close
       i.close
