@@ -71,7 +71,7 @@ def run_user_config
     #
     b.write_fasta
     # remove temporary file
-    File.delete(new_config) unless item == 1
+    File.delete(new_config) unless item == -1
   end
 end
 #
