@@ -1,5 +1,6 @@
 require 'logger'
 require 'yaml'
+require 'open3'
 
 #
 require_relative 'blast_interface'
@@ -67,11 +68,13 @@ class Blast
         "  '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
       logger.debug cmd
       #
-      output = `#{cmd}` # actual call to blast
+      Open3.popen3("#{cmd}") do |stdout, stderr, _status, _thread|
+        logger.info "  #{stderr.read}"
+        logger.debug "  #{stdout}"
+      end
       #
-      logger.debug '  ' + output
     end
-    logger.info "Finished BLAST step."
+    logger.info 'Finished BLAST step.'
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -136,12 +139,16 @@ class Blast
     logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}"
     #
     @blastdb_cache[db] = {}
-    open("| #{cmd}", 'w+') do |sub|
-      sub.each_line do |line|
+    Open3.popen3("#{cmd}") do |i, o, e, _t|
+      o.each_line do |line|
         pair = line.split(' ')
         @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
                                                  items.include?(pair[1])
       end
+      e.each_line { |line| logger.info line }
+      e.close
+      o.close
+      i.close
     end
     #
     true
