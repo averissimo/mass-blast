@@ -4,7 +4,7 @@ if [%1] == [] (
 %1 = nucl
 )
 
-if NOT %1 == "nucl" if NOT %1 == "prot" (
+if NOT "%1" == "nucl" if NOT "%1" == "prot" (
 echo "Error: ilegal value, expected 'nucl' or 'prot', not '%1%'"
 exit
 )
@@ -12,4 +12,5 @@ exit
 for /r %%i in (*.fasta *.fna *.fas) do @makeblastdb -in %%i -dbtype "%1" -out "%%~ni" -title "%%~ni"
 
 echo "moving all files to ../db"
-mv *.nhr *.nin *.nsq *nal ../db
+mv *.nhr *.nin *.nsq *.nal ../db
+mv *.phr *.pin *.psq *.pal ../db

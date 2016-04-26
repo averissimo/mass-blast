@@ -25,14 +25,17 @@ for f in *.fas *.fna *.fasta; do
 done
 
 echo "moving all files to ../db"
-for f in *.nhr *.nin *.nsq *.nal; do
+for f in *.nhr *.nin *.nsq *.nal *.phr *.pin *.psq *.pal; do
   filename="${f%.nhr}"
   filename="${filename%.nin}"
   filename="${filename%.nsq}"
   filename="${filename%.nal}"
+  filename="${filename%.pin}"
+  filename="${filename%.psq}"
+  filename="${filename%.pal}"
   #
   if [ "$filename" != "*" ]; then
     echo "mv $f ../db"
-    mv $f ../db
+    mv $f ../db_prot
   fi
 done
