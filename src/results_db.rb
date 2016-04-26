@@ -201,11 +201,11 @@ class ResultsDB
     initialize_db
     new_db.values.each do |el|
       if el[col_id].nil? || el[col_id].empty?
-        el[col_id] = uniq_count
+        db_id = "#{uniq_count}_#{el[DB::BLAST_DB]}"
         uniq_count += 1
+      else
+        db_id = "#{el[col_id]}_#{el[DB::BLAST_DB]}"
       end
-      db_id = "#{el[col_id]}_#{el[DB::BLAST_DB]}"
-      byebug
       add(db_id, el)
     end
   end
