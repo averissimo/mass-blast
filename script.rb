@@ -1,5 +1,7 @@
 require_relative 'src/blastn'
 require_relative 'src/tblastn'
+require_relative 'src/tblastx'
+require_relative 'src/blastp'
 require_relative 'src/download'
 
 require 'configatron'
@@ -19,7 +21,8 @@ def run_user_config
     if config['db']['list'].nil? || config['db']['list'].empty?
       list_db = []
       #
-      Dir[File.join(config['db']['parent'], '*.nhr')].each do |item|
+      Dir[File.join(config['db']['parent'], '*.nhr'),
+          File.join(config['db']['parent'], '*.phr')].each do |item|
         no_ext = File.basename(item, File.extname(item))
         list_db << no_ext.gsub(/\.[0-9]+$/, '')
       end
@@ -61,6 +64,8 @@ def run_user_config
       b = Blastn.new new_config
     when 'tblastx'
       b = TBlastx.new new_config
+    when 'blastp'
+      b = Blastp.new new_config
     else
       fail "Cannot recognize engine: #{config['engine']}. Please check" \
           ' documentation for implemented engines'

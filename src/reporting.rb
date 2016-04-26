@@ -156,6 +156,19 @@ module Reporting
                                       row['sstart'],
                                       row['send'],
                                       row['sframe'])
+    #
+    seq = Bio::Sequence.auto(spliced)
+    if seq.moltype == Bio::Sequence::AA
+      row['nt_aligned_seq'] = ''
+      row['aa_aligned_seq'] = spliced.to_s
+      # [:start_codon, :stop_codon].each do |type_codon|
+      #   codon_table[type_codon] = codon_table[type_codon].collect do |el|
+      #     Bio::Sequence::NA.new(el).translate(1, @store.codon_table)
+      #   end.uniq
+      # end
+      return row
+    end
+    #
     row['nt_aligned_seq'] = spliced.to_s
     row['aa_aligned_seq'] = spliced.translate.to_s
     #

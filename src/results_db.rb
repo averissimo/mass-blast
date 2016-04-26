@@ -195,11 +195,17 @@ class ResultsDB
   #
   #
   def remove_identical(col_id)
+    uniq_count = 0
     logger.level = Logger::DEBUG
     new_db = @db
     initialize_db
     new_db.values.each do |el|
+      if el[col_id].nil? || el[col_id].empty?
+        el[col_id] = uniq_count
+        uniq_count += 1
+      end
       db_id = "#{el[col_id]}_#{el[DB::BLAST_DB]}"
+      byebug
       add(db_id, el)
     end
   end

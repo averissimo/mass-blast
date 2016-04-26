@@ -1,8 +1,12 @@
 require_relative 'blast'
 #
 #
-class Blastn < Blast
+class Blastp < Blast
   #
+  def my_type
+    'prot'
+  end
+
   # blastn blast
   def blast(qfile, db, out_file, query_parent = nil)
     query_parent = @store.query.parent if query_parent.nil?

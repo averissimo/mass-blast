@@ -129,9 +129,9 @@ class Blast
     #
     ENV['BLASTDB'] = @store.db.parent
     cmd = "blastdbcmd -db #{db}" \
-      ' -dbtype nucl' \
+      " -dbtype #{my_type}" \
       ' -entry all' \
-      " -outfmt \"%s %t\""
+      " -outfmt \"%f\""
     #
     logger.info "getting cache for blastdb for: #{db}"
     logger.info "  for #{items.size} query results"
@@ -139,10 +139,14 @@ class Blast
     #
     @blastdb_cache[db] = {}
     Open3.popen3("#{cmd}") do |i, o, e, _t|
-      o.each_line do |line|
-        pair = line.split(' ')
-        @blastdb_cache[db][pair[1]] = pair[0] if items.nil? ||
-                                                 items.include?(pair[1])
+      o.each_line("\n>") do |line|
+        pair = line.split(/\n|>/)
+        pair.delete_if { |str| str.nil? || str.empty? || str == '>' }
+        name = pair.shift # get first element as name
+        name = name.partition(' ').first
+        seq = pair.join('')
+        @blastdb_cache[db][name] = seq if items.nil? ||
+                                          items.include?(name)
       end
       e.each_line { |line| logger.warn line }
       e.close
@@ -166,10 +170,11 @@ class Blast
       return 'Failed on getting sequence from database,' \
         ' see log for more information'
     end
-    seq = Bio::Sequence::NA.new(output)
+    output = '' if output.nil?
+    seq = Bio::Sequence.auto(output)
     # check if should use complement sequence
     #  i.e. sframe column is negative
-    if frame < 0
+    if frame < 0 && seq.moltype == Bio::Sequence::NA
       seq = seq.complement
       start_idx = seq.size - start_idx + 1
       end_idx   = seq.size - end_idx + 1
