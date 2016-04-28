@@ -12,5 +12,11 @@ exit
 for /r %%i in (*.fasta *.fna *.fas) do @makeblastdb -in %%i -dbtype "%1" -out "%%~ni" -title "%%~ni"
 
 echo "moving all files to ../db"
-move *.nhr *.nin *.nsq *.nal ../db
-move *.phr *.pin *.psq *.pal ../db
+move *.nhr ../db
+move *.nin ../db
+move *.nsq ../db
+move *.nal ../db
+move *.phr ../db
+move *.pin ../db
+move *.psq ../db
+move *.pal ../db
