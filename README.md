@@ -8,13 +8,13 @@ Library to query multiple files against many databases
 Pre-packaged releases of MassBlast are available at github, [download here](https://github.com/averissimo/mass-blast/releases) and support:
   - Linux 32/64-bit
   - Mac OSX (recent versions)
-  - Windowns (althought the binaries are 32-bits, due to our packaging tool)
+  - Windowns (the binaries are 32-bits, due to our packaging tool that includes ruby and other dependencies)
 
 Requirements:
-- Blast+ installed
+- BLAST+ installed
   -  [link to download latest version](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
     - note for Windows users:
-      1. Can only install 32-bit version of Blast+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
+      1. Can only install 32-bit version of BLSAT+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
       2. If it gives an error, please delete ncbi.ini located at a subdirectory at the AppData folder, if problem persists, submit an issue.
 
 Default options can be changed at user.yml, check user.yml.example for more information (manual soon).
@@ -24,6 +24,7 @@ Default options can be changed at user.yml, check user.yml.example for more info
 - Place fasta files with queries at `db_and_queries/queries` folder.
 - Place blast databases at `db_and_queries/db` folder.
   - Check "How to setup a Blast database for a transcriptome" below for more information on creating a Blast database.
+- Edit user.yml file to change options and BLAST engine to be used.
 - run mass-blast script (either double click it on Windows or as a command in the command line.
 
 # Install and usage (from source code)
@@ -88,6 +89,12 @@ Using makeblastdb command that comes bundled with Blast+
 - Navigate to directory
 - Go to directory that has the fasta file with the assembly
 - Run makeblastdb command in that directory
+  
+  nucleotides database
+
+    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast db new name&gt;" -title "&lt;blast db new name&gt;"
+  
+  protein database
 
     $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast db new name&gt;" -title "&lt;blast db new name&gt;"
 
@@ -95,10 +102,15 @@ Using makeblastdb command that comes bundled with Blast+
 
 ### Quickly setup databases in Linux and Mac OSX
 
-In Linux and OSX you can place the fasta files in db_and_queries/import_dbs directory and run the make_blast_db_in_for_fastas_in_directory.sh script
+In Linux and OSX you can place the fasta files in db_and_queries/import_dbs directory and run the import_fastas.sh script
 
     $ cd db_and_queries/import_dbs
-    $ sh make_blast_db_in_for_fastas_in_directory.sh
+    $ sh import_fastas.sh [nucl|prot]
+
+In Windows run the import_fastas.bat script
+
+    $ cd db_and_queries/import_dbs
+    $ import_fastas.bat [nucl|prot]
 
 ## Relation with other tools
 
