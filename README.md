@@ -90,15 +90,15 @@ Using makeblastdb command that comes bundled with Blast+
 - Go to directory that has the fasta file with the assembly
 - Run makeblastdb command in that directory
   
-  nucleotides database
+  - nucleotides database
 
-    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast db new name&gt;" -title "&lt;blast db new name&gt;"
+    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"
   
-  protein database
+  - protein database
 
-    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast db new name&gt;" -title "&lt;blast db new name&gt;"
+    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"
 
-*note:* try to not use spaces in the &lt;blast db new name&gt;
+*note:* do to not use spaces in the &lt;blast db new name&gt;
 
 ### Quickly setup databases in Linux and Mac OSX
 
