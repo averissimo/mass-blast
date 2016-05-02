@@ -180,7 +180,7 @@ class Blast
       end_idx   = seq.size - end_idx + 1
     end
     spliced = seq.subseq(start_idx, end_idx)
-    spliced
+    { spliced: spliced, seq: seq }
   end
 
   def db_information

@@ -22,8 +22,11 @@ module Reporting
                        sseqid
                        contig_count
                        nt_aligned_seq aa_aligned_seq
-                       nt_longest_orf nt_longest_orf_len
-                       aa_longest_orf aa_longest_orf_len)
+                       nt_aligned_longest_orf nt_aligned_longest_orf_len
+                       aa_aligned_longest_orf aa_aligned_longest_orf_len
+                       nt_db_seq aa_db_seq
+                       nt_db_longest_orf nt_db_longest_orf_len
+                       aa_db_longest_orf aa_db_longest_orf_len)
   #
   attr_accessor :db
   #
@@ -160,16 +163,20 @@ module Reporting
   #  - longest orf overall and for each reading frame
   def process_item(item)
     row = item.row
-    spliced = get_nt_seq_from_blastdb(row['sseqid'],
+    new_seq = get_nt_seq_from_blastdb(row['sseqid'],
                                       row['db'],
                                       row['sstart'],
                                       row['send'],
                                       row['sframe'])
     #
+    spliced = new_seq[:spliced]
+    db_seq  = Bio::Sequence.auto(new_seq[:seq])
     seq = Bio::Sequence.auto(spliced)
     if seq.moltype == Bio::Sequence::AA
       row['nt_aligned_seq'] = ''
       row['aa_aligned_seq'] = spliced.to_s
+      row['nt_db_seq'] = ''
+      row['aa_db_seq'] = db_seq.to_s
       # [:start_codon, :stop_codon].each do |type_codon|
       #   codon_table[type_codon] = codon_table[type_codon].collect do |el|
       #     Bio::Sequence::NA.new(el).translate(1, @store.codon_table)
@@ -180,32 +187,37 @@ module Reporting
     #
     row['nt_aligned_seq'] = spliced.to_s
     row['aa_aligned_seq'] = spliced.translate.to_s
+    row['nt_db_seq']      = db_seq.to_s
+    row['aa_db_seq']      = db_seq.translate.to_s
     #
-    orf = ORFFinder.new(spliced, @store.codon_table, @store.orf.to_hash, logger)
-    #
-    add_row_proc = proc do |frame|
-      direction  = (frame > 0 ? :direct : :reverse)
-      common_str = "longest_orf_frame#{frame}"
-      frame_sym  = "frame#{frame.abs}".to_sym
-      row["nt_#{common_str}"]     = orf.nt[direction][frame_sym]
-      row["nt_#{common_str}_len"] = row["nt_#{common_str}"].size
-      row["aa_#{common_str}"]     = orf.aa[direction][frame_sym]
-      row["aa_#{common_str}_len"] = row["aa_#{common_str}"].size
+    { aligned: spliced.to_s, db: db_seq.to_s }.each do |key, orf_to_search|
+      orf = ORFFinder.new(orf_to_search, @store.codon_table, @store.orf.to_hash,
+                          logger)
       #
-      row["nt_#{common_str}"].size
+      add_row_proc = proc do |frame|
+        direction  = (frame > 0 ? :direct : :reverse)
+        common_str = "#{key}_longest_orf_frame#{frame}"
+        frame_sym  = "frame#{frame.abs}".to_sym
+        row["nt_#{common_str}"]     = orf.nt[direction][frame_sym]
+        row["nt_#{common_str}_len"] = row["nt_#{common_str}"].size
+        row["aa_#{common_str}"]     = orf.aa[direction][frame_sym]
+        row["aa_#{common_str}_len"] = row["aa_#{common_str}"].size
+        #
+        row["nt_#{common_str}"].size
+      end
+      #
+      frames = [+1, +2, +3, -1, -2, -3]
+      arr = frames.collect { |el| add_row_proc.call(el) }
+      max_idx = arr.rindex(arr.max)
+      row["nt_#{key}_longest_orf"]     = row["nt_#{key}_longest_orf_frame#{frames[max_idx]}"]
+      row["nt_#{key}_longest_orf_len"] = row["nt_#{key}_longest_orf"].size
+      row["aa_#{key}_longest_orf"]     = (if row["nt_#{key}_longest_orf"].empty?
+                                            ''
+                                          else
+                                            row["nt_#{key}_longest_orf"].translate
+                                          end)
+      row["aa_#{key}_longest_orf_len"] = row["aa_#{key}_longest_orf"].size
     end
-    #
-    frames = [+1, +2, +3, -1, -2, -3]
-    arr = frames.collect { |el| add_row_proc.call(el) }
-    max_idx = arr.rindex(arr.max)
-    row['nt_longest_orf']     = row["nt_longest_orf_frame#{frames[max_idx]}"]
-    row['nt_longest_orf_len'] = row['nt_longest_orf'].size
-    row['aa_longest_orf']     = (if row['nt_longest_orf'].empty?
-                                   ''
-                                 else
-                                   row['nt_longest_orf'].translate
-                                 end)
-    row['aa_longest_orf_len'] = row['aa_longest_orf'].size
     row
   end
 
@@ -223,36 +235,57 @@ module Reporting
   #
   # Add calculated headers from Blast results
   def add_headers
-    db.header.concat \
-      %w(contig_count nt_aligned_seq aa_aligned_seq
-         nt_orf_frame+1 nt_orf_frame+1_len aa_orf_frame+1  aa_orf_frame+1_len
-         nt_orf_frame+2 nt_orf_frame+2_len aa_orf_frame+2  aa_orf_frame+2_len
-         nt_orf_frame+3 nt_orf_frame+3_len aa_orf_frame+3  aa_orf_frame+3_len
-         nt_orf_frame-1 nt_orf_frame-1_len aa_orf_frame-1 aa_orf_frame-1_len
-         nt_orf_frame-2 nt_orf_frame-2_len aa_orf_frame-2 aa_orf_frame-2_len
-         nt_orf_frame-3 nt_orf_frame-3_len aa_orf_frame-3 aa_orf_frame-3_len
-         nt_longest_orf nt_longest_orf_len aa_longest_orf aa_longest_orf_len)
+    #
     verbose_explanation = proc do |type, frame, is_len|
       "means #{is_len ? 'length of ' : ''}longest #{type} " \
         "on read frame#{frame} alignment"
     end
-    db.header_meaning.concat \
-      ['means number of results for this contig with less identity',
-       'means nucleotide alignment from db',
-       'means amino-acid alignment from db']
     #
-    [+1, +2, +3, -1, -2, -3].each do |el|
-      db.header_meaning.concat \
-        [verbose_explanation.call('nucleotide', el, false),
-         verbose_explanation.call('nucleotide', el, true),
-         verbose_explanation.call('amino-acid', el, false),
-         verbose_explanation.call('amino-acid', el, true)]
-    end
+    db.header.concat \
+      %w(contig_count)
     db.header_meaning.concat \
-      ['means longest nucleotide orf in alignment',
-       'means length of longest nucleotide orf in alignment',
-       'means longest amino-acid orf in alignment',
-       'means length of longest amino-acid orf in alignment']
+      ['means number of results for this contig with less identity']
+    #
+    db.header.concat %w(nt_aligned_seq aa_aligned_seq nt_db_seq aa_db_seq)
+    #
+    db.header_meaning.concat \
+      ['means nucleotide alignment from db',
+       'means amino-acid alignment from db',
+       'means nucleotide full sequence from db',
+       'means amino-acid full sequence from db']
+    #
+    %w(aligned db).each do |str|
+      db.header.concat \
+        ["nt_#{str}_longest_orf_frame+1", "nt_#{str}_longest_orf_frame+1_len",
+         "aa_#{str}_longest_orf_frame+1", "aa_#{str}_longest_orf_frame+1_len",
+         "nt_#{str}_longest_orf_frame+2", "nt_#{str}_longest_orf_frame+2_len",
+         "aa_#{str}_longest_orf_frame+2", "aa_#{str}_longest_orf_frame+2_len",
+         "nt_#{str}_longest_orf_frame+3", "nt_#{str}_longest_orf_frame+3_len",
+         "aa_#{str}_longest_orf_frame+3", "aa_#{str}_longest_orf_frame+3_len",
+         "nt_#{str}_longest_orf_frame-1", "nt_#{str}_longest_orf_frame-1_len",
+         "aa_#{str}_longest_orf_frame-1", "aa_#{str}_longest_orf_frame-1_len",
+         "nt_#{str}_longest_orf_frame-2", "nt_#{str}_longest_orf_frame-2_len",
+         "aa_#{str}_longest_orf_frame-2", "aa_#{str}_longest_orf_frame-2_len",
+         "nt_#{str}_longest_orf_frame-3", "nt_#{str}_longest_orf_frame-3_len",
+         "aa_#{str}_longest_orf_frame-3", "aa_#{str}_longest_orf_frame-3_len",
+         "nt_#{str}_longest_orf",         "nt_#{str}_longest_orf_len",
+         "aa_#{str}_longest_orf",         "aa_#{str}_longest_orf_len"]
+    end
+    #
+    %w(aligned db).each do |str|
+      [+1, +2, +3, -1, -2, -3].each do |el|
+        db.header_meaning.concat \
+          [verbose_explanation.call("nucleotide from #{str}", el, false),
+           verbose_explanation.call("nucleotide from #{str}", el, true),
+           verbose_explanation.call("amino-acid from #{str}", el, false),
+           verbose_explanation.call("amino-acid from #{str}", el, true)]
+      end
+      db.header_meaning.concat \
+        ["means longest nucleotide orf from #{str} in alignment",
+         "means length of longest nucleotide orf from #{str} in alignment",
+         "means longest amino-acid orf from #{str} in alignment",
+         "means length of longest amino-acid orf from #{str} in alignment"]
+    end
   end
 
   #
