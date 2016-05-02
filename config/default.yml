@@ -51,7 +51,7 @@ debug:
   show_stdout_if_file: true
 
 config:
-  user: config/user.yml
+  user: user.yml
 #
 # removes blanks lines
 clean_output: true

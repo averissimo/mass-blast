@@ -10,7 +10,7 @@ require 'configatron'
 def run_user_config
   # configuration
   if ARGV.empty?
-    config = YAML.load_file(File.expand_path('config/user.yml'))
+    config = YAML.load_file(File.expand_path('user.yml'))
   else
     config = YAML.load_file(File.expand_path(ARGV[0]))
   end

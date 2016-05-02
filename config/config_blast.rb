@@ -17,7 +17,7 @@ module ConfigBlast
     config_path = @store.config.user if config_path.nil?
     #
     @store.config.user = File.expand_path(config_path)
-    @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
+    @store.configure_from_hash(YAML.load_file(@store.config.user))
     #
     set_os
     #
@@ -56,8 +56,10 @@ module ConfigBlast
     logger.info('loads configuration from defaults: ' \
       "#{@store.config.default.gsub(FileUtils.pwd + File::Separator, '')}")
     @store.configure_from_hash(YAML.load_file(@store.config.default))
+    #
+    @store.config.user = File.expand_path(config_path)
     logger.info("loads configuration from user: #{config_path}")
-    @store.configure_from_hash(YAML.load_file(File.expand_path(config_path)))
+    @store.configure_from_hash(YAML.load_file(@store.config.user))
     # process the configuration to adjust paths and values
     process_config
     logger.debug('loaded and processed configuration files')
@@ -109,18 +111,38 @@ module ConfigBlast
     @store.identity.min *= 100
     @store.identity.max *= 100
     # convert paths to an absolutes
-    @store.output.dir   = File.expand_path(@store.output.dir)
-    @store.db.parent    = File.expand_path(@store.db.parent)
-    @store.query.parent = File.expand_path(@store.query.parent)
+    #  using config_path as the base directory
+    base_dir = File.dirname(@store.config.user)
+    #
+    @store.output.dir     = File.expand_path(@store.output.dir, base_dir)
+    @store.db.parent      = File.expand_path(@store.db.parent, base_dir)
+    @store.query.parent   = File.expand_path(@store.query.parent, base_dir)
+    @store.annotation_dir = File.expand_path(@store.annotation_dir, base_dir)
+
+    # check if they exist
+    did_it_fail = false
+    { output_dir: @store.output.dir,
+      db_parent: @store.db.parent,
+      query_parent: @store.query.parent,
+      annotation_dir: @store.annotation_dir }.each do |key, dir|
+      next if Dir.exist? dir
+      logger.error "Error: Directory for '#{key}' does not exist, please" \
+            ' create it, or change configuration, before running mass blast' \
+            ' again.'
+      logger.error "  #{key}: #{dir}"
+      did_it_fail = true
+    end
+    exit if did_it_fail
+    #
     # create the output directory
     create_output_dir
     #
     logger.debug('query_parent: ' + @store.query.parent)
     logger.debug('db_parent: ' + @store.db.parent)
     #
-    fail 'Database parent must be defined in config/user.yml.' \
+    fail 'Database parent must be defined in user.yml.' \
       if @store.db.parent.nil?
-    fail 'Folders must be defined in config/user.yml.' \
+    fail 'Folders must be defined in user.yml.' \
       if @store.query.folders.nil?
     # set existing dbs
     logger.info("loads databases (from directory '#{@store.db.parent}'): ")
