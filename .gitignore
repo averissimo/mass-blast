@@ -1,6 +1,8 @@
 # output folder
 output/
 
+db_and_queries/
+
 # Temporary files created in linux
 *~
 
