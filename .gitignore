@@ -1,15 +1,32 @@
+# output folder
 output/
-config.yml
+
+# Temporary files created in linux
 *~
+
+# Gemfile lock, should be system dependant
+#  the same with vendor and bundle
 Gemfile.lock
 vendor/bundle
 .bundle
-config_*.yml
-blast.log
+
+# Temporary directory
 tmp/
 
+# Taxonomy databases
 taxdb.btd
 taxdb.bti
+
+# BLAST nucleotides databases
 *.nhr
 *.nin
 *.nsq
+#
+# BLAST protein databases
+*.phr
+*.pin
+*.psq
+
+# Folder to keep custom configuration files
+yml/
+scripts/
