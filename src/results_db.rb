@@ -257,8 +257,11 @@ class ResultsDB
     fasta_files = gather_fasta
     #
     fasta_files.keys.each do |fasta_db|
-      write_fasta_each(fasta_db, :nt, Reporting::FILE_FASTA_NT, fasta_files)
-      write_fasta_each(fasta_db, :aa, Reporting::FILE_FASTA_AA, fasta_files)
+      write_fasta_each(fasta_db, :nt, :aligned, Reporting::FILE_FASTA_NT, fasta_files)
+      write_fasta_each(fasta_db, :aa, :aligned, Reporting::FILE_FASTA_AA, fasta_files)
+      #
+      write_fasta_each(fasta_db, :nt, :db, Reporting::FILE_FASTA_NT, fasta_files)
+      write_fasta_each(fasta_db, :aa, :db, Reporting::FILE_FASTA_AA, fasta_files)
     end
   end
 
@@ -266,14 +269,14 @@ class ResultsDB
 
   #
   # write each fasta file method (will be called for nt and aa)
-  def write_fasta_each(fasta_db, type, filename, fasta_files)
+  def write_fasta_each(fasta_db, type, origin, filename, fasta_files)
     File.open(File.join(@fasta_dir,
-                        fasta_db.to_s + '_' + filename),
+                        origin.to_s + '_' + fasta_db.to_s + '_' + filename),
               'wb',
               col_sep: "\t") do |fid|
-      fid.write fasta_files[fasta_db][type].join("\n")
+      fid.write fasta_files[fasta_db][type][origin].join("\n")
     end
-    logger.info "Finished writing #{filename}."
+    logger.info "Finished writing #{origin}-#{filename}."
   end
 
   #
@@ -284,13 +287,27 @@ class ResultsDB
     fasta_files = {}
     values.each do |line|
       #
-      fasta_files[line['db']] = { nt: [], aa: [] } \
+      fasta_files[line['db']] = \
+        { nt: { aligned: [], db: [] }, aa: { aligned: [], db: [] } } \
         if fasta_files[line['db']].nil?
-      fasta_files[line['db']][:nt] << \
+      #
+      #
+      #
+      fasta_files[line['db']][:nt][:aligned] << \
         ">#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
-      fasta_files[line['db']][:aa] << fasta_files[line['db']][:nt].last
-      fasta_files[line['db']][:nt] << line['nt_longest_orf']
-      fasta_files[line['db']][:aa] << line['aa_longest_orf']
+      fasta_files[line['db']][:aa][:aligned] << \
+        fasta_files[line['db']][:nt][:aligned].last
+      #
+      fasta_files[line['db']][:nt][:db] << \
+        fasta_files[line['db']][:nt][:aligned].last
+      fasta_files[line['db']][:aa][:aligned] << \
+        fasta_files[line['db']][:nt][:aligned].last
+      #
+      fasta_files[line['db']][:nt][:aligned] << line['nt_aligned_longest_orf']
+      fasta_files[line['db']][:aa][:aligned] << line['aa_aligned_longest_orf']
+      #
+      fasta_files[line['db']][:nt][:db] << line['nt_db_longest_orf']
+      fasta_files[line['db']][:aa][:db] << line['aa_db_longest_orf']
     end
     fasta_files
   end
