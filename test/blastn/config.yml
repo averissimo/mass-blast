@@ -1,0 +1,42 @@
+# Blast options and task
+opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
+task: megablast
+identity:
+  min: .40 # value between 0 and 1
+  max: 1   # value between 0 and 1
+
+force_folder: test_blastn
+clean_output: true
+
+db:
+  parent: "spec/db"
+  list:
+    - fvesca_scaffolds
+
+debug:
+  file: output/log.blastn_rspec.txt
+  show_stdout_if_file: false
+
+prune_identical:
+  - qseq
+
+orf:
+  stop_codon:
+    - tag
+    - taa
+    - tga
+  start_codon:
+    - atg
+  reverse: true
+  direct: true
+  min: 30
+
+
+query:
+  parent: "spec/blastn"
+  folders:
+    - query
+
+debug:
+  file: output/log.blastn_rspec.txt
+  show_stdout_if_file: false
