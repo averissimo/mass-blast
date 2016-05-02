@@ -118,6 +118,8 @@ module ConfigBlast
     @store.db.parent      = File.expand_path(@store.db.parent, base_dir)
     @store.query.parent   = File.expand_path(@store.query.parent, base_dir)
     @store.annotation_dir = File.expand_path(@store.annotation_dir, base_dir)
+    #
+    @store.debug_file     = File.expand_path(@store.debug_file, base_dir)
 
     # check if they exist
     did_it_fail = false
