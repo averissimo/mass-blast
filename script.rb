@@ -46,6 +46,9 @@ def run_user_config
       else
         output_folder = config['force_folder']
       end
+      # keep original to reset it, otherwise it will concatenate all
+      output_folder_original = config['force_folder']
+      # set output folder for this db
       output_folder += '-' + item
       # add .yml to config name
       new_config = File.join('tmp', output_folder + '.config.yml')
@@ -55,6 +58,8 @@ def run_user_config
         config['force_folder'] = output_folder
         fw.write YAML.dump(config)
       end
+      # reset name of folder to original
+      config['force_folder'] = output_folder_original
     end
     #
     case config['engine']
@@ -71,7 +76,7 @@ def run_user_config
           ' documentation for implemented engines'
     end
     # download taxdb from ncbi
-    ExternalData.download(config['db']['parent'], FALSE)
+    ExternalData.download(config['db']['parent'], TRUE)
     # blast folders
     b.blast_folders
     # generate report.csv

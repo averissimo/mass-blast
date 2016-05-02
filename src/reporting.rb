@@ -37,6 +37,7 @@ module Reporting
                         @store.prune_identical.key?('use_worst') \
                           && @store.prune_identical.use_worst,
                         logger
+    @results_headers = RESULTS_HEADERS
     super()
   end
 
@@ -115,13 +116,16 @@ module Reporting
       end
     end
     #
+    # add annotation_dir
+    merge_annotation
+    #
     # save CSVs
     #
     # write trimmed file
     db.write_trimmed(@store.output.dir, FILE_TRIMMED)
     logger.info "finished writing #{FILE_TRIMMED}"
     #
-    db.write_results(@store.output.dir, FILE_RESULTS, RESULTS_HEADERS)
+    db.write_results(@store.output.dir, FILE_RESULTS, @results_headers)
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -131,6 +135,13 @@ module Reporting
 
   def write_fasta
     db.write_fasta_files
+  end
+
+  def merge_annotation
+    annot_files = Dir[File.join(@store.annotation_dir, '*.csv')]
+    annot_files.each do |file|
+      merge_csv file
+    end
   end
 
   #               _            _
@@ -198,6 +209,16 @@ module Reporting
     row
   end
 
+  def merge_csv(file)
+    added = FALSE
+    CSV.foreach(file, headers: true, col_sep: "\t") do |row|
+      @results_headers.concat row.headers[2..(row.headers.size)] unless added
+      @db.add_info({ one: row.headers[0], two: row.headers[1] },
+                   { one: row[0], two: row[1] },
+                   row.headers[2..(row.headers.size)],
+                   row.values_at[2..(row.headers.size)])
+    end
+  end
   #
   #
   # Add calculated headers from Blast results

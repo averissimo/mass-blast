@@ -102,6 +102,20 @@ class ResultsDB
     end
   end
 
+  def add_info(keys, values, new_col_key, new_col_val)
+    header.concat new_col_key
+    header_meaning.concat new_col_key
+    db.values.each do |el|
+      new_col_key.each_with_index do |col_key, ix|
+        if el[keys[:one]] == values[:one] && el[keys[:two]] == values[:two]
+          el[col_key] = new_col_val[ix]
+        else
+          el[col_key] = ''
+        end
+      end
+    end
+  end
+
   def write_deleted(row)
     if @deleted.nil?
       @deleted = open_2_write(@output_dir, Reporting::FILE_DISCARDED)

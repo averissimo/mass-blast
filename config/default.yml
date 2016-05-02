@@ -42,7 +42,9 @@ output:
   intermediate: intermediate
   blast_results: blast_results
   fastas: fasta_files
-
+#
+annotation_dir: "db_and_queries/annotation"
+#
 debug:
   level: "info"
   file: output/log.txt
