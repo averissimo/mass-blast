@@ -72,7 +72,7 @@ class ExternalData
     end
   end
 
-  def self.download(parent_path = 'db_and_queries/db')
+  def self.download(parent_path = 'db_and_queries/db', only_tax = FALSE)
     logger = Logger.new(STDOUT)
     logger.progname = 'Download'
     #
@@ -97,9 +97,11 @@ class ExternalData
     #
     run.call(['taxdb.btd', 'taxdb.bti'], SPEC_PARENT, :download_taxdb)
     #
-    run.call(['fvesca_scaffolds.nhr',
-              'fvesca_scaffolds.nin',
-              'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
+    unless only_tax
+      run.call(['fvesca_scaffolds.nhr',
+                'fvesca_scaffolds.nin',
+                'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
+    end
   rescue StandardError => e
     msg = \
       case e

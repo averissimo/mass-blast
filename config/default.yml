@@ -55,6 +55,8 @@ config:
 clean_output: true
 
 #
+force_remove: true
+#
 # value for filtering the results on the identity
 #  column, i.e. only above 40% in case the config is .40
 identity:

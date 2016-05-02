@@ -103,7 +103,7 @@ module Reporting
     logger.info "pruning results from #{FILE_REPORT} file"
     #
     # build from report csv the database of results
-    build_db()
+    build_db
     #
     # remove rows that share the same information
     if @store.key?('prune_identical') &&
@@ -132,8 +132,6 @@ module Reporting
   def write_fasta
     db.write_fasta_files
   end
-
-
 
   #               _            _
   #              (_)          | |

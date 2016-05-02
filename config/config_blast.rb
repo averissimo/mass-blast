@@ -77,6 +77,10 @@ module ConfigBlast
         Dir.mkdir @store.output.dir
       else
         @store.output.dir += File::Separator + @store.force_folder
+        # remove older directory if ex
+        if Dir.exist?(@store.output.dir) && @store.force_remove
+          FileUtils.rm_rf(@store.output.dir)
+        end
         Dir.mkdir(@store.output.dir) unless Dir.exist?(@store.output.dir)
       end
     rescue StandardError => e
