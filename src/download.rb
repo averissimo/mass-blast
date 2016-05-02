@@ -72,7 +72,7 @@ class ExternalData
     end
   end
 
-  def self.download(parent_path = 'db_and_queries/db', only_tax = FALSE)
+  def self.download(parent_path = 'db_and_queries/db', only_working_dir = false)
     logger = Logger.new(STDOUT)
     logger.progname = 'Download'
     #
@@ -95,9 +95,9 @@ class ExternalData
     # download if database does not exist
     run.call(['taxdb.btd', 'taxdb.bti'], parent_path, :download_taxdb)
     #
-    run.call(['taxdb.btd', 'taxdb.bti'], SPEC_PARENT, :download_taxdb)
-    #
-    unless only_tax
+    unless only_working_dir
+      run.call(['taxdb.btd', 'taxdb.bti'], SPEC_PARENT, :download_taxdb)
+      #
       run.call(['fvesca_scaffolds.nhr',
                 'fvesca_scaffolds.nin',
                 'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
