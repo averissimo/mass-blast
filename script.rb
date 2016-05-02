@@ -11,6 +11,7 @@ def run_user_config
   # configuration
   config_path = File.expand_path((ARGV.empty? ? 'user.yml' : ARGV[0]))
   config = YAML.load_file(config_path)
+  config_parent = File.dirname(config_path)
   #
   b = nil
   #
@@ -19,9 +20,9 @@ def run_user_config
       list_db = []
       #
       Dir[File.expand_path(File.join(config['db']['parent'], '*.nhr'),
-                           config_path),
+                           config_parent),
           File.expand_path(File.join(config['db']['parent'], '*.phr'),
-                           config_path)].each do |item|
+                           config_parent)].each do |item|
         no_ext = File.basename(item, File.extname(item))
         list_db << no_ext.gsub(/\.[0-9]+$/, '')
       end
@@ -40,12 +41,13 @@ def run_user_config
   #
   #
   list_db.each do |item|
+
     if item == -1
       new_config = ARGV[0]
     else
       # create a temporary older named tmp that holds the
       #  individual config files generated
-      tmp_path = File.expand_path('tmp', File.dirname(config_path))
+      tmp_path = File.expand_path('tmp', config_parent)
       Dir.mkdir(tmp_path) unless Dir.exist? tmp_path
       # output folder will be named with database as suffix
       if config['force_folder'].nil? || config['force_folder'].strip == ''
