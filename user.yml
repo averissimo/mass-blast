@@ -41,6 +41,19 @@ prune_identical:
   list:
     - nt_aligned_seq
 #
+# output directory options:
+#  - dir: output directory's name
+#  - ext: extension for blast files
+output:
+  dir: output
+  extension: .out
+  intermediate: intermediate
+  blast_results: blast_results
+  fastas: fasta_files
+#
+#
+annotation_dir: "db_and_queries/annotation"
+#
 # Directory that holds all database files in blastdb format
 #  if you need to convert a fasta file to this format, you
 #  can use the tool from blast+:

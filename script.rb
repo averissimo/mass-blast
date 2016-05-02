@@ -9,11 +9,8 @@ require 'configatron'
 #
 def run_user_config
   # configuration
-  if ARGV.empty?
-    config = YAML.load_file(File.expand_path('user.yml'))
-  else
-    config = YAML.load_file(File.expand_path(ARGV[0]))
-  end
+  config_path = File.expand_path((ARGV.empty? ? 'user.yml' : ARGV[0]))
+  config = YAML.load_file(config_path)
   #
   b = nil
   #
@@ -21,12 +18,22 @@ def run_user_config
     if config['db']['list'].nil? || config['db']['list'].empty?
       list_db = []
       #
-      Dir[File.join(config['db']['parent'], '*.nhr'),
-          File.join(config['db']['parent'], '*.phr')].each do |item|
+      Dir[File.expand_path(File.join(config['db']['parent'], '*.nhr'),
+                           config_path),
+          File.expand_path(File.join(config['db']['parent'], '*.phr'),
+                           config_path)].each do |item|
         no_ext = File.basename(item, File.extname(item))
         list_db << no_ext.gsub(/\.[0-9]+$/, '')
       end
+    else
+      list_db = config['db']['list']
     end
+    # needs to make directories relative to tmp folder
+    config['output']['dir']   = File.join('..', config['output']['dir'])
+    config['db']['parent']    = File.join('..', config['db']['parent'])
+    config['debug']['file']   = File.join('..', config['debug']['file'])
+    config['query']['parent'] = File.join('..', config['query']['parent'])
+    config['annotation_dir']  = File.join('..', config['annotation_dir'])
   else
     list_db = [-1]
   end
@@ -38,7 +45,8 @@ def run_user_config
     else
       # create a temporary older named tmp that holds the
       #  individual config files generated
-      Dir.mkdir('tmp') unless Dir.exist? 'tmp'
+      tmp_path = File.expand_path('tmp', File.dirname(config_path))
+      Dir.mkdir(tmp_path) unless Dir.exist? tmp_path
       # output folder will be named with database as suffix
       if config['force_folder'].nil? || config['force_folder'].strip == ''
         output_folder = Time.now.strftime('%Y_%m_%d-%H_%M_%S') +
@@ -51,11 +59,11 @@ def run_user_config
       # set output folder for this db
       output_folder += '-' + item
       # add .yml to config name
-      new_config = File.join('tmp', output_folder + '.config.yml')
+      new_config = File.join(tmp_path, output_folder + '.config.yml')
       # write change configuration to file, forcing only a single db
       File.open(new_config, 'wb') do |fw|
-        config['db']['list'] = [item]
-        config['force_folder'] = output_folder
+        config['db']['list']      = [item]
+        config['force_folder']    = output_folder
         fw.write YAML.dump(config)
       end
       # reset name of folder to original
@@ -76,7 +84,7 @@ def run_user_config
           ' documentation for implemented engines'
     end
     # download taxdb from ncbi
-    ExternalData.download(config['db']['parent'], TRUE)
+    ExternalData.download(b.store.db.parent, TRUE)
     # blast folders
     b.blast_folders
     # generate report.csv
