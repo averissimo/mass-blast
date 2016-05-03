@@ -15,9 +15,12 @@ module ConfigBlast
     @store.configure_from_hash(YAML.load_file(@store.config.default))
     #
     config_path = @store.config.user if config_path.nil?
+    config_path = File.expand_path(config_path)
     #
-    @store.config.user = File.expand_path(config_path)
+    @store.config.user = config_path
     @store.configure_from_hash(YAML.load_file(@store.config.user))
+    #
+    @store.debug.file = File.expand_path(@store.debug.file, File.dirname(config_path))
     #
     set_os
     #
