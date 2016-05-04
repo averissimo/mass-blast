@@ -11,12 +11,12 @@ engine: tblastn
 # separate each transcriptome in a individual folder
 #  this will create many folders in the output directory
 #  each ending with the database name
-separate_db: true
+separate_db: false
 #
 #
 # number of threads to use
 #  only valid with separate_db option
-use_threads: 5
+use_threads: 1
 #
 #
 debug:
