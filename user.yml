@@ -7,8 +7,12 @@
 # default in user.yml is tblastn
 engine: tblastn
 #
+#
 # separate each transcriptome in a individual folder
+#  this will create many folders in the output directory
+#  each ending with the database name
 separate_db: false
+#
 #
 # Opts are engine specific, the default in user.yml
 #  are for tblastn
@@ -19,6 +23,8 @@ separate_db: false
 #  - for blastn:
 # opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
 opts: "-max_target_seqs 500 -evalue 1E-20"
+#
+#
 # Task for engine which again are also specific for each
 #  engine.
 #
@@ -28,16 +34,30 @@ opts: "-max_target_seqs 500 -evalue 1E-20"
 # tblastn, tblastn-fast
 #  - for blastn:
 # blastn, blastn-short, dc-megablast, megablast, rmblastn
+#  - for blastp:
+# blastp, blastp-fast, blastp-short
 task: tblastn
+#
+#
 # Threshold that should filter out results by identity
 #  values can take between 0 and 1 (i.e. 0% and 100%)
 identity:
+  # minimum range for identity
   min: .40
+  # maximum range for identity
   max: 1
 #
+#
+# Filtering options
+#
 prune_identical:
+  #  use_worst: will pick the result with highest identity if false
+  #   and the lowest identity if true
   use_worst: false
+  # first: the initial filtering step will remove all identical sseqid and
+  #  pick the best/worst (depending on use_worst option)
   first: sseqid
+  # list: list of subsequent filtering columns, works the same as first
   list:
     - nt_aligned_seq
 #
@@ -52,6 +72,22 @@ output:
   fastas: fasta_files
 #
 #
+# directory where csv are kept to add annotation to the results
+#  each csv should have at least 3 columns, with headers
+# the csv must be separated by tabs (\t)
+#
+# column 1 & 2: header should match columns in the trimmed.csv results and
+#  each line that matches will be added the following columns
+#
+# columns 3 and on: header will be the header of the new column and information
+#  on these columns will be added to the matched elements
+#
+# example:
+# db          sseqid    expression_level
+# backberry   comp20_u1 23
+# backberry   comp33_u1 33
+# bilberry    comp33_u1 42
+# ....
 annotation_dir: "db_and_queries/annotation"
 #
 # Directory that holds all database files in blastdb format
@@ -80,20 +116,20 @@ query:
 
 #
 # Configuration for finding longest ORF
-#  that requires:
-#  - start codon: sequence that indicates where ORF begins
-#  - stop codon: sequence that indicates where ORF ends
-#  - reverse: search the reverse sequence
-#  - direct: search the given sequence (at least this and reverse must be used)
-#  - min: minimum size of sequence
-#  - max: maximum size of sequence, Inf
+#  TODO:
+#   - max: maximum size of sequence, Inf
 orf:
+  # stop codon: sequence that indicates where ORF ends
   stop_codon:
     - tag
     - taa
     - tga
+  # start codon: sequence that indicates where ORF begins
   start_codon:
     - atg
+  #  reverse: search the reverse sequence
   reverse: true
+  #  direct: search the given sequence (at least this and reverse must be used)
   direct: true
+  #  min: minimum size of sequence
   min: 100
