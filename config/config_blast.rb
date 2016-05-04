@@ -152,13 +152,14 @@ module ConfigBlast
     # set existing dbs
     logger.info("loads databases (from directory '#{@store.db.parent}'): ")
     if @store.db.list.nil? || @store.db.list.empty?
-      @store.db.list = []
-      Dir[File.join(@store.db.parent, '*.nhr'),
-          File.join(@store.db.parent, '*.phr')].each do |filename|
-        next unless File.file? filename
-        no_ext = File.basename(filename, File.extname(filename))
-        @store.db.list << no_ext.gsub(/\.[0-9]+$/, '')
+      list_ary = []
+      Open3.popen3("blastdbcmd -list #{@store.db.parent}") do |_i, o, _e, _t|
+        o.each_line("\n") do |line|
+          pair = line.split(/ (Nucleotide|Protein)\n/)
+          list_ary << File.basename(pair[0]).gsub(/\.[0-9]+$/, '')
+        end
       end
+      @store.db.list = list_ary.uniq
     end
     if @store.db.list.nil? || @store.db.list.empty?
       msg = "No blast dbs found in #{@store.db.parent}."
