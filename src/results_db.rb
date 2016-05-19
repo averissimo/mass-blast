@@ -102,14 +102,15 @@ class ResultsDB
     end
   end
 
-  def add_info(keys, values, new_col_key, new_col_val)
+  def add_info(keys, values, new_col_key, new_col_val, file_origin = nil)
     header.concat new_col_key
-    header_meaning.concat new_col_key
+    file_origin = [new_col_key] if file_origin.nil?
+    header_meaning.concat file_origin
     db.values.each do |el|
       new_col_key.each_with_index do |col_key, ix|
         if el[keys[:one]] == values[:one] && el[keys[:two]] == values[:two]
           el[col_key] = new_col_val[ix]
-        else
+        elsif el[col_key].nil?
           el[col_key] = ''
         end
       end
@@ -247,7 +248,7 @@ class ResultsDB
       csv << header_meaning.values_at(*header_meaning_idx)
       db.values.each do |row|
         new_row = row.row.reject { |k, _v| !cols.include?(k) }
-        csv << new_row.map { |el| el[1] }
+        csv << new_row.map { |el| (el[1].nil? ? '' : el[1]) }
       end
     end
     logger.info "Finished writing #{filename}."

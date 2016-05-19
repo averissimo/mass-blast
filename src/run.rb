@@ -118,7 +118,8 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
   threads.map(&:join)
 end
 
-def run_blast(new_config, engine, benchmark = nil, run_blast = true, run_after_blast = true)
+def run_blast(new_config, engine, benchmark = nil,
+  run_blast = true, run_after_blast = true)
   #
   case engine
   when 'tblastn'
@@ -140,7 +141,6 @@ def run_blast(new_config, engine, benchmark = nil, run_blast = true, run_after_b
   if benchmark.nil?
     # blast folders
     b.blast_folders if run_blast
-    #
     if run_after_blast
       # generate report.csv
       b.gen_report_from_output

@@ -142,8 +142,8 @@ module Reporting
 
   def merge_annotation
     annot_files = Dir[File.join(@store.annotation_dir, '*.csv')]
-    annot_files.each do |file|
-      merge_csv file
+    annot_files.each_with_index do |file, index|
+      merge_csv file, index
     end
   end
 
@@ -172,7 +172,7 @@ module Reporting
     spliced = new_seq[:spliced]
     db_seq  = Bio::Sequence.auto(new_seq[:seq])
     seq = Bio::Sequence.auto(spliced)
-    if seq.moltype == Bio::Sequence::AA
+    if seq.moltype == Bio::Sequence::AA && seq.size > 0
       row['nt_aligned_seq'] = ''
       row['aa_aligned_seq'] = spliced.to_s
       row['nt_db_seq'] = ''
@@ -221,14 +221,22 @@ module Reporting
     row
   end
 
-  def merge_csv(file)
-    added = FALSE
+  def merge_csv(file, index)
+    added = false
+    my_headers = []
     CSV.foreach(file, headers: true, col_sep: "\t") do |row|
-      @results_headers.concat row.headers[2..(row.headers.size)] unless added
+      unless added
+        my_headers = (row.headers[2..(row.headers.size)]).collect do |str|
+          str + "_annot_#{index}"
+        end
+        @results_headers.concat my_headers
+      end
+      added = true
       @db.add_info({ one: row.headers[0], two: row.headers[1] },
                    { one: row[0], two: row[1] },
-                   row.headers[2..(row.headers.size)],
-                   row.values_at[2..(row.headers.size)])
+                   my_headers,
+                   row.values_at[2..(row.headers.size)],
+                   my_headers.collect { file })
     end
   end
   #

@@ -174,7 +174,8 @@ class Blast
     seq = Bio::Sequence.auto(output)
     # check if should use complement sequence
     #  i.e. sframe column is negative
-    if frame < 0 && seq.moltype == Bio::Sequence::NA
+    if seq.moltype == Bio::Sequence::NA && end_idx < start_idx
+      #
       seq = seq.complement
       start_idx = seq.size - start_idx + 1
       end_idx   = seq.size - end_idx + 1
@@ -189,7 +190,6 @@ class Blast
     cmd = proc do |db|
       `blastdbcmd -db #{db} -dbtype nucl -info`
     end
-
     result = @store.db.list.collect do |el|
       output = cmd.call(el)
       seqs  = Integer \
