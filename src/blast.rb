@@ -157,13 +157,13 @@ class Blast
     true
   end
 
-  def get_nt_seq_from_blastdb(seq_id, db, start_idx, end_idx, frame)
+  def get_nt_seq_from_blastdb(seq_id, db, start_idx, end_idx, _frame)
     output = ''
     start_idx = Integer(start_idx)
     end_idx   = Integer(end_idx)
     # frame has been discontinued as there are cases where
     #  it does not hold true with start_idx and stop_idx
-    frame     = Integer(frame)
+    # frame = Integer(frame)
     begin
       load_blastdb_item(db)
       output = @blastdb_cache[db][seq_id]

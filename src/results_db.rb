@@ -117,12 +117,12 @@ class ResultsDB
     end
   end
 
-  def write_deleted(row)
+  def write_deleted(row = nil)
     if @deleted.nil?
       @deleted = open_2_write(@output_dir, Reporting::FILE_DISCARDED)
       write_headers(@deleted)
     end
-    write(@deleted, row)
+    write(@deleted, row) unless row.nil?
   end
 
   def write_headers(fid)
@@ -130,12 +130,12 @@ class ResultsDB
     fid.write header_meaning.join("\t")
   end
 
-  def write_redundant(row)
+  def write_redundant(row = nil)
     if @redundant.nil?
       @redundant = open_2_write(@output_dir, Reporting::FILE_REDUNDANT)
       write_headers(@redundant)
     end
-    write(@redundant, row)
+    write(@redundant, row) unless row.nil?
   end
 
   def write(fid, row)
@@ -238,6 +238,10 @@ class ResultsDB
   end
 
   def write_results(parent_path, filename, cols)
+    # write empty files if necessary
+    write_redundant
+    write_deleted
+    #
     CSV.open(File.join(parent_path, filename),
              'wb',
              col_sep: "\t") do |csv|
@@ -275,7 +279,7 @@ class ResultsDB
                         origin.to_s + '_' + fasta_db.to_s + '_' + filename),
               'wb',
               col_sep: "\t") do |fid|
-      fid.write fasta_files[fasta_db][type][origin].join("\n")
+      fid.write fasta_files[fasta_db][type][origin].join('')
     end
     logger.info "Finished writing #{origin}-#{filename}."
   end
@@ -294,19 +298,30 @@ class ResultsDB
       #
       #
       #
-      #byebug if line['sseqid'] == 'comp3298_c0_seq1'
-      custom_seqid = ">#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
-      fasta_files[line['db']][:nt][:aligned] << custom_seqid
-      fasta_files[line['db']][:aa][:aligned] << custom_seqid
+      seqid = "#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
       #
-      fasta_files[line['db']][:nt][:db] << custom_seqid
-      fasta_files[line['db']][:aa][:db] << custom_seqid
       #
-      fasta_files[line['db']][:nt][:aligned] << line['nt_aligned_longest_orf']
-      fasta_files[line['db']][:aa][:aligned] << line['aa_aligned_longest_orf']
+      nt_a_l = line['nt_aligned_longest_orf']
+      fasta_files[line['db']][:nt][:aligned] << \
+        Bio::Sequence.auto(nt_a_l)
+          .output(:fasta, header: seqid) if nt_a_l.length > 0
       #
-      fasta_files[line['db']][:nt][:db] << line['nt_db_longest_orf']
-      fasta_files[line['db']][:aa][:db] << line['aa_db_longest_orf']
+      aa_a_l = line['aa_aligned_longest_orf']
+      fasta_files[line['db']][:aa][:aligned] << \
+        Bio::Sequence.auto(aa_a_l)
+          .output(:fasta, header: seqid) if aa_a_l.length > 0
+      #
+      #
+      nt_d_l = line['nt_db_longest_orf']
+      fasta_files[line['db']][:nt][:db] << \
+        Bio::Sequence.auto(nt_d_l)
+          .output(:fasta, header: seqid) if nt_d_l.length > 0
+      #
+      aa_d_l = line['aa_db_longest_orf']
+      fasta_files[line['db']][:aa][:db] << \
+        Bio::Sequence.auto(aa_d_l)
+          .output(:fasta, header: seqid) if aa_d_l.length > 0
+      #
     end
     fasta_files
   end
