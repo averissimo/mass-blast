@@ -69,50 +69,48 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         item = list_db.pop
         #
         if item == -1
-          new_config = ARGV[0]
+          new_config_file = ARGV[0]
         else
           # create a temporary older named tmp that holds the
           #  individual config files generated
           tmp_path = File.expand_path('tmp', config_parent)
           Dir.mkdir(tmp_path) unless Dir.exist? tmp_path
+          # deep copy of hash
+          new_config = Marshal.load(Marshal.dump(config))
           # output folder will be named with database as suffix
-          if config['force_folder'].nil? || config['force_folder'].strip == ''
+          if new_config['force_folder'].nil? ||
+             new_config['force_folder'].strip == ''
             output_folder = base_time +
                             '-' + srand.to_s[3..6]
           else
-            output_folder = config['force_folder']
+            output_folder = new_config['force_folder']
           end
-          # keep original to reset it, otherwise it will concatenate all
-          output_folder_original = config['force_folder']
-          debug_file_original = config['debug']['file']
           # set output folder for this db
           output_folder += '_' + item
           # add .yml to config name
-          new_config = File.join tmp_path, "#{output_folder}.config.yml"
+          new_config_file = File.join tmp_path, "#{output_folder}.config.yml"
           # write change configuration to file, forcing only a single db
-          File.open(new_config, 'wb') do |fw|
-            config['db']['list']      = [item]
-            config['force_folder']    = output_folder
+          File.open(new_config_file, 'wb') do |fw|
+            new_config['db']['list']      = [item]
+            new_config['force_folder']    = output_folder
 
-            if config['use_threads'] > 1
-              config['debug']['file'] = \
-                debug_file_original + '.thread.' + item
+            if new_config['use_threads'] > 1
+              new_config['debug']['file'] = \
+                new_config['debug']['file'].gsub(/[.]txt/, '') + \
+                '.thread.' + item + '.txt'
             end
-            fw.write YAML.dump(config)
+            fw.write YAML.dump(new_config)
           end
-          # reset name of folder to original
-          config['debug']['file'] = debug_file_original
-          config['force_folder']  = output_folder_original
         end
         #
         begin
-          run_blast(new_config, config['engine'], benchmark,
+          run_blast(new_config, new_config['engine'], benchmark,
                     run_blast, run_after_blast)
         rescue StandardError => e
           puts e.to_s
         end
         # remove temporary file
-        File.delete(new_config) unless item == -1
+        File.delete(new_config_file) unless item == -1
       end
     end
   end
@@ -142,8 +140,9 @@ def run_blast(new_config, engine, benchmark = nil, run_blast = true, run_after_b
   if benchmark.nil?
     # blast folders
     b.blast_folders if run_blast
-    # generate report.csv
+    #
     if run_after_blast
+      # generate report.csv
       b.gen_report_from_output
       # prune results
       b.prune_results
