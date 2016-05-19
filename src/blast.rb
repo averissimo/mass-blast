@@ -161,6 +161,8 @@ class Blast
     output = ''
     start_idx = Integer(start_idx)
     end_idx   = Integer(end_idx)
+    # frame has been discontinued as there are cases where
+    #  it does not hold true with start_idx and stop_idx
     frame     = Integer(frame)
     begin
       load_blastdb_item(db)
@@ -245,7 +247,7 @@ class Blast
   def gen_filename(prefix, query, db)
     name = query.gsub(%r{[\S]+\/}, '').gsub(/[\.]query/, '').gsub(/[ ]/, '_')
     list = []
-    list << (@store.key?('task') ? @store.task : 'no-task')
+    list << (@store.key?('engine') ? @store.engine : 'no-engine')
     list << prefix unless prefix.nil?
     list << name
     list << db

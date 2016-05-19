@@ -17,7 +17,7 @@ module Reporting
   FILE_FASTA_NT  = 'nt_longest_orfs.fasta'
   FILE_FASTA_AA  = 'aa_longest_orfs.fasta'
   #
-  RESULTS_HEADERS = %w(task folder file_name db
+  RESULTS_HEADERS = %w(engine folder file_name db
                        qseqid evalue pident qcovs
                        sseqid
                        contig_count
@@ -65,12 +65,12 @@ module Reporting
     # open report.csv to write
     File.open File.join(@store.output.dir, FILE_REPORT), 'w' do |fw|
       # get header columns and surounded by \"
-      header = ['file', 'task', 'folder', 'file_name', 'db',
+      header = ['file', 'engine', 'folder', 'file_name', 'db',
                 @store.format.specifiers.keys]
                .flatten.map { |el| "\"#{el}\"" }
       #
       detail = ['means the file origin of this line']
-      detail << 'means the task used'
+      detail << 'means the engine used'
       detail << 'means the folder of origin from the query'
       detail << 'means the query filename'
       detail << 'means the database of the result'

@@ -34,19 +34,6 @@ debug:
 opts: "-max_target_seqs 500 -evalue 1E-20"
 #
 #
-# Task for engine which again are also specific for each
-#  engine.
-#
-# Example of valid options (as of the writing of this file)
-#  and separated by a comma:
-#  - for tblastn:
-# tblastn, tblastn-fast
-#  - for blastn:
-# blastn, blastn-short, dc-megablast, megablast, rmblastn
-#  - for blastp:
-# blastp, blastp-fast, blastp-short
-task: tblastn
-#
 #
 # Threshold that should filter out results by identity
 #  values can take between 0 and 1 (i.e. 0% and 100%)

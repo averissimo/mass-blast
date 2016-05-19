@@ -4,8 +4,6 @@ identity:
   min: .40 # value between 0 and 1
   max: 1   # value between 0 and 1
 
-task:
-
 force_folder: test_tblastx
 clean_output: true
 
