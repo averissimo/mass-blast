@@ -104,7 +104,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         end
         #
         begin
-          run_blast(new_config, new_config['engine'], benchmark,
+          run_blast(new_config_file, new_config['engine'], benchmark,
                     run_blast, run_after_blast)
         rescue StandardError => e
           puts e.to_s
