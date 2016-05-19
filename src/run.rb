@@ -8,7 +8,7 @@ require 'configatron'
 require 'benchmark'
 #
 #
-def run_user_config(my_config, benchmark = nil)
+def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blast = true)
   # configuration
   config_path   = File.expand_path(my_config)
   config_parent = File.dirname(config_path)
@@ -106,7 +106,8 @@ def run_user_config(my_config, benchmark = nil)
         end
         #
         begin
-          run_blast(new_config, config['engine'], benchmark)
+          run_blast(new_config, config['engine'], benchmark,
+                    run_blast, run_after_blast)
         rescue StandardError => e
           puts e.to_s
         end
@@ -119,7 +120,7 @@ def run_user_config(my_config, benchmark = nil)
   threads.map(&:join)
 end
 
-def run_blast(new_config, engine, benchmark = nil)
+def run_blast(new_config, engine, benchmark = nil, run_blast = true, run_after_blast = true)
   #
   case engine
   when 'tblastn'
@@ -131,7 +132,7 @@ def run_blast(new_config, engine, benchmark = nil)
   when 'blastp'
     b = Blastp.new new_config
   else
-    fail "Cannot recognize engine: #{config['engine']}. Please check" \
+    fail "Cannot recognize engine: #{engine}. Please check" \
         ' documentation for implemented engines'
   end
   #
@@ -140,13 +141,15 @@ def run_blast(new_config, engine, benchmark = nil)
   # either run a normal run or with benchmarks
   if benchmark.nil?
     # blast folders
-    b.blast_folders
+    b.blast_folders if run_blast
     # generate report.csv
-    b.gen_report_from_output
-    # prune results
-    b.prune_results
-    #
-    b.write_fasta
+    if run_after_blast
+      b.gen_report_from_output
+      # prune results
+      b.prune_results
+      #
+      b.write_fasta
+    end
   else
     logger = Logger.new \
       "#{b.store.output.dir}/log.benchmark.txt"
@@ -154,12 +157,20 @@ def run_blast(new_config, engine, benchmark = nil)
     logger.info 'Starting Benchmark'
     #
     bm = Benchmark.bm(benchmark, 'total:', 'average:') do |x|
-      tb = x.report('blast:') { b.blast_folders } # blast folders
+      if run_blast
+        tb = x.report('blast:') { b.blast_folders } # blast folders
+      else
+        tb = 0
+      end
       #
-      tp = x.report('proc.:') do
-        b.gen_report_from_output # generate report.csv
-        b.prune_results          # find redundand and unecessary results
-        b.write_fasta            # write fasta files
+      if run_after_blast
+        tp = x.report('proc.:') do
+          b.gen_report_from_output # generate report.csv
+          b.prune_results          # find redundand and unecessary results
+          b.write_fasta            # write fasta files
+        end
+      else
+        tp = 0
       end
       [tb + tp, (tb + tp) / 2]
     end
