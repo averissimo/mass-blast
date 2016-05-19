@@ -294,15 +294,13 @@ class ResultsDB
       #
       #
       #
-      fasta_files[line['db']][:nt][:aligned] << \
-        ">#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
-      fasta_files[line['db']][:aa][:aligned] << \
-        fasta_files[line['db']][:nt][:aligned].last
+      #byebug if line['sseqid'] == 'comp3298_c0_seq1'
+      custom_seqid = ">#{line['sseqid']}-#{line['db']}-#{line['qseqid']}"
+      fasta_files[line['db']][:nt][:aligned] << custom_seqid
+      fasta_files[line['db']][:aa][:aligned] << custom_seqid
       #
-      fasta_files[line['db']][:nt][:db] << \
-        fasta_files[line['db']][:nt][:aligned].last
-      fasta_files[line['db']][:aa][:aligned] << \
-        fasta_files[line['db']][:nt][:aligned].last
+      fasta_files[line['db']][:nt][:db] << custom_seqid
+      fasta_files[line['db']][:aa][:db] << custom_seqid
       #
       fasta_files[line['db']][:nt][:aligned] << line['nt_aligned_longest_orf']
       fasta_files[line['db']][:aa][:aligned] << line['aa_aligned_longest_orf']

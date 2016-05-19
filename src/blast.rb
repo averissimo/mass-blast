@@ -66,7 +66,7 @@ class Blast
       logger.info "  with database '#{el[:db]}' that will store in:"
       logger.info \
         "  '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.debug cmd
+      logger.debug "BLASTDB=#{ENV['BLASTDB']} #{cmd}"
       #
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
         logger.warn "  #{e.read}" # log error messages
