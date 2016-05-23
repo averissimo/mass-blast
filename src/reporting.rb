@@ -22,11 +22,13 @@ module Reporting
                        sseqid
                        contig_count
                        nt_aligned_seq aa_aligned_seq
-                       nt_aligned_longest_orf nt_aligned_longest_orf_len
-                       aa_aligned_longest_orf aa_aligned_longest_orf_len
                        nt_db_seq aa_db_seq
                        nt_db_longest_orf nt_db_longest_orf_len
                        aa_db_longest_orf aa_db_longest_orf_len)
+                       #
+                       # ORF calculated from aligned sequence is not kept in results
+                       # aa_aligned_longest_orf aa_aligned_longest_orf_len
+                       # nt_aligned_longest_orf nt_aligned_longest_orf_len
   #
   attr_accessor :db
   #
