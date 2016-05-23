@@ -3,7 +3,7 @@
 # separate each transcriptome in a individual folder
 #  this will create many folders in the output directory
 #  each ending with the database name
-separate_db: false
+separate_db: true
 #
 #
 # number of threads to use
