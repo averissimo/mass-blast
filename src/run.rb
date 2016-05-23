@@ -70,6 +70,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         #
         if item == -1
           new_config_file = ARGV[0]
+          new_config      = Marshal.load(Marshal.dump(config))
         else
           # create a temporary older named tmp that holds the
           #  individual config files generated
@@ -106,8 +107,9 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         begin
           run_blast(new_config_file, new_config['engine'], benchmark,
                     run_blast, run_after_blast)
-        rescue StandardError => e
+        rescue => e
           puts e.to_s
+          puts e.backtrace.join("\n")
         end
         # remove temporary file
         File.delete(new_config_file) unless item == -1
@@ -119,7 +121,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
 end
 
 def run_blast(new_config, engine, benchmark = nil,
-  run_blast = true, run_after_blast = true)
+              run_blast = true, run_after_blast = true)
   #
   case engine
   when 'tblastn'

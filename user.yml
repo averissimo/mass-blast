@@ -18,7 +18,7 @@ separate_db: false
 #  only valid with separate_db option
 use_threads: 1
 #
-# path to debugging file
+# path to debugging file, change it in respect to user.yml
 debug:
   file: output/log.txt
 #
