@@ -323,7 +323,7 @@ module Reporting
       #
       new_item = Hash[db.header.zip row]
       # remove duplicate by: sseqid
-      count += 1
+      count += 1 unless new_item['pident'].nil?
       db.add("#{new_item[col_id]}_#{new_item[DB::BLAST_DB]}", new_item)
     end
     GC.start
