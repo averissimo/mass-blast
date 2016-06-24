@@ -69,7 +69,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         item = list_db.pop
         #
         if item == -1
-          new_config_file = ARGV[0]
+          new_config_file = config_path #ARGV[0]
           new_config      = Marshal.load(Marshal.dump(config))
         else
           # create a temporary older named tmp that holds the
