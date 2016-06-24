@@ -202,6 +202,7 @@ module Reporting
       orf = ORFFinder.new(orf_to_search, @store.codon_table, @store.orf.to_hash,
                           logger)
       #
+      byebug
       add_row_proc = proc do |frame|
         direction  = (frame > 0 ? :direct : :reverse)
         common_str = "#{key}_longest_orf_frame#{frame}"

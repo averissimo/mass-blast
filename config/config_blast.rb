@@ -56,16 +56,17 @@ module ConfigBlast
   def reload_config(config_path = nil)
     config_path = @store.config.user if config_path.nil?
     # get configuration from default yml file
-    logger.info('loads configuration from defaults: ' \
-      "#{@store.config.default.gsub(FileUtils.pwd + File::Separator, '')}")
+    logger.info('Loads default configuration: ')
+    logger.info("  #{@store.config.default.gsub(FileUtils.pwd + File::Separator, '')}")
     @store.configure_from_hash(YAML.load_file(@store.config.default))
     #
     @store.config.user = File.expand_path(config_path)
-    logger.info("loads configuration from user: #{config_path}")
+    logger.info 'Loads user configuration:'
+    logger.info "  #{config_path}"
     @store.configure_from_hash(YAML.load_file(@store.config.user))
     # process the configuration to adjust paths and values
     process_config
-    logger.debug('loaded and processed configuration files')
+    logger.debug('Finished loading configuration.')
   end
 
   private
@@ -142,15 +143,17 @@ module ConfigBlast
     # create the output directory
     create_output_dir
     #
-    logger.debug('query_parent: ' + @store.query.parent)
-    logger.debug('db_parent: ' + @store.db.parent)
+    logger.debug 'Query_parent: '
+    logger.debug "  #{@store.query.parent}"
+    logger.debug 'DB_parent: '
+    logger.debug "  #{@store.db.parent}"
     #
     fail 'Database parent must be defined in user.yml.' \
       if @store.db.parent.nil?
     fail 'Folders must be defined in user.yml.' \
       if @store.query.folders.nil?
     # set existing dbs
-    logger.info("loads databases (from directory '#{@store.db.parent}'): ")
+    logger.info('Databases: ')
     if @store.db.list.nil? || @store.db.list.empty?
       list_ary = []
       Open3.popen3("blastdbcmd -list #{@store.db.parent}") do |_i, o, _e, _t|
@@ -168,7 +171,7 @@ module ConfigBlast
       exit
     end
 
-    @store.db.list.each { |db| logger.info(" - #{db}") }
+    @store.db.list.each { |db| logger.info("  - #{db}") }
   end
 
   def set_os

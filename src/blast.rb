@@ -45,26 +45,27 @@ class Blast
       list = blast_folders_each(query, query_parent, db_parent, call_queue)
     end
 
-    # logging messages
-    logger.info 'BLASTing...'
-
     ENV['BLASTDB'] = db_parent
 
     until call_queue.empty?
+      #
+      logger.info '----- BLASTing -------------------------------------------'
+      #
       el = call_queue.pop
       cmd = blast(el[:qfile],
                   el[:db],
                   el[:out_file],
                   el[:query_parent])
       #
-      logger.info '  Query:'
-      logger.info "    #{el[:qfile].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.info '  DB:'
-      logger.info "    #{el[:db]}"
-      logger.info '  Output:'
-      logger.info "    '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.debug '  Command:'
-      logger.debug "    BLASTDB=#{ENV['BLASTDB']} #{cmd}"
+      logger.info 'Query:'
+      logger.info "  #{el[:qfile].gsub(FileUtils.pwd + File::Separator, '')}'"
+      logger.info 'DB:'
+      logger.info "  #{el[:db]}"
+      logger.info 'Output:'
+      logger.info \
+        "    '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
+      logger.debug 'Command:'
+      logger.debug "  BLASTDB=#{ENV['BLASTDB']} #{cmd}"
       #
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
         # log error messages
@@ -92,11 +93,8 @@ class Blast
                 File.join(query_parent, query, '*.fasta'),
                 File.join(query_parent, query, '*.query')]
       .each do |query_file|
-      #
-      logger.debug "Using as query: '#{query_file}'"
       # run query against all databases
       @store.db.list.each do |db|
-        logger.debug "Using as db: #{db}"
         new_item = {}
         new_item[:qfile]        = query_file
         new_item[:db]           = db
