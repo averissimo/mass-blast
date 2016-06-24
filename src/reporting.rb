@@ -207,7 +207,6 @@ module Reporting
         common_str = "#{key}_longest_orf_frame#{frame}"
         frame_sym  = "frame#{frame.abs}".to_sym
         row["nt_#{common_str}"]           = orf.nt[direction][frame_sym].first
-        byebug if row["nt_#{common_str}"].nil?
         row["nt_#{common_str}_len"]       = row["nt_#{common_str}"].size
         row["nt_#{common_str}_same_size"] = orf.nt[direction][frame_sym].size() - 1
         row["aa_#{common_str}"]           = orf.aa[direction][frame_sym].first
