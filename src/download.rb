@@ -75,6 +75,7 @@ class ExternalData
   def self.download(parent_path = 'db_and_queries/db', only_working_dir = false)
     logger = Logger.new(STDOUT)
     logger.progname = 'Download'
+    logger.info('----- Download missing data necessary for mass blast ----')
     #
     run = proc do |files, parent, fun|
       #
@@ -102,6 +103,8 @@ class ExternalData
                 'fvesca_scaffolds.nin',
                 'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
     end
+
+    logger.info('----- Finish downloading --------------------------------')
   rescue StandardError => e
     msg = \
       case e

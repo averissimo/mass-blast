@@ -91,9 +91,9 @@ module Reporting
       "'#{File.join(@store.output.dir.gsub(FileUtils.pwd + File::Separator, ''),
                     FILE_REPORT)}'" \
         ' from ' + outs.size.to_s + ' BLAST output files'
-    logger.debug 'Report was built from: '
+    logger.info 'Report was built from: '
     outs.each do |el|
-      logger.debug "  - #{el}"
+      logger.info "  - #{el}"
     end
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'

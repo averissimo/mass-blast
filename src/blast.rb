@@ -49,7 +49,7 @@ class Blast
 
     until call_queue.empty?
       #
-      logger.info '----- BLASTing -------------------------------------------'
+      logger.info '----- BLASTing ---------------------------------------------'
       #
       el = call_queue.pop
       cmd = blast(el[:qfile],
@@ -64,8 +64,8 @@ class Blast
       logger.info 'Output:'
       logger.info \
         "    '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.debug 'Command:'
-      logger.debug "  BLASTDB=#{ENV['BLASTDB']} #{cmd}"
+      logger.info 'Command:'
+      logger.info "  BLASTDB=#{ENV['BLASTDB']} #{cmd}"
       #
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
         # log error messages
@@ -74,7 +74,7 @@ class Blast
       end
       #
     end
-    logger.info 'Finished BLAST step.'
+    logger.info '----- Finished BLAST step ----------------------------------'
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
