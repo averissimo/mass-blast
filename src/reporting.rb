@@ -23,8 +23,8 @@ module Reporting
                        contig_count
                        nt_aligned_seq aa_aligned_seq
                        nt_db_seq aa_db_seq
-                       nt_db_longest_orf nt_db_longest_orf_len
-                       aa_db_longest_orf aa_db_longest_orf_len)
+                       nt_db_longest_orf nt_db_longest_orf_len nt_db_longest_orf_same_size
+                       aa_db_longest_orf aa_db_longest_orf_len aa_db_longest_orf_same_size)
                        #
                        # ORF calculated from aligned sequence is not kept in results
                        # aa_aligned_longest_orf aa_aligned_longest_orf_len
@@ -202,15 +202,17 @@ module Reporting
       orf = ORFFinder.new(orf_to_search, @store.codon_table, @store.orf.to_hash,
                           logger)
       #
-      byebug
       add_row_proc = proc do |frame|
         direction  = (frame > 0 ? :direct : :reverse)
         common_str = "#{key}_longest_orf_frame#{frame}"
         frame_sym  = "frame#{frame.abs}".to_sym
-        row["nt_#{common_str}"]     = orf.nt[direction][frame_sym]
-        row["nt_#{common_str}_len"] = row["nt_#{common_str}"].size
-        row["aa_#{common_str}"]     = orf.aa[direction][frame_sym]
-        row["aa_#{common_str}_len"] = row["aa_#{common_str}"].size
+        row["nt_#{common_str}"]           = orf.nt[direction][frame_sym].first
+        byebug if row["nt_#{common_str}"].nil?
+        row["nt_#{common_str}_len"]       = row["nt_#{common_str}"].size
+        row["nt_#{common_str}_same_size"] = orf.nt[direction][frame_sym].size() - 1
+        row["aa_#{common_str}"]           = orf.aa[direction][frame_sym].first
+        row["aa_#{common_str}_len"]       = row["aa_#{common_str}"].size
+        row["aa_#{common_str}_same_size"] = orf.aa[direction][frame_sym].size() - 1
         #
         row["nt_#{common_str}"].size
       end
@@ -218,14 +220,12 @@ module Reporting
       frames = [+1, +2, +3, -1, -2, -3]
       arr = frames.collect { |el| add_row_proc.call(el) }
       max_idx = arr.rindex(arr.max)
-      row["nt_#{key}_longest_orf"]     = row["nt_#{key}_longest_orf_frame#{frames[max_idx]}"]
-      row["nt_#{key}_longest_orf_len"] = row["nt_#{key}_longest_orf"].size
-      row["aa_#{key}_longest_orf"]     = (if row["nt_#{key}_longest_orf"].empty?
-                                            ''
-                                          else
-                                            row["nt_#{key}_longest_orf"].translate
-                                          end)
-      row["aa_#{key}_longest_orf_len"] = row["aa_#{key}_longest_orf"].size
+      row["nt_#{key}_longest_orf"]           = row["nt_#{key}_longest_orf_frame#{frames[max_idx]}"]
+      row["nt_#{key}_longest_orf_len"]       = row["nt_#{key}_longest_orf"].size
+      row["nt_#{key}_longest_orf_same_size"] = row["nt_#{key}_longest_orf_frame#{frames[max_idx]}_same_size"]
+      row["aa_#{key}_longest_orf"]           = row["aa_#{key}_longest_orf_frame#{frames[max_idx]}"]
+      row["aa_#{key}_longest_orf_len"]       = row["aa_#{key}_longest_orf"].size
+      row["aa_#{key}_longest_orf_same_size"] = row["aa_#{key}_longest_orf_frame#{frames[max_idx]}_same_size"]
     end
     row
   end
@@ -253,8 +253,8 @@ module Reporting
   # Add calculated headers from Blast results
   def add_headers
     #
-    verbose_explanation = proc do |type, frame, is_len|
-      "means #{is_len ? 'length of ' : ''}longest #{type} " \
+    verbose_explanation = proc do |type, frame, is_len, is_same|
+      "means #{is_len ? 'length of ' : (is_same ? 'how many same sized ' : '')}longest #{type} " \
         "on read frame#{frame} alignment"
     end
     #
@@ -273,35 +273,39 @@ module Reporting
     #
     %w(aligned db).each do |str|
       db.header.concat \
-        ["nt_#{str}_longest_orf_frame+1", "nt_#{str}_longest_orf_frame+1_len",
-         "aa_#{str}_longest_orf_frame+1", "aa_#{str}_longest_orf_frame+1_len",
-         "nt_#{str}_longest_orf_frame+2", "nt_#{str}_longest_orf_frame+2_len",
-         "aa_#{str}_longest_orf_frame+2", "aa_#{str}_longest_orf_frame+2_len",
-         "nt_#{str}_longest_orf_frame+3", "nt_#{str}_longest_orf_frame+3_len",
-         "aa_#{str}_longest_orf_frame+3", "aa_#{str}_longest_orf_frame+3_len",
-         "nt_#{str}_longest_orf_frame-1", "nt_#{str}_longest_orf_frame-1_len",
-         "aa_#{str}_longest_orf_frame-1", "aa_#{str}_longest_orf_frame-1_len",
-         "nt_#{str}_longest_orf_frame-2", "nt_#{str}_longest_orf_frame-2_len",
-         "aa_#{str}_longest_orf_frame-2", "aa_#{str}_longest_orf_frame-2_len",
-         "nt_#{str}_longest_orf_frame-3", "nt_#{str}_longest_orf_frame-3_len",
-         "aa_#{str}_longest_orf_frame-3", "aa_#{str}_longest_orf_frame-3_len",
-         "nt_#{str}_longest_orf",         "nt_#{str}_longest_orf_len",
-         "aa_#{str}_longest_orf",         "aa_#{str}_longest_orf_len"]
+        ["nt_#{str}_longest_orf_frame+1", "nt_#{str}_longest_orf_frame+1_len", "nt_#{str}_longest_orf_frame+1_same_size",
+         "aa_#{str}_longest_orf_frame+1", "aa_#{str}_longest_orf_frame+1_len", "aa_#{str}_longest_orf_frame+1_same_size",
+         "nt_#{str}_longest_orf_frame+2", "nt_#{str}_longest_orf_frame+2_len", "nt_#{str}_longest_orf_frame+2_same_size",
+         "aa_#{str}_longest_orf_frame+2", "aa_#{str}_longest_orf_frame+2_len", "aa_#{str}_longest_orf_frame+2_same_size",
+         "nt_#{str}_longest_orf_frame+3", "nt_#{str}_longest_orf_frame+3_len", "nt_#{str}_longest_orf_frame+3_same_size",
+         "aa_#{str}_longest_orf_frame+3", "aa_#{str}_longest_orf_frame+3_len", "aa_#{str}_longest_orf_frame+3_same_size",
+         "nt_#{str}_longest_orf_frame-1", "nt_#{str}_longest_orf_frame-1_len", "nt_#{str}_longest_orf_frame-1_same_size",
+         "aa_#{str}_longest_orf_frame-1", "aa_#{str}_longest_orf_frame-1_len", "aa_#{str}_longest_orf_frame-1_same_size",
+         "nt_#{str}_longest_orf_frame-2", "nt_#{str}_longest_orf_frame-2_len", "nt_#{str}_longest_orf_frame-2_same_size",
+         "aa_#{str}_longest_orf_frame-2", "aa_#{str}_longest_orf_frame-2_len", "aa_#{str}_longest_orf_frame-2_same_size",
+         "nt_#{str}_longest_orf_frame-3", "nt_#{str}_longest_orf_frame-3_len", "nt_#{str}_longest_orf_frame-3_same_size",
+         "aa_#{str}_longest_orf_frame-3", "aa_#{str}_longest_orf_frame-3_len", "aa_#{str}_longest_orf_frame-3_same_size",
+         "nt_#{str}_longest_orf",         "nt_#{str}_longest_orf_len",          "nt_#{str}_longest_orf_same_size",
+         "aa_#{str}_longest_orf",         "aa_#{str}_longest_orf_len",          "aa_#{str}_longest_orf_same_size"]
     end
     #
     %w(aligned db).each do |str|
       [+1, +2, +3, -1, -2, -3].each do |el|
         db.header_meaning.concat \
-          [verbose_explanation.call("nucleotide from #{str}", el, false),
-           verbose_explanation.call("nucleotide from #{str}", el, true),
-           verbose_explanation.call("amino-acid from #{str}", el, false),
-           verbose_explanation.call("amino-acid from #{str}", el, true)]
+          [verbose_explanation.call("nucleotide from #{str}", el, false, false),
+           verbose_explanation.call("nucleotide from #{str}", el, true, false),
+           verbose_explanation.call("nucleotide from #{str}", el, false, true),
+           verbose_explanation.call("amino-acid from #{str}", el, false, false),
+           verbose_explanation.call("amino-acid from #{str}", el, true, false),
+           verbose_explanation.call("amino-acid from #{str}", el, false, true)]
       end
       db.header_meaning.concat \
         ["means longest nucleotide orf from #{str} in alignment",
          "means length of longest nucleotide orf from #{str} in alignment",
+         "means how many same sized longest nucleotide orf from #{str} in alignment",
          "means longest amino-acid orf from #{str} in alignment",
-         "means length of longest amino-acid orf from #{str} in alignment"]
+         "means length of longest amino-acid orf from #{str} in alignment",
+         "means how many same sized longest amino-acid orf from #{str} in alignment"]
     end
   end
 
