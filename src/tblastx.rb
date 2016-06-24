@@ -15,7 +15,7 @@ class TBlastx < Blast
     qfile = File.join(query_parent, qfile) \
       unless qfile.start_with?(query_parent)
     # create command for this call
-    cmd = "tblastn -query \"#{qfile}\"" \
+    cmd = "tblastx -query \"#{qfile}\"" \
           " -db \"#{db}\""                \
           " #{@store.opts}"                                     \
           " -out #{out_file}"                                   \

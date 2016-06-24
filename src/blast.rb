@@ -70,7 +70,12 @@ class Blast
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
         # log error messages
         messages = e.read
-        logger.warn "  #{messages}" if !messages.nil? && !messages.strip.empty?
+        if !messages.nil? && !messages.strip.empty?
+          logger.warn "Warnings from BLAST command:"
+          messages.split("\n").each do |m|
+            logger.warn "  #{m}"
+          end
+        end
       end
       #
     end
