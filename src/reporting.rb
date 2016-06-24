@@ -87,11 +87,14 @@ module Reporting
         prepend_name_in_file(file, fw)
       end
     end
-    logger.info 'generated ' \
+    logger.info 'Generated ' \
       "'#{File.join(@store.output.dir.gsub(FileUtils.pwd + File::Separator, ''),
                     FILE_REPORT)}'" \
-        ' from ' + outs.size.to_s + ' files'
-    logger.debug 'report was built from: ' + outs.join(', ')
+        ' from ' + outs.size.to_s + ' BLAST output files'
+    logger.debug 'Report was built from: '
+    outs.each do |el|
+      logger.debug "  - #{el}"
+    end
   rescue StandardError => e
     logger.progname = logger.progname + ' - Error'
     logger.fatal e.message
@@ -106,7 +109,10 @@ module Reporting
   #  - Rows that have an identity below the threshold
   #  - Identical lines that have the same pair of column and database
   def prune_results
-    logger.info "pruning results from #{FILE_REPORT} file"
+    #
+    read_csv
+
+    logger.info "Processing results from '#{FILE_REPORT}' file"
     #
     # build from report csv the database of results
     build_db
@@ -302,7 +308,7 @@ module Reporting
   # read report file
   def read_csv
     # read csv
-    logger.info 'loading report to memory...'
+    logger.info 'Loading report to memory...'
     csv_filename = File.join(@store.output.dir, FILE_REPORT)
     # skip second line of csv, as it has the meanings
     count = 0 # counter for number of lines being processed
@@ -327,7 +333,8 @@ module Reporting
       db.add("#{new_item[col_id]}_#{new_item[DB::BLAST_DB]}", new_item)
     end
     GC.start
-    logger.info "Number of rows in report file: #{count}"
+    logger.info '  rows in report file:' \
+      " #{count}"
   end
 
   #
@@ -335,7 +342,6 @@ module Reporting
   # from the csv file of the report, it builds the database of results
   #  for prunnig (/filtering)
   def build_db
-    read_csv
     #
     GC.start # remove csv_text from memory
     #

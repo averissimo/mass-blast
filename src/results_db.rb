@@ -262,8 +262,9 @@ class ResultsDB
     fasta_files = gather_fasta
     #
     fasta_files.keys.each do |fasta_db|
-      write_fasta_each(fasta_db, :nt, :aligned, Reporting::FILE_FASTA_NT, fasta_files)
-      write_fasta_each(fasta_db, :aa, :aligned, Reporting::FILE_FASTA_AA, fasta_files)
+      # do not write aligned longest orfs
+      #write_fasta_each(fasta_db, :nt, :aligned, Reporting::FILE_FASTA_NT, fasta_files)
+      #write_fasta_each(fasta_db, :aa, :aligned, Reporting::FILE_FASTA_AA, fasta_files)
       #
       write_fasta_each(fasta_db, :nt, :db, Reporting::FILE_FASTA_NT, fasta_files)
       write_fasta_each(fasta_db, :aa, :db, Reporting::FILE_FASTA_AA, fasta_files)
@@ -282,6 +283,9 @@ class ResultsDB
       fid.write fasta_files[fasta_db][type][origin].join('')
     end
     logger.info "Finished writing #{origin}-#{filename}."
+    logger.warn '  fasta file is empty as there are no sequences' \
+     ' to be written there' if fasta_files[fasta_db][type][origin].empty?
+
   end
 
   #
@@ -304,23 +308,23 @@ class ResultsDB
       nt_a_l = line['nt_aligned_longest_orf']
       fasta_files[line['db']][:nt][:aligned] << \
         Bio::Sequence.auto(nt_a_l)
-          .output(:fasta, header: seqid) if nt_a_l.length > 0
+          .output(:fasta, header: seqid) if !nt_a_l.nil? && nt_a_l.length > 0
       #
       aa_a_l = line['aa_aligned_longest_orf']
       fasta_files[line['db']][:aa][:aligned] << \
         Bio::Sequence.auto(aa_a_l)
-          .output(:fasta, header: seqid) if aa_a_l.length > 0
+          .output(:fasta, header: seqid) if !aa_a_l.nil? && aa_a_l.length > 0
       #
       #
       nt_d_l = line['nt_db_longest_orf']
       fasta_files[line['db']][:nt][:db] << \
         Bio::Sequence.auto(nt_d_l)
-          .output(:fasta, header: seqid) if nt_d_l.length > 0
+          .output(:fasta, header: seqid) if !nt_d_l.nil? && nt_d_l.length > 0
       #
       aa_d_l = line['aa_db_longest_orf']
       fasta_files[line['db']][:aa][:db] << \
         Bio::Sequence.auto(aa_d_l)
-          .output(:fasta, header: seqid) if aa_d_l.length > 0
+          .output(:fasta, header: seqid) if !aa_d_l.nil? && aa_d_l.length > 0
       #
     end
     fasta_files

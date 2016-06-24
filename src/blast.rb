@@ -46,12 +46,8 @@ class Blast
     end
 
     # logging messages
-    logger.info 'Going to run queries: ' + list.flatten
-      .collect { |i| i.gsub(FileUtils.pwd + File::Separator, '') }.join(', ')
-    logger.info 'Blasting...'
+    logger.info 'BLASTing...'
 
-    logger.debug 'Setting BLASTDB environment variable:'
-    logger.debug "  -> #{db_parent}"
     ENV['BLASTDB'] = db_parent
 
     until call_queue.empty?
@@ -61,15 +57,19 @@ class Blast
                   el[:out_file],
                   el[:query_parent])
       #
-      logger.info 'running '\
-        "'#{el[:qfile].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.info "  with database '#{el[:db]}' that will store in:"
-      logger.info \
-        "  '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.debug "BLASTDB=#{ENV['BLASTDB']} #{cmd}"
+      logger.info '  Query:'
+      logger.info "    #{el[:qfile].gsub(FileUtils.pwd + File::Separator, '')}'"
+      logger.info '  DB:'
+      logger.info "    #{el[:db]}"
+      logger.info '  Output:'
+      logger.info "    '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
+      logger.debug '  Command:'
+      logger.debug "    BLASTDB=#{ENV['BLASTDB']} #{cmd}"
       #
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
-        logger.warn "  #{e.read}" # log error messages
+        # log error messages
+        messages = e.read
+        logger.warn "  #{messages}" if !messages.nil? && !messages.strip.empty?
       end
       #
     end
@@ -93,10 +93,10 @@ class Blast
                 File.join(query_parent, query, '*.query')]
       .each do |query_file|
       #
-      logger.debug "going to blast with query: '#{query_file}'"
+      logger.debug "Using as query: '#{query_file}'"
       # run query against all databases
       @store.db.list.each do |db|
-        logger.debug "using db: #{db}"
+        logger.debug "Using as db: #{db}"
         new_item = {}
         new_item[:qfile]        = query_file
         new_item[:db]           = db
@@ -133,9 +133,11 @@ class Blast
       ' -entry all' \
       " -outfmt \"%f\""
     #
-    logger.info "getting cache for blastdb for: #{db}"
-    logger.info "  for #{items.size} query results"
-    logger.debug "Cmd for blastdbcmd: BLASTDB=\"#{@store.db.parent}\" #{cmd}"
+    logger.info "  rows in trimmed file: #{items.size}"
+    #
+    logger.info "Getting db contigs from: #{db}"
+    logger.debug '  Command for blastdbcmd:'
+    logger.debug "    BLASTDB=\"#{@store.db.parent}\" #{cmd}"
     #
     @blastdb_cache[db] = {}
     Open3.popen3("#{cmd}") do |i, o, e, _t|
