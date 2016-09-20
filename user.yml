@@ -128,4 +128,4 @@ orf:
   #  direct: search the given sequence (at least this and reverse must be used)
   direct: true
   #  min: minimum size of sequence
-  min: 100
+  min: 120
