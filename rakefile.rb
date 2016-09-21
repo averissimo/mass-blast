@@ -31,7 +31,7 @@ task :bootstrap do
 end
 
 Rake::FileList.new('output/*',
-                   '**/db/*.nin', '**/db/*.nhr', '**/db/*.nsq',
+                   'test/db/*.nin', 'test/db/*.nhr', 'test/db/*.nsq',
                    '**/db/*.btd', '**/db/*.bti') do |fl|
   CLOBBER << fl
   CLEAN << fl

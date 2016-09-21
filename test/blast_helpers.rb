@@ -18,10 +18,10 @@ module BlastHelpers
   end
 
   def test_config(type)
-    File.expand_path("spec/#{type}/config.yml")
+    File.expand_path("test/#{type}/config.yml")
   end
 
   def test_res_dir(type)
-    File.expand_path("spec/#{type}/result")
+    File.expand_path("test/#{type}/result")
   end
 end

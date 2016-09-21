@@ -109,7 +109,25 @@ query:
   #  with a dash '-' (without quotes)
   folders:
     - queries
-
+#
+#
+# directory where csv are kept to add annotation to the results
+#  each csv should have at least 3 columns, with headers
+# the csv must be separated by tabs (\t)
+#
+# column 1 & 2: header should match columns in the trimmed.csv results and
+#  each line that matches will be added the following columns
+#
+# columns 3 and on: header will be the header of the new column and information
+#  on these columns will be added to the matched elements
+#
+# example:
+# db          sseqid    expression_level
+# backberry   comp20_u1 23
+# backberry   comp33_u1 33
+# bilberry    comp33_u1 42
+# ....
+annotation_dir: "db_and_queries/annotation"
 #
 # how to format the output file. by default should show all columns
 format:

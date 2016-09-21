@@ -1,42 +1,85 @@
 # Blast options and task
-opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
-
-identity:
-  min: .40 # value between 0 and 1
-  max: 1   # value between 0 and 1
-
+#  updated to blast+ version: 2.2.30+
+#
+# Options currently implemented for engine are:
+#  - tblastn
+#  - blastn
+# default in user.yml is tblastn
+engine: tblastn
+#
+#
+# separate each transcriptome in a individual folder
+#  this will create many folders in the output directory
+#  each ending with the database name
+separate_db: true
+#
 force_folder: test_blastn
 clean_output: true
-
-db:
-  parent: "spec/db"
-  list:
-    - fvesca_scaffolds
-
+#
+#
+#
+# number of threads to use
+#  only valid with separate_db option
+use_threads: 1
+#
+# path to debugging file, change it in respect to user.yml
 debug:
-  file: output/log.blastn_rspec.txt
+  file: ../../output/log.blastn_rspec.txt
   show_stdout_if_file: false
-
+#
+#
+# Opts are engine specific, the default in user.yml
+#  are for tblastn
+#
+# Example of valid options (as of the writing of this file):
+#  - for tblastn (default in user.yml):
+# opts: "-max_target_seqs 500 -evalue 1E-20"
+#  - for blastn:
+# opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
+opts: "-max_target_seqs 500 -evalue 1E-20"
+#
+#
+#
+# Threshold that should filter out results by identity
+#  values can take between 0 and 1 (i.e. 0% and 100%)
+identity:
+  # minimum range for identity
+  min: .40
+  # maximum range for identity
+  max: 1
+#
+#
+# Filtering options
+#
 prune_identical:
-  - qseq
-
-orf:
-  stop_codon:
-    - tag
-    - taa
-    - tga
-  start_codon:
-    - atg
-  reverse: true
-  direct: true
-  min: 30
-
-
+  #  use_worst: will pick the result with highest identity if false
+  #   and the lowest identity if true
+  use_worst: false
+  # first: the initial filtering step will remove all identical sseqid and
+  #  pick the best/worst (depending on use_worst option)
+  first: sseqid
+  # list: list of subsequent filtering columns, works the same as first
+  list:
+    - nt_aligned_seq
+#
+# output directory options:
+#  - dir: output directory's name
+#  - ext: extension for blast files
+output:
+  dir: ../../output
+  extension: .out
+  intermediate: intermediate
+  blast_results: blast_results
+  fastas: fasta_files
+#
+db:
+  parent: "../db"
+  list:
+    - blackberry_loch_ness
+#
 query:
-  parent: "spec/blastn"
+  parent: "../blastn"
   folders:
     - query
-
-debug:
-  file: output/log.blastn_rspec.txt
-  show_stdout_if_file: false
+#
+annotation_dir: ../../db_and_queries/annotation
