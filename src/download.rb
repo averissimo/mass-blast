@@ -50,14 +50,14 @@ end
 class ExternalData
   #
   TAR_FILE    = 'taxdb.tar.gz'
-  FVESCA_URI  = 'http://sels.tecnico.ulisboa.pt/software-archive/data/fvesca_db.tar.gz'
+  TEST_DB_URI  = 'http://sels.tecnico.ulisboa.pt/software-archive/data/blackberry_db.tar.gz'
   SPEC_PARENT = 'test/db'
   attr_reader :logger
   TIMEOUT = 600
 
-  def self.download_fvesca(parent_path, logger)
+  def self.download_test_db(parent_path, logger)
     #
-    uri = URI FVESCA_URI
+    uri = URI TEST_DB_URI
     #
     Net::HTTP.start(uri.host, uri.port, read_timeout: TIMEOUT) do |http|
       request = Net::HTTP::Get.new uri.path
@@ -99,9 +99,9 @@ class ExternalData
     unless only_working_dir
       run.call(['taxdb.btd', 'taxdb.bti'], SPEC_PARENT, :download_taxdb)
       #
-      run.call(['fvesca_scaffolds.nhr',
-                'fvesca_scaffolds.nin',
-                'fvesca_scaffolds.nsq'], SPEC_PARENT, :download_fvesca)
+      run.call(['blackberry_loch_ness.nhr',
+                'blackberry_loch_ness.nin',
+                'blackberry_loch_ness.nsq'], SPEC_PARENT, :download_test_db)
     end
 
     logger.info('----- Finish downloading --------------------------------')
