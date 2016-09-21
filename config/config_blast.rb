@@ -66,6 +66,8 @@ module ConfigBlast
     @store.configure_from_hash(YAML.load_file(@store.config.user))
     # process the configuration to adjust paths and values
     process_config
+    logger.info('Validating configuration...')
+    validate_config
     logger.debug('Finished loading configuration.')
   end
 
@@ -98,6 +100,207 @@ module ConfigBlast
     make_dir(File.join(@store.output.dir, @store.output.intermediate))
     make_dir(File.join(@store.output.dir, @store.output.blast_results))
     make_dir(File.join(@store.output.dir, @store.output.fastas))
+  end
+
+  # Validate YAML configuration with required options
+  def validate_config
+    #
+    # flag shows if there has been an error
+    flag = false
+    # function to be called for numbers
+    check_numeric = proc do |my_key,
+                             full_key,
+                             spaces = 0,
+                             min = nil,
+                             max = Float::INFINITY,
+                             base = @store,
+                             example,
+                             reduce_by|
+      #
+      min = -Float::INFINITY if min.nil?
+      #
+      if !base.key?(my_key) ||
+         !(base[my_key].is_a?(Numeric)) ||
+         !(base[my_key] / reduce_by >= min && base[my_key] / reduce_by <= max)
+        msg = "Config Error: \'#{full_key}\' option is not properly set in" \
+         ' user.yml\'. Please check if it is a number' \
+         " (between #{min} and #{max}) and has"
+        if spaces == 0
+          msg += ' no spaces before.'
+        else
+          msg += " #{spaces} spaces before. It should be something like: \n"
+          full_key.split('.').each_with_index do |part, k|
+            msg += k.times.collect { '(space)(space)' }.join('') + part
+            if (k < full_key.split('.').length - 1)
+              msg += "\n"
+            end
+          end
+          msg += ": #{example}"
+        end
+        logger.error msg
+        flag = true
+      end
+    end
+    log_required = proc do |key, optional = ''|
+      msg = "Config Error: Must set \'#{key}\' option in \'user.yml\'," \
+        " check documentation for an example. #{optional}"
+      logger.error msg
+      flag = true
+    end
+    #
+    log_required_sub = proc do |_key, full_path, sample, optional = ''|
+      msg = "Config Error: Must set a \'#{full_path}\' option in \'user.yml\',"\
+            " check documentation for an example. #{optional}\n"
+      splited = full_path.split('.')
+      splited.each_with_index do |str, k|
+        msg += k.times.collect { '(space)(space)' }.join('') + str + ': '
+        msg += if k == splited.length - 1
+                 "#{sample}"
+               else
+                 "\n"
+               end
+      end
+      logger.error(msg)
+      flag = true
+    end
+    #
+    log_required_sub_type = proc do |config, key, partial_path,
+                                   sample, my_type, optional = ""|
+      if !config.key?(key) || !config.dir.is_a?(my_type)
+        log_required_sub(key, partial_path + ".#{key}", sample, optional)
+      end
+    end
+    #
+    #  check engine
+    engines = %w(tblastn blastn tblastx)
+    if !@store.key?(:engine) ||
+       !engines.include?(@store.engine)
+      log_required.call('engine', 'Available engines: ' + engines.join(', '))
+    end
+    #
+    #  check separate_db
+    if !@store.key?(:separate_db) ||
+       !([true, false].include?(@store.separate_db))
+      log_required.call('separate_db', 'Must be true/false')
+    end
+    #
+    #  check use_threads
+    check_numeric.call('use_threads', 'use_threads', 0, 1, Float::INFINITY,
+                       @store, 4, 1)
+    #
+    # check debug file
+    if !@store.key?(:debug) || !@store.debug.key?(:file) ||
+       !@store.debug.file.is_a?(String)
+      log_required_sub('file', 'debug.file', 'output/logger.txt')
+    end
+    #
+    # check opts
+    if !@store.key?(:opts) || !@store.opts.is_a?(String)
+      log_required('opts')
+    end
+    #
+    # check identity
+    check_numeric.call('min', 'identity.min', 2, 0, 1,
+                       @store.identity, 0.1, 100)
+
+    check_numeric.call('max', 'identity.max', 2, 0, 1,
+                       @store.identity, 1.0, 100)
+    #
+    # check prune_identical
+    if !@store.key?(:prune_identical)
+      log_required.call('prune_identical')
+    else
+      if !@store.prune_identical.key?('use_worst') ||
+         !([true, false].include?(@store.prune_identical.use_worst))
+        log_required_sub.call('use_worst', 'prune_identical.use_worst',
+                              'true/false')
+      end
+
+      unless @store.prune_identical.key?('first')
+        log_required_sub.call('first', 'prune_identical.first',
+                              '(some blast column name)')
+      end
+      #
+      if !@store.prune_identical.key?('list') ||
+         !@store.prune_identical.list.is_a?(Array)
+        log_required_sub.call('list', 'prune_identical.list',
+                              '\n    - (some blast column name)')
+      end
+    end
+    #
+    # chekc output
+    if !@store.key?(:output)
+      log_required.call('output')
+    else
+      log_required_sub_type.call(@store.output, 'dir', 'output', 'output',
+                                 String, 'Should be the output directory')
+      log_required_sub_type.call(@store.output, 'extension', 'output', '.out',
+                                 String, 'Should be the extension of the Blast'\
+                                 ' results')
+      log_required_sub_type.call(@store.output, 'intermediate', 'output',
+                                 'intermediate',
+                                 String, 'Should be the name of intermediate' \
+                                 ' folder')
+      log_required_sub_type.call(@store.output, 'blast_results', 'output',
+                                 'blast_results',
+                                 String, 'Should be the name of blast results' \
+                                 ' folder')
+      log_required_sub_type.call(@store.output, 'fastas', 'output',
+                                 'fasta_files',
+                                 String, 'Should be the name of fasta output' \
+                                 ' folder')
+    end
+    #
+    # check annotation_dir
+    unless @store.key?(:annotation_dir)
+      log_required.call('output', 'path to annotation folder')
+    end
+    #
+    # check db
+    if !@store.key?(:db)
+      log_required.call('db')
+    else
+      log_required_sub_type.call(@store.db, 'parent', 'db', 'db_and_queries/db',
+                                 String, 'Should be the databases directory')
+    end
+    #
+    # check query
+    if !@store.key?(:query)
+      log_required.call('query')
+    else
+      log_required_sub_type.call(@store.query, 'parent', 'query',
+                                 'db_and_queries', String,
+                                 'Should be the query parent directory')
+      if !@store.query.key?('folders') || !@store.query.folders.is_a?(Array)
+        log_required_sub.call('folders', 'query.list', '\n    - (folder name)')
+      end
+    end
+    #
+    # check ORF
+    if !@store.key?(:orf)
+      log_required.call('orf')
+    else
+      if !@store.orf.key?('stop_codon') || !@store.orf.stop_codon.is_a?(Array)
+        log_required_sub.call('stop_codon', 'orf.stop_codon', '\n    - (codon)')
+      end
+      if !@store.orf.key?('start_codon') || !@store.orf.stop_codon.is_a?(Array)
+        log_required_sub.call('start_codon', 'orf.start_codon', '\n    - (codon)')
+      end
+      unless [true, false].include?(@store.orf.reverse)
+        log.required_sub.call('reverse', 'orf.reverse', 'tru/false')
+      end
+      unless [true, false].include?(@store.orf.direct)
+        log.required_sub.call('direct', 'orf.direct', 'tru/false')
+      end
+      check_numeric.call('min', 'orf.min', 2, 0, Float::INFINITY, @store.orf, '120', 1)
+    end
+    #
+    #
+    #
+    return nil unless flag
+    #
+    fail('Some errors with the configuration, please check the log for more' \
+      ' information and correct\'user.yaml\'')
   end
 
   def make_dir(dirpath)

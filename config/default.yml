@@ -63,19 +63,6 @@ orf:
   direct: true
   min: 120
 #
-# prune identical:
-#  - use_worst: false to keep best redundant result, true otherwise
-#  - first: column to use in first iteration to filter out the results
-#  - list: columns that identify redundant results (if they have the same value)
-#
-# note: columns that are calculated can only be used in list and never at first.
-#  they are only calculated after to reduce memory and cpu usage.
-prune_identical:
-  use_worst: false
-  first: sseqid
-  list:
-    - nt_aligned_seq
-#
 codon_table: 1
 #
 debug:
