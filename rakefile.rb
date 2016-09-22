@@ -1,5 +1,3 @@
-require 'byebug'
-
 require 'rake/testtask'
 require 'rake/clean'
 require 'rspec/core/rake_task'
