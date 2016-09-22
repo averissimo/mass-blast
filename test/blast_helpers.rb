@@ -1,7 +1,6 @@
 require 'fileutils'
 #
 #
-require 'byebug'
 module BlastHelpers
   #
   # test every file in the results directory
