@@ -64,8 +64,8 @@ class Blast
       logger.info 'Output:'
       logger.info \
         "    '#{el[:out_file].gsub(FileUtils.pwd + File::Separator, '')}'"
-      logger.info 'Command:'
-      logger.info "  BLASTDB=#{ENV['BLASTDB']} #{cmd}"
+      logger.debug 'Command:'
+      logger.debug "  BLASTDB=#{ENV['BLASTDB']} #{cmd}"
       #
       Open3.popen3("#{cmd}") do |_i, _o, e, _t|
         # log error messages
@@ -78,6 +78,13 @@ class Blast
         end
       end
       #
+      # test if there are any results?
+      if File.size(el[:out_file]) == 0
+        logger.warn '########################'
+        logger.warn 'Output of BLAST has been an empty file, please check if' /
+          ' blast engine, db, and/or query are correct'
+        logger.warn '########################'
+      end
     end
     logger.info '----- Finished BLAST step ----------------------------------'
   rescue StandardError => e
