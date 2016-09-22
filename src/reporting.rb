@@ -149,6 +149,9 @@ module Reporting
   end
 
   def merge_annotation
+    # guard clause
+    return nil if !@store.key?(:annotation_dir) || @store.annotation_dir.nil?
+    #
     annot_files = Dir[File.join(@store.annotation_dir, '*.csv')]
     annot_files.each_with_index do |file, index|
       merge_csv file, index

@@ -251,10 +251,9 @@ module ConfigBlast
                                  ' folder')
     end
     #
-    # check annotation_dir
-    unless @store.key?(:annotation_dir)
-      log_required.call('output', 'path to annotation folder')
-    end
+    # check annotation_dir => not required!
+    #
+
     #
     # check db
     if !@store.key?(:db)
@@ -324,9 +323,14 @@ module ConfigBlast
     @store.output.dir     = File.expand_path(@store.output.dir, base_dir)
     @store.db.parent      = File.expand_path(@store.db.parent, base_dir)
     @store.query.parent   = File.expand_path(@store.query.parent, base_dir)
-    @store.annotation_dir = File.expand_path(@store.annotation_dir, base_dir)
-    #
     @store.debug.file     = File.expand_path(@store.debug.file, base_dir)
+    #
+    if @store.key?('annotation_dir') &&
+       !@store.annotation_dir.nil? &&
+       @store.annotation_dir != 'nil'
+      @store.annotation_dir = File.expand_path(@store.annotation_dir, base_dir)
+    end
+    #
 
     # check if they exist
     did_it_fail = false
@@ -334,6 +338,7 @@ module ConfigBlast
       db_parent: @store.db.parent,
       query_parent: @store.query.parent,
       annotation_dir: @store.annotation_dir }.each do |key, dir|
+      next if key.to_s == 'annotation_dir' && (dir.nil? || dir == 'nil')
       next if Dir.exist? dir
       logger.error "Error: Directory for '#{key}' does not exist, please" \
             ' create it, or change configuration, before running mass blast' \

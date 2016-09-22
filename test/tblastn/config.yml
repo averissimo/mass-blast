@@ -82,4 +82,3 @@ query:
   folders:
     - query
 #
-annotation_dir: ../../db_and_queries/annotation
