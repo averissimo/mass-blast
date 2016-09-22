@@ -3,6 +3,7 @@ require 'rake/clean'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
+  Rake::Task['bootstrap'].invoke
   t.pattern = Dir.glob('test/test_*.rb')
   t.rspec_opts = '--format documentation'
   # t.rspec_opts << ' more options'
@@ -15,6 +16,7 @@ RSpec::Core::RakeTask.new(:'spec:db') do |t|
 end
 
 RSpec::Core::RakeTask.new(:'spec:blast') do |t|
+  Rake::Task['bootstrap'].invoke
   t.pattern = Dir.glob('test/test_blast.rb')
   t.rspec_opts = '--format documentation'
   # t.rspec_opts << ' more options'

@@ -81,7 +81,7 @@ class Blast
       # test if there are any results?
       if File.size(el[:out_file]) == 0
         logger.warn '########################'
-        logger.warn 'Output of BLAST has been an empty file, please check if' /
+        logger.warn 'Output of BLAST has been an empty file, please check if' \
           ' blast engine, db, and/or query are correct'
         logger.warn '########################'
       end

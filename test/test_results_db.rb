@@ -1,7 +1,6 @@
 require_relative 'test_helper'
 require_relative '../src/results_db'
 require 'logger'
-require 'byebug'
 #
 #
 RSpec.describe ResultsDB do
