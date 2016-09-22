@@ -10,6 +10,7 @@ group :development do
   gem 'byebug', '~> 8.2', '>= 8.2.1'
 end
 
-group :test do
+gem 'rake'
+#group :test do
   gem 'rspec', '~> 3.4', '>= 3.4.0'
-end
+#end
