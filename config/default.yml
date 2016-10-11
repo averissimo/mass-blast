@@ -127,7 +127,7 @@ query:
 # backberry   comp33_u1 33
 # bilberry    comp33_u1 42
 # ....
-annotation_dir: nil
+annotation_dir: db_and_queries/annotation
 #
 # how to format the output file. by default should show all columns
 format:

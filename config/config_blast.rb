@@ -216,7 +216,9 @@ module ConfigBlast
                               'true/false')
       end
 
-      unless @store.prune_identical.key?('first')
+      if !@store.prune_identical.key?('first') ||
+         @store.prune_identical.first.nil? ||
+         @store.prune_identical.first.empty?
         log_required_sub.call('first', 'prune_identical.first',
                               '(some blast column name)')
       end
@@ -286,10 +288,10 @@ module ConfigBlast
         log_required_sub.call('start_codon', 'orf.start_codon', '\n    - (codon)')
       end
       unless [true, false].include?(@store.orf.reverse)
-        log.required_sub.call('reverse', 'orf.reverse', 'tru/false')
+        log_required_sub.call('reverse', 'orf.reverse', 'true/false')
       end
       unless [true, false].include?(@store.orf.direct)
-        log.required_sub.call('direct', 'orf.direct', 'tru/false')
+        log_required_sub.call('direct', 'orf.direct', 'true/false')
       end
       check_numeric.call('min', 'orf.min', 2, 0, Float::INFINITY, @store.orf, '120', 1)
     end

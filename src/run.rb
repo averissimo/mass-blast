@@ -12,15 +12,20 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
   # configuration
   config_path   = File.expand_path(my_config)
   config_parent = File.dirname(config_path)
-  config        = YAML.load_file(config_path)
+  @store = Configatron::RootStore.new
+  @store.config.default = File.expand_path('config/default.yml')
+  @store.configure_from_hash(YAML.load_file(@store.config.default))
+  @store.configure_from_hash(YAML.load_file(config_path))
+  #
+  config = @store.to_h
   #
   list_ary = []
   list_db = Queue.new
   #
-  if config['separate_db']
-    if config['db']['list'].nil? || config['db']['list'].empty?
+  if config[:separate_db]
+    if config[:db][:list].nil? || config[:db][:list].empty?
       #
-      db_parent = File.expand_path(config['db']['parent'], config_parent)
+      db_parent = File.expand_path(config[:db][:parent], config_parent)
       #
       # run command blsatdbcmd to search for BLAST databases
       #  in directory
@@ -32,7 +37,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
       end
       list_ary = list_ary.uniq
     else
-      config['db']['list'].each do |el|
+      config[:db][:list].each do |el|
         list_ary << el
       end
     end
@@ -43,11 +48,11 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
     relative_dir = proc do |path|
       File.expand_path(File.join(path), config_parent)
     end
-    config['output']['dir']   = relative_dir.call(config['output']['dir'])
-    config['db']['parent']    = relative_dir.call(config['db']['parent'])
-    config['debug']['file']   = relative_dir.call(config['debug']['file'])
-    config['query']['parent'] = relative_dir.call(config['query']['parent'])
-    config['annotation_dir']  = relative_dir.call(config['annotation_dir'])
+    config[:output][:dir]   = relative_dir.call(config[:output][:dir])
+    config[:db][:parent]    = relative_dir.call(config[:db][:parent])
+    config[:debug][:file]   = relative_dir.call(config[:debug][:file])
+    config[:query][:parent] = relative_dir.call(config[:query][:parent])
+    config[:annotation_dir]  = relative_dir.call(config[:annotation_dir])
   else
     list_db << -1
   end
@@ -57,10 +62,10 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
   # array to store threads id
   threads = []
   # must be at least one thread
-  config['use_threads'] = 1 \
-    if config['use_threads'].nil? || config['use_threads'] < 1
+  config[:use_threads] = 1 \
+    if config[:use_threads].nil? || config[:use_threads] < 1
   #
-  config['use_threads'].times do
+  config[:use_threads].times do
     threads << Thread.new do
       loop do
         # stop if list_db is empty
@@ -77,14 +82,14 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
           tmp_path = File.expand_path('tmp', config_parent)
           Dir.mkdir(tmp_path) unless Dir.exist? tmp_path
           # deep copy of hash
-          new_config = Marshal.load(Marshal.dump(config))
+          new_config = Marshal.load(Marshal.dump(config.to_h))
           # output folder will be named with database as suffix
-          if new_config['force_folder'].nil? ||
-             new_config['force_folder'].strip == ''
+          if new_config[:force_folder].nil? ||
+             new_config[:force_folder].strip == ''
             output_folder = base_time +
                             '-' + srand.to_s[3..6]
           else
-            output_folder = new_config['force_folder']
+            output_folder = new_config[:force_folder]
           end
           # set output folder for this db
           output_folder += '_' + item
@@ -92,12 +97,12 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
           new_config_file = File.join tmp_path, "#{output_folder}.config.yml"
           # write change configuration to file, forcing only a single db
           File.open(new_config_file, 'wb') do |fw|
-            new_config['db']['list']      = [item]
-            new_config['force_folder']    = output_folder
+            new_config[:db][:list]      = [item]
+            new_config[:force_folder]    = output_folder
 
-            if new_config['use_threads'] > 1
-              new_config['debug']['file'] = \
-                new_config['debug']['file'].gsub(/[.]txt/, '') + \
+            if new_config[:use_threads] > 1
+              new_config[:debug][:file] = \
+                new_config[:debug][:file].gsub(/[.]txt/, '') + \
                 '.thread.' + item + '.txt'
             end
             fw.write YAML.dump(new_config)
@@ -105,7 +110,7 @@ def run_user_config(my_config, benchmark = nil, run_blast = true, run_after_blas
         end
         #
         begin
-          run_blast(new_config_file, new_config['engine'], benchmark,
+          run_blast(new_config_file, new_config[:engine], benchmark,
                     run_blast, run_after_blast)
         rescue => e
           puts e.to_s
@@ -133,8 +138,13 @@ def run_blast(new_config, engine, benchmark = nil,
   when 'blastp'
     b = Blastp.new new_config
   else
-    fail "Cannot recognize engine: #{engine}. Please check" \
-        ' documentation for implemented engines'
+    if engine.nil? || engine.empty?
+      fail 'Engine must be defined in configuration file (user.yml).' \
+           ' Please check documentation for implemented engines'
+    else
+      fail "Cannot recognize engine: #{engine}. Please check" \
+          ' documentation for implemented engines'
+    end
   end
   #
   # download taxdb from ncbi
