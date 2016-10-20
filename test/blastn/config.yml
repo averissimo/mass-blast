@@ -26,6 +26,8 @@ use_threads: 1
 debug:
   file: ../../output/log.blastn_rspec.txt
   show_stdout_if_file: false
+
+annotation_dir: ../../db_and_queries/annotation
 #
 #
 # Opts are engine specific, the default in user.yml

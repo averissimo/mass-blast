@@ -273,9 +273,9 @@ module ConfigBlast
                                  'db_and_queries', String,
                                  'Should be the query parent directory')
       if !@store.query.key?('folders') || !@store.query.folders.is_a?(Array)
-        log_required_sub.call('folders', 'query.list', '\n    - (folder name)')
-      else @store.query.folders.size == 0
-        log_required_sub.call('folders', 'query.list', '\n    - (at least one folder name)')
+        log_required_sub.call('folders', 'query.folders', '\n    - (folder name)')
+      elsif @store.query.folders.size == 0
+        log_required_sub.call('folders', 'query.folders', '\n    - (at least one folder name)')
       end
     end
     #
