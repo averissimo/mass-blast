@@ -274,6 +274,8 @@ module ConfigBlast
                                  'Should be the query parent directory')
       if !@store.query.key?('folders') || !@store.query.folders.is_a?(Array)
         log_required_sub.call('folders', 'query.list', '\n    - (folder name)')
+      else @store.query.folders.size == 0
+        log_required_sub.call('folders', 'query.list', '\n    - (at least one folder name)')
       end
     end
     #
@@ -360,7 +362,7 @@ module ConfigBlast
     #
     fail 'Database parent must be defined in user.yml.' \
       if @store.db.parent.nil?
-    fail 'Folders must be defined in user.yml.' \
+    fail 'Folders list containing queries must be defined in user.yml.' \
       if @store.query.folders.nil?
     # set existing dbs
     logger.info('Databases: ')
