@@ -21,10 +21,12 @@ RSpec.describe Blast do
 
     context 'all files should be equal' do
       test_results(type, output_dir).each do |file_hash|
+        lines_expected = IO.readlines(file_hash[:expected])
+        lines_output   = IO.readlines(file_hash[:output])
         it "testing if '#{File.basename(file_hash[:expected])}'" \
           'are identical' do
-          expect(FileUtils.compare_file(file_hash[:expected],
-                                        file_hash[:output])).to be_truthy
+          expect(fexpected.size == foutput.size &&
+                 compare_lines(lines_expected, lines_output)).to be_truthy
         end
       end
     end

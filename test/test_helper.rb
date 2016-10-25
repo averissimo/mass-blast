@@ -6,6 +6,13 @@ require_relative '../src/tblastx'
 require 'yaml'
 require 'rspec'
 
+def compare_line(lines1, lines2)
+  lines1.each_with_index do |line1, ix|
+    return false unless line1.trim == lines2[ix].trim
+  end
+  true
+end
+
 def symbolize_keys(old_hash)
   new_hash = {}
   old_hash.keys.each do |key|
