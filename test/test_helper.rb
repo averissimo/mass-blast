@@ -8,7 +8,7 @@ require 'rspec'
 
 def compare_lines(lines1, lines2)
   lines1.each_with_index do |line1, ix|
-    return false unless line1.trim == lines2[ix].trim
+    return false unless line1.strip == lines2[ix].strip
   end
   true
 end

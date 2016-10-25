@@ -25,7 +25,7 @@ RSpec.describe Blast do
         lines_output   = IO.readlines(file_hash[:output])
         it "testing if '#{File.basename(file_hash[:expected])}'" \
           'are identical' do
-          expect(fexpected.size == foutput.size &&
+          expect(lines_expected.size == lines_output.size &&
                  compare_lines(lines_expected, lines_output)).to be_truthy
         end
       end
