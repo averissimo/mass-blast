@@ -63,7 +63,11 @@ module ConfigBlast
     @store.config.user = File.expand_path(config_path)
     logger.info 'Loads user configuration:'
     logger.info "  #{config_path}"
-    @store.configure_from_hash(YAML.load_file(@store.config.user))
+    user_hash = YAML.load_file(@store.config.user)
+    unless user_hash['format']['specifiers'].nil?
+      @store.format.specifiers = Configatron::Store.new(@store)
+    end
+    @store.configure_from_hash(user_hash)
     # process the configuration to adjust paths and values
     process_config
     logger.info('Validating configuration...')
