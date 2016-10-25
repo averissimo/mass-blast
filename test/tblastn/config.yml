@@ -125,4 +125,4 @@ format:
     sstrand: "means Subject Strand"
     qcovhsp: "means Query Coverage Per HSP"
     qseq: "means Aligned part of query sequence"
-    sseq: "means Aligned part of subject sequence"
+#    sseq: "means Aligned part of subject sequence"
