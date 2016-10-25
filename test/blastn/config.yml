@@ -38,7 +38,7 @@ annotation_dir: ../../db_and_queries/annotation
 # opts: "-max_target_seqs 500 -evalue 1E-20"
 #  - for blastn:
 # opts: "-dust no -max_target_seqs 500 -evalue 1E-20"
-opts: "-max_target_seqs 500 -evalue 1E-20"
+opts: "-max_target_seqs 500 -evalue 1E-100"
 #
 #
 #
