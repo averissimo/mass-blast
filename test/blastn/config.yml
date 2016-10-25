@@ -112,7 +112,7 @@ format:
     positive: "means Number of positive-scoring matches"
     gapopen: "means Number of gap openings"
     gaps: "means Total number of gap"
-    ppos: "means Percentage of positive-scoring matches"
+    #ppos: "means Percentage of positive-scoring matches"
     #frames: "means Query and subject frames separated by a '/'"
     #qframe: "means Query frame"
     #sframe: "means Subject frame"
