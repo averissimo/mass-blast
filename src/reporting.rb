@@ -254,7 +254,6 @@ module Reporting
                    row.values_at[2..(row.headers.size)],
                    my_headers.collect { file })
     end
-    byebug
   end
   #
   #
