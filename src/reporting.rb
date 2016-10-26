@@ -236,19 +236,25 @@ module Reporting
     added = false
     my_headers = []
     CSV.foreach(file, headers: true, col_sep: "\t") do |row|
+      # skip if empty line
+      next if row[0].nil? || row[1].nil? || row[0].empty? || row[1].empty?
+      # determine headers
       unless added
         my_headers = (row.headers[2..(row.headers.size)]).collect do |str|
           str + "_annot_#{index}"
         end
         @results_headers.concat my_headers
+        added = true
       end
-      added = true
+      # add additional information to each entry
+      #  note: this can take some time depending on the annotation files size
       @db.add_info({ one: row.headers[0], two: row.headers[1] },
                    { one: row[0], two: row[1] },
                    my_headers,
                    row.values_at[2..(row.headers.size)],
                    my_headers.collect { file })
     end
+    byebug
   end
   #
   #

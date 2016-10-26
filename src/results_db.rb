@@ -102,10 +102,17 @@ class ResultsDB
     end
   end
 
+  # Add additional information to each row
   def add_info(keys, values, new_col_key, new_col_val, file_origin = nil)
-    header.concat new_col_key
-    file_origin = [new_col_key] if file_origin.nil?
-    header_meaning.concat file_origin
+    file_origin = new_col_key.size.collect { '' } if file_origin.nil?
+    # only add header if it is not yet declared
+    new_col_key.each_with_index do |val, ix|
+      unless header.include?(val)
+        header.concat([val])
+        header_meaning.concat([file_origin[ix]])
+      end
+    end
+    #
     db.values.each do |el|
       new_col_key.each_with_index do |col_key, ix|
         if el[keys[:one]] == values[:one] && el[keys[:two]] == values[:two]
