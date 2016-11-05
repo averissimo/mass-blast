@@ -64,7 +64,7 @@ module ConfigBlast
     logger.info 'Loads user configuration:'
     logger.info "  #{config_path}"
     user_hash = YAML.load_file(@store.config.user)
-    unless user_hash['format']['specifiers'].nil?
+    if !user_hash['format'].nil? && !user_hash['format']['specifiers'].nil?
       @store.format.specifiers = Configatron::Store.new(@store)
     end
     @store.configure_from_hash(user_hash)
