@@ -1,13 +1,13 @@
 source 'http://rubygems.org'
 
-gem 'bio', '~> 1.5', '>= 1.5.0'
-gem 'deep_merge', '~> 1.0', '>= 1.0.1'
-gem 'configatron', '~> 4.5', '>= 4.5.0'
+gem 'bio', '~> 1.5', '= 1.5.0'
+gem 'deep_merge', '~> 1.0', '= 1.0.1'
+gem 'configatron', '~> 4.5', '= 4.5.0'
 
-gem 'orf_finder', '~> 0.1', '>= 0.1.8'
+gem 'orf_finder', '~> 0.1', '= 0.1.8'
 
 group :development do
-  gem 'byebug', '~> 8.2', '>= 8.2.1'
+  gem 'byebug', '~> 8.2', '= 8.2.5'
 end
 
 gem 'rake'
