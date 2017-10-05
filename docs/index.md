@@ -115,7 +115,7 @@ For Windows run the `import_fastas.bat` script
 
 ## Ackowledgements
 
-MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)*, *Jean-Etienne Bassard* and *Susana Vinga*
+MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)*, *Jean-Etienne Bassard* and *[Susana Vinga](http://web.tecnico.ulisboa.pt/susanavinga/)*
 
 A pre-print of the manuscript is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953)
 
