@@ -1,16 +1,11 @@
-MassBLAST
-==========
-
-Perform BLAST queries from multiple files against different databases at once.
-
 ## Install
 
 The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
 
-It already has most dependencies, **it only requires BLAST+ to be installed before running**: [link to download latest version](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+Ruby and all required gems *(extensions)* are included in the release, the only requirement is **BLAST+** [available here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
 
 Important note for Windows users:
-  1. Can only install 32-bit version of BLSAT+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
+  1. Can only install 32-bit version of BLAST+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
   2. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder, if problem persists, submit an issue.
 
 ### How to use it?
