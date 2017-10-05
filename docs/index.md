@@ -37,13 +37,13 @@ BLAST+ (pre-requirement)| [v2.2.30 (32-bit)](ftp://ftp.ncbi.nlm.nih.gov/blast/ex
 ### How to use MassBlast?
 
 - Place fasta files with queries at `db_and_queries/queries` folder.
-  - You can have as many files as needed, see below for an example of a nucleotide query
+  - You can have as many files as needed, see below for an example of a nucleic-acid query
 - Place blast databases at `db_and_queries/db` folder.
   - Check "How to setup a Blast database for a transcriptome" below for more information on creating a Blast database.
 - Edit user.yml file to change options and BLAST engine to be used, check `user.yml.example` for more information.
 - run mass-blast script *(either double click it on Windows or as a command in the command line.*
 
-Example of a nucleotide query file that could be placed in `db_and_queries/queries` folder:
+Example of a nucleic-acid query file that could be placed in `db_and_queries/queries` folder:
 
 ```
 >Example01
@@ -74,45 +74,45 @@ Using makeblastdb command that comes bundled with Blast+
 - Go to directory that has the fasta file with the assembly
 - Run makeblastdb command in that directory
 
-  - nucleotides database
+  - nucleic-acid database
 
-    `$ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"`
+    `$ makeblastdb -in <filename> -dbtype nucl -out "<blast_db_new_name>" -title "<blast_db_new_name>"`
 
   - protein database
 
-    `$ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"`
+    `$ makeblastdb -in <filename> -dbtype nucl -out "<blast_db_new_name>" -title "<blast_db_new_name>"`
 
 *note:* do to not use spaces in the &lt;blast db new name&gt;
 
 #### Quickly setup databases
 
-Place the fasta files for the database in db_and_queries/import_dbs directory and run the appropriate script.
+Place the fasta files for the database in `db_and_queries/import_dbs` directory and run the appropriate script.
 
-You also need to say if it is a nucleotide or protein-based fasta file.
+You also need to say if it is a nucleic-acid or protein-based fasta file.
 
 For Linux and Mac OS X run the `import_fastas.sh` script
 
 ```
-    $ cd db_and_queries/import_dbs
-    # for nucleotide
-    $ sh import_fastas.sh nucl
-    # for protein
-    $ sh import_fastas.sh prot
+$ cd db_and_queries/import_dbs
+# for nucleic-acid
+$ sh import_fastas.sh nucl
+# for protein
+$ sh import_fastas.sh prot
 ```
 
 For Windows run the `import_fastas.bat` script
 
 ```
-    $ cd db_and_queries/import_dbs
-    # for nucleotide
-    $ import_fastas.bat nucl
-    # for protein
-    $ import_fastas.bat prot
+$ cd db_and_queries/import_dbs
+# for nucleic-acid
+$ import_fastas.bat nucl
+# for protein
+$ import_fastas.bat prot
 ```
 
 ### Related Tools
 
-- [ORF-Finder](http://github.com/averissimo/orf_finder): Finds the longest Open Reading Frame from a nucleotide sequence
+- [ORF-Finder](http://github.com/averissimo/orf_finder): Finds the longest Open Reading Frame from a nucleic-acid sequence
 - [BioRuby](http://bioruby.org/): Open source bioinformatics library for Ruby
 - [Gene Extractor](https://github.com/averissimo/gene-extractor/): can be used to extract genes from Kegg2 and GenBank using keyword search
 - [MassBlast package bundler](https://github.com/averissimo/app-mass-blast): Creates a package that can be easily used in all main Operating Systems without having to install Ruby and any Ruby dependecies
