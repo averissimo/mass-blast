@@ -1,7 +1,7 @@
 MassBLAST
 ==========
 
-**Command line application to perform BLAST queries from multiple files against different databases at once.**
+Command line application to perform BLAST queries from multiple files against different databases at once.
 
 [Official site](https://averissimo.github.io/mass-blast)
 
