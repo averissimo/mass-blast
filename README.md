@@ -1,25 +1,31 @@
 MassBLAST
 ==========
 
-Perform BLAST queries from multiple files against different databases at once
+Command line application to perform BLAST queries from multiple files against different databases at once.
 
-**We recommend using a packaged release of MassBlast available [at this link](https://github.com/averissimo/mass-blast/releases)**. The only requirement is to have BLAST+ installed. See all the information in the section below.
+**We recommend using a packaged release of MassBlast available [at this link](https://github.com/averissimo/mass-blast/releases/latest)**. The only requirement is to have BLAST+ installed. See all the information in the section below.
 
-# Install and usage (from a release)
+The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
 
-Pre-packaged releases of MassBlast are available at github, [download here](https://github.com/averissimo/mass-blast/releases) and support:
-  - Linux 32/64-bit
-  - Mac OSX (recent versions)
-  - Windowns (the binaries are 32-bits, due to our packaging tool that includes ruby and other dependencies)
+A pre-print of the manuscript describing this application is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953).
 
-Requirements:
-- BLAST+ installed
-  -  [link to download latest version](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-    - note for Windows users:
-      1. Can only install 32-bit version of BLSAT+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
-      2. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder, if problem persists, submit an issue.
+## Install
 
-Default options can be changed at user.yml, check user.yml.example for more information (manual soon).
+The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
+
+Pre-requirements:
+
+- Install BLAST+ [available here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+
+*Important note for Windows users:*
+
+1. Can only install 32-bit version of BLAST+ that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/)
+  - latest win32 version is 2.2.30
+1. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder in the user directory, if problem persists, [submit an issue](https://github.com/averissimo/mass-blast/issues).
+
+*note:* Ruby and all other requirements are included in the package files, it is not necessary to install it.
+
+It supports all major operating systems Linux, Mac OSX and Windows *(For windows it only supports 32-bits)*
 
 ## How to use it?
 
@@ -124,6 +130,17 @@ In Windows run the import_fastas.bat script
 
 ## Ackowledgements
 
-This tool was created as a part of [FCT](www.fct.p) grant SFRH/BD/97415/2013 and European Commission research project [BacHBerry](www.bachberry.eu) (FP7- 613793)
+MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)* and *Dr. Jean-Etienne Bassard*.
 
-[Developer](http://web.tecnico.ulisboa.pt/andre.verissimo/)
+A pre-print of the manuscript is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953)
+
+This work was supported by:
+
+- European Union Framework Program 7, Project [BacHBERRY](www.bachberry.eu) *(FP7-613793)*;
+- [FCT](www.fct.pt), through IDMEC, under LAETA, projects *(UID/EMS/50022/2013)*;
+  - Susana Vinga acknowledges support by program
+ Investigador FCT *(IF/00653/2012)* from [FCT](www.fct.pt), co-funded by the European Social Fund *(ESF)* through the Operational Program Human Potential *(POPH)*;
+  - André Veríssimo acknowledges support from [FCT](www.fct.pt) *(SFRH/BD/97415/2013)*.
+
+We would like to thank *Dra. Cathie Martin* and *Dr. Philippe Vain* for reading the manuscript and providing us
+with important comments and insights. We would also like to thank *Dr. Aldo Ricardo Almeida Robles* and *Dr. Nuno Mira* for testing MassBlast.

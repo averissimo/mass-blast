@@ -25,6 +25,8 @@ Pre-requirements:
 
 *note:* Ruby and all other requirements are included in the package files, it is not necessary to install it.
 
+It supports all major operating systems Linux, Mac OSX and Windows *(For windows it only supports 32-bits)*
+
 ### How to use it?
 
 - Place fasta files with queries at `db_and_queries/queries` folder.
@@ -103,7 +105,6 @@ For Windows run the `import_fastas.bat` script
 - [MassBlast package bundler](https://github.com/averissimo/app-mass-blast): Creates a package that can be easily used in all main Operating Systems without having to install Ruby and any Ruby dependecies.
 
 ## Ackowledgements
-
 
 MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)* and *Dr. Jean-Etienne Bassard*.
 
