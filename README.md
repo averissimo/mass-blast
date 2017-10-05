@@ -1,13 +1,11 @@
 MassBLAST
 ==========
 
+**Command line application to perform BLAST queries from multiple files against different databases at once.**
+
 [Official site](https://averissimo.github.io/mass-blast)
 
-Command line application to perform BLAST queries from multiple files against different databases at once.
-
-**We recommend using a packaged release of MassBlast available [at this link](https://github.com/averissimo/mass-blast/releases/latest)**. The only requirement is to have BLAST+ installed. See all the information in the section below.
-
-The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
+[Download latest here](https://github.com/averissimo/mass-blast/releases/latest).
 
 A pre-print of the manuscript describing this application is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953).
 
