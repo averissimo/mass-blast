@@ -5,33 +5,36 @@ title: MassBlast
 
 **Command line application to perform BLAST queries from multiple files against different databases at once.**
 
-[Download latest release](https://github.com/averissimo/mass-blast/releases/latest)
-
 A pre-print of the manuscript describing this application is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953).
 
 *General description of the MassBlast workflow:*
 
-![Pipeline of MassBlast](pipeline.png)
+[![Pipeline of MassBlast](pipeline.png)](pipeline.png)
 
 ## Install
 
-The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
+1. Download BLAST+ and MassBlast from the links in the table below
+1. BLAST+ must be installed and available from a command line
+    - *check by running the command:* `blastn -version`
+1. Decompress MassBlast and it is ready to be used using the `mass-blast` script
 
-Pre-requirements:
+MassBlast *downloads* | [Windows]({{ site.windows_url }}) | [Mac OS X]({{ site.mac_url }}) | [Linux]({{ site.linux_url }})
+BLAST+ (pre-requirement)| [v2.2.30 (32-bit)](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/ncbi-blast-2.2.30+-win32.exe) | [v2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-macosx.tar.gz) | [2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz) |
 
-- Install BLAST+ [available here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+*BLAST+ important notes*
 
-*Important note for Windows users:*
+1. Must be installed before MassBlast is run
+1. *Windows users*
+    1. Must install [*32-bit* version *v2.2.30* of BLAST+](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/ncbi-blast-2.2.30+-win32.exe)
+    1. In case of an error in the first run:
+        - Delete `ncbi.ini` located at a subdirectory at the `AppData` folder in the user directory
+        - If problem persists, [submit an issue](https://github.com/averissimo/mass-blast/issues).
+1. *Mac OS X* and *Linux users*
+    - MassBlast was tested with version 2.6.0, but it could work with more recent versions *(or older and down to v2.2.30)*
 
-1. Can only install 32-bit version of BLAST+ that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/)
-  - latest win32 version is 2.2.30
-1. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder in the user directory, if problem persists, [submit an issue](https://github.com/averissimo/mass-blast/issues).
+*note:* Ruby and all other requirements are included in the package files, it is not necessary to install *when using packaged version*.
 
-*note:* Ruby and all other requirements are included in the package files, it is not necessary to install it.
-
-It supports all major operating systems Linux, Mac OSX and Windows *(For windows it only supports 32-bits)*
-
-### How to use it?
+### How to use MassBlast?
 
 - Place fasta files with queries at `db_and_queries/queries` folder.
   - You can have as many files as needed, see below for an example of a nucleotide query
@@ -54,12 +57,13 @@ gaggagtatttactgcaactcaaggagaagaaaccctaccagacttttacaaggtggtgg
 gcaactcaagcaactcaagcaactcaagcaactcaa
 ```
 
-### Type of blast implemented
+### Type of BLAST methods available
 
-- Blastn
-- TBlastn
-- TBlastx
+The method is defined in the file `user.yml`
 
+- BLASTn: Nucleic-acid sequences against a nucleic-acid database
+- TBLASTn: Protein sequences against a nucleic-acid database (dynamically translated to amino-acid sequences in all six reading frames)
+- TBLASTx: Nucleic-acid sequences against nucleic-acid database, where both query and database are dynamically translated to amino-acid sequences into all six reading frames
 
 ### How to setup a Blast database for a transcriptome
 
@@ -102,15 +106,16 @@ For Windows run the `import_fastas.bat` script
     # for protein
     $ import_fastas.bat prot
 
-### Relation with other tools
+### Related Tools
 
-- [Gene Extractor](https://github.com/averissimo/gene-extractor/): can be used to extract genes from Kegg2 and GenBank using keyword search.
-- [ORF-Finder](http://github.com/averissimo/orf_finder): Finds the longest Open Reading Frame from a nucleotide sequence.
-- [MassBlast package bundler](https://github.com/averissimo/app-mass-blast): Creates a package that can be easily used in all main Operating Systems without having to install Ruby and any Ruby dependecies.
+- [ORF-Finder](http://github.com/averissimo/orf_finder): Finds the longest Open Reading Frame from a nucleotide sequence
+- [BioRuby](http://bioruby.org/): Open source bioinformatics library for Ruby
+- [Gene Extractor](https://github.com/averissimo/gene-extractor/): can be used to extract genes from Kegg2 and GenBank using keyword search
+- [MassBlast package bundler](https://github.com/averissimo/app-mass-blast): Creates a package that can be easily used in all main Operating Systems without having to install Ruby and any Ruby dependecies
 
 ## Ackowledgements
 
-MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)* and *Dr. Jean-Etienne Bassard*.
+MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)*, *Jean-Etienne Bassard* and *Susana Vinga*
 
 A pre-print of the manuscript is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953)
 
@@ -122,5 +127,5 @@ This work was supported by:
  Investigador FCT *(IF/00653/2012)* from [FCT](www.fct.pt), co-funded by the European Social Fund *(ESF)* through the Operational Program Human Potential *(POPH)*;
   - André Veríssimo acknowledges support from [FCT](www.fct.pt) *(SFRH/BD/97415/2013)*.
 
-We would like to thank *Dra. Cathie Martin* and *Dr. Philippe Vain* for reading the manuscript and providing us
-with important comments and insights. We would also like to thank *Dr. Aldo Ricardo Almeida Robles* and *Dr. Nuno Mira* for testing MassBlast.
+We would like to thank *Cathie Martin* and *Philippe Vain* for reading the manuscript and providing us
+with important comments and insights. We would also like to thank *Aldo Ricardo Almeida Robles* and *Nuno Mira* for testing MassBlast.

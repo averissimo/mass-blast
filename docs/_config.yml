@@ -1,8 +1,14 @@
 #theme: minima
 theme: jekyll-theme-minimal
-name: MassBlast
+title: MassBlast
 description: >
   MassBlast was developed by André Veríssimo and Jean-Etienne Brassard and is
   released under GNU General Public License version 3
-github_username: averissimo
-twitter_username: averissimo
+owner_name: André Veríssimo
+owner_url: https://github.com/averissimo
+twitter_name: averissimo
+
+windows_url: https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-win32.zip
+mac_url: https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-osx.tar.gz
+linux_url: https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-linux-x86_64.tar.gz
+repository_url: https://github.com/averissimo/mass-blast
