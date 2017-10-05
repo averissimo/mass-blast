@@ -76,11 +76,11 @@ Using makeblastdb command that comes bundled with Blast+
 
   - nucleotides database
 
-    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"
+    `$ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"`
 
   - protein database
 
-    $ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"
+    `$ makeblastdb -in &lt;filename&gt; -dbtype nucl -out "&lt;blast_db_new_name&gt;" -title "&lt;blast_db_new_name&gt;"`
 
 *note:* do to not use spaces in the &lt;blast db new name&gt;
 
@@ -92,19 +92,23 @@ You also need to say if it is a nucleotide or protein-based fasta file.
 
 For Linux and Mac OS X run the `import_fastas.sh` script
 
+```
     $ cd db_and_queries/import_dbs
     # for nucleotide
     $ sh import_fastas.sh nucl
     # for protein
     $ sh import_fastas.sh prot
+```
 
 For Windows run the `import_fastas.bat` script
 
+```
     $ cd db_and_queries/import_dbs
     # for nucleotide
     $ import_fastas.bat nucl
     # for protein
     $ import_fastas.bat prot
+```
 
 ### Related Tools
 
