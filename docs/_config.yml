@@ -1,2 +1,8 @@
+#theme: minima
 theme: jekyll-theme-minimal
 name: MassBlast
+description: >
+  MassBlast was developed by André Veríssimo and Jean-Etienne Brassard and is
+  released under GNU General Public License version 3
+github_username: averissimo
+twitter_username: averissimo

@@ -1,7 +1,7 @@
 MassBLAST
 ==========
 
-Library to query multiple files against many databases
+Perform BLAST queries from multiple files against different databases at once
 
 **We recommend using a packaged release of MassBlast available [at this link](https://github.com/averissimo/mass-blast/releases)**. The only requirement is to have BLAST+ installed. See all the information in the section below.
 

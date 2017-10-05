@@ -1,22 +1,37 @@
+---
+title: MassBlast
+#layout: page
+---
+
+Command line application to perform BLAST queries from multiple files against different databases at once.
+
+The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest) while the source code is available [here](http://github.com/averissimo/mass-blast).
+
+A pre-print of the manuscript describing this application is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953).
+
 ## Install
 
 The latest release can be [downloaded here](https://github.com/averissimo/mass-blast/releases/latest).
 
-Ruby and all required gems *(extensions)* are included in the release, the only requirement is **BLAST+** [available here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+Pre-requirements:
 
-Important note for Windows users:
-  1. Can only install 32-bit version of BLAST+ (latest win32 version is 2.2.30 that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/))
-  2. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder, if problem persists, submit an issue.
+- Install BLAST+ [available here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+
+*Important note for Windows users:*
+
+1. Can only install 32-bit version of BLAST+ that can be [downloaded here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/)
+  - latest win32 version is 2.2.30
+1. If it gives an error, please delete `ncbi.ini` located at a subdirectory at the `AppData` folder in the user directory, if problem persists, [submit an issue](https://github.com/averissimo/mass-blast/issues).
+
+*note:* Ruby and all other requirements are included in the package files, it is not necessary to install it.
 
 ### How to use it?
-
-Options can be configurable at `user.yml`, check `user.yml.example` for more information.
 
 - Place fasta files with queries at `db_and_queries/queries` folder.
   - You can have as many files as needed, see below for an example of a nucleotide query
 - Place blast databases at `db_and_queries/db` folder.
   - Check "How to setup a Blast database for a transcriptome" below for more information on creating a Blast database.
-- Edit user.yml file to change options and BLAST engine to be used.
+- Edit user.yml file to change options and BLAST engine to be used, check `user.yml.example` for more information.
 - run mass-blast script *(either double click it on Windows or as a command in the command line.*
 
 Example of a nucleotide query file that could be placed in `db_and_queries/queries` folder:
@@ -89,6 +104,18 @@ For Windows run the `import_fastas.bat` script
 
 ## Ackowledgements
 
-This tool was created as a part of [FCT](www.fct.p) grant SFRH/BD/97415/2013 and European Commission research project [BacHBerry](www.bachberry.eu) (FP7- 613793)
 
-[Developer](http://web.tecnico.ulisboa.pt/andre.verissimo/)
+MassBlast was developed primarily by *[André Veríssimo](http://web.tecnico.ulisboa.pt/andre.verissimo/)* and *Dr. Jean-Etienne Bassard*.
+
+A pre-print of the manuscript is available at bioRxiv and can be [accessed here](https://www.biorxiv.org/content/early/2017/07/03/131953)
+
+This work was supported by:
+
+- European Union Framework Program 7, Project [BacHBERRY](www.bachberry.eu) *(FP7-613793)*;
+- [FCT](www.fct.pt), through IDMEC, under LAETA, projects *(UID/EMS/50022/2013)*;
+  - Susana Vinga acknowledges support by program
+ Investigador FCT *(IF/00653/2012)* from [FCT](www.fct.pt), co-funded by the European Social Fund *(ESF)* through the Operational Program Human Potential *(POPH)*;
+  - André Veríssimo acknowledges support from [FCT](www.fct.pt) *(SFRH/BD/97415/2013)*.
+
+We would like to thank *Dra. Cathie Martin* and *Dr. Philippe Vain* for reading the manuscript and providing us
+with important comments and insights. We would also like to thank *Dr. Aldo Ricardo Almeida Robles* and *Dr. Nuno Mira* for testing MassBlast.
