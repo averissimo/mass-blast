@@ -13,7 +13,7 @@ A pre-print of the manuscript describing this application is available at bioRxi
 
 *General description of the MassBlast workflow:*
 
-[![Pipeline of MassBlast](pipeline.png)](pipeline.png)
+[![Pipeline of MassBlast](docs/pipeline.png)](docs/pipeline.png)
 
 ## Install
 
