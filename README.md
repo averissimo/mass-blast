@@ -22,8 +22,10 @@ A pre-print of the manuscript describing this application is available at bioRxi
     - *check by running the command:* `blastn -version`
 1. Decompress MassBlast and it is ready to be used using the `mass-blast` script
 
-MassBlast *downloads* | [Windows](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-win32.zip) | [Mac OS X](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-osx.tar.gz) | [Linux](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-linux-x86_64.tar.gz)
-BLAST+ (pre-requirement)| [v2.2.30 (32-bit)](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/ncbi-blast-2.2.30+-win32.exe) | [v2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-macosx.tar.gz) | [2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz) |
+Software name | Windows       | Mac OS X | Linux |
+------------- | ------------- | -------- | ------|
+MassBlast *downloads* | [Download](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-win32.zip) | [Download](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-osx.tar.gz) | [Download](https://github.com/averissimo/mass-blast/releases/download/v0.9.13/mass-blast-0.9.13-linux-x86_64.tar.gz)
+BLAST+ (pre-requirement)|  [v2.2.30 (32-bit)](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.30/ncbi-blast-2.2.30+-win32.exe) | [v2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-macosx.tar.gz) | [2.6.0](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.6.0/ncbi-blast-2.6.0+-x64-linux.tar.gz)
 
 *BLAST+ important notes*
 
